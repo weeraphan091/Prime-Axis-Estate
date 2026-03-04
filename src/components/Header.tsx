@@ -85,7 +85,11 @@ export function Header() {
             ))}
           </nav>
 
-          <div className="hidden md:flex items-center gap-2">
+          <div className="flex items-center gap-2">
+            <div className="md:hidden flex items-center">
+              <LanguageSwitcher />
+            </div>
+            <div className="hidden md:flex items-center gap-2">
             <Link
               href={`${base}/favorites`}
               className="relative p-2 rounded-lg text-stone-600 hover:bg-stone-100 hover:text-red-500 transition"
@@ -117,6 +121,7 @@ export function Header() {
               <FilePlus className="w-4 h-4" />
               {t('nav.listProperty')}
             </Link>
+            </div>
           </div>
 
           <button
@@ -131,12 +136,6 @@ export function Header() {
 
         {mobileOpen && (
           <div className="md:hidden py-4 border-t border-stone-200">
-            <div className="mb-3 pb-3 border-b border-stone-100">
-              <div className="text-xs font-medium text-stone-500 mb-2 px-4">ภาษา / Language</div>
-              <div className="px-2">
-                <LanguageSwitcher />
-              </div>
-            </div>
             <div className="flex items-center gap-2 mb-3 text-sm">
               {user ? (
                 <>
