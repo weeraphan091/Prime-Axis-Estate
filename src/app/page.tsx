@@ -8,6 +8,9 @@ import { LatestListings } from '@/components/LatestListings'
 import { getPropertiesFromDb } from '@/lib/property-db'
 import { FilePlus, Shield, Home, Zap, MapPin } from 'lucide-react'
 
+// บังคับดึงข้อมูลใหม่ทุกครั้ง — แก้หลังบ้านแล้วหน้าแรกจะอัปเดต
+export const dynamic = 'force-dynamic'
+
 export default async function HomePage() {
   const dbList = await getPropertiesFromDb()
   const serverList = dbList.length > 0 ? dbList : staticProperties

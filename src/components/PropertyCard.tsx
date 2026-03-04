@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Bed, Bath, Maximize2, MapPin, BadgeCheck, Heart, GitCompare } from 'lucide-react'
@@ -19,12 +20,18 @@ function formatLeaseDateShort(ymd: string): string {
   return `${d} ${TH_MONTHS[(m - 1) % 12] ?? ''} ${y + 543}`
 }
 
+const PLACEHOLDER_IMG = 'https://placehold.co/600x400/f4f1de/1c1917?text=ไม่มีรูป'
+
 export function PropertyCard({ property }: { property: Property }) {
   const { isFavorite, isCompare, toggleFavorite, toggleCompare } = useFavorites()
-  const imgSrc = property.images[0] || 'https://placehold.co/600x400/f4f1de/1c1917?text=ไม่มีรูป'
-  const isDataUrl = imgSrc.startsWith('data:')
+  const images = Array.isArray(property.images) ? property.images : []
+  const imgSrc = images[0] || PLACEHOLDER_IMG
+  // ใช้ <img> สำหรับ data URL หรือ path ภายใน (/uploads/) — บน Vercel /uploads/ อาจไม่มี ใช้ placeholder แทน
+  const useImgTag = imgSrc.startsWith('data:') || imgSrc.startsWith('/')
   const fav = isFavorite(property.id)
   const comp = isCompare(property.id)
+  const [imgError, setImgError] = useState(false)
+  const effectiveSrc = useImgTag && imgError ? PLACEHOLDER_IMG : imgSrc
 
   const handleFav = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -44,15 +51,16 @@ export function PropertyCard({ property }: { property: Property }) {
       className="group block bg-white rounded-xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-lg hover:border-primary-200 transition-all duration-200"
     >
       <div className="relative aspect-[4/3] bg-stone-100 overflow-hidden">
-        {isDataUrl ? (
+        {useImgTag ? (
           <img
-            src={imgSrc}
+            src={effectiveSrc}
             alt={property.title}
             className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-300"
+            onError={() => setImgError(true)}
           />
         ) : (
           <Image
-            src={imgSrc}
+            src={effectiveSrc}
             alt={property.title}
             fill
             className="object-cover group-hover:scale-105 transition duration-300"

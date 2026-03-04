@@ -11,7 +11,9 @@ export async function GET() {
       orderBy: { updatedAt: 'desc' },
     })
     const properties: Property[] = list.map(prismaToProperty)
-    return NextResponse.json(properties)
+    const res = NextResponse.json(properties)
+    res.headers.set('Cache-Control', 'no-store, max-age=0')
+    return res
   } catch (e) {
     console.error(e)
     return NextResponse.json({ error: 'Failed to fetch' }, { status: 500 })

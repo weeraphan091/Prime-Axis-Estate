@@ -4,6 +4,9 @@ import { ListingsResults } from '@/components/ListingsResults'
 import { getPropertiesFromDb } from '@/lib/property-db'
 import { properties as staticProperties } from '@/data/properties'
 
+// บังคับดึงข้อมูลใหม่ทุกครั้ง — แก้หลังบ้านแล้วหน้ารายการจะอัปเดต
+export const dynamic = 'force-dynamic'
+
 export default async function ListingsPage() {
   const dbList = await getPropertiesFromDb()
   const serverProperties = dbList.length > 0 ? dbList : staticProperties
