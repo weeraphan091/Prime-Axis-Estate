@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     'ค้นหารายการขาย-เช่าคอนโด บ้าน วิลล่า ที่ดินพัทยา กรองตามประเภท ราคา โซน ทำเล',
   alternates: { canonical: `${getSiteUrl()}/listings` },
   openGraph: {
-    title: 'ค้นหาทรัพย์ ขาย-เช่า พัทยา | PRIME AXIS ESTATE',
+    title: 'ค้นหาทรัพย์ ขาย-เช่า พัทยา | Pattaya Estate Hub',
     description: 'ค้นหาคอนโด บ้าน วิลล่า ที่ดิน ขาย-เช่าในพัทยา',
     url: `${getSiteUrl()}/listings`,
   },

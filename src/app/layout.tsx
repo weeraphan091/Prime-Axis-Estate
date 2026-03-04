@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     'ขายคอนโดพัทยา',
     'เช่าบ้านพัทยา',
     'ฝากขายฝากเช่า',
-    'Prime Axis Estate',
+    'Pattaya Estate Hub',
   ],
   authors: [{ name: SITE_NAME }],
   creator: SITE_NAME,

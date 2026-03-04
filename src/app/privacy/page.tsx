@@ -7,7 +7,7 @@ export default function PrivacyPage() {
       <p className="mt-2 text-stone-500 text-sm">อัปเดตล่าสุด: มีนาคม 2568</p>
       <div className="mt-8 prose prose-stone max-w-none text-stone-600 space-y-4">
         <p>
-          PRIME AXIS ESTATE ให้ความสำคัญกับความเป็นส่วนตัวของผู้ใช้บริการ
+          Pattaya Estate Hub ให้ความสำคัญกับความเป็นส่วนตัวของผู้ใช้บริการ
           นโยบายนี้อธิบายการเก็บและใช้ข้อมูลของเรา
         </p>
         <h2 className="text-lg font-semibold text-stone-900 mt-6">ข้อมูลที่เรารวบรวม</h2>

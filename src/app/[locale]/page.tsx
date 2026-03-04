@@ -38,7 +38,7 @@ export default async function HomePage({ params }: Props) {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
           <div className="max-w-3xl">
             <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-normal leading-tight">
-              PRIME AXIS ESTATE
+              Pattaya Estate Hub
               <br />
               <span className="text-primary-200">{t('home.heroTitle')}</span>
             </h1>

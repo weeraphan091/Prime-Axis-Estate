@@ -14,7 +14,7 @@ export default async function AdminLayout({
         <header className="bg-white border-b border-stone-200 px-4 py-3">
           <div className="max-w-6xl mx-auto flex items-center justify-between flex-wrap gap-2">
             <Link href="/admin" className="font-display text-xl text-stone-800">
-              หลังบ้าน PRIME AXIS ESTATE
+              หลังบ้าน Pattaya Estate Hub
             </Link>
             <div className="flex items-center gap-4 flex-wrap">
               <span className="text-sm text-stone-500" title={currentAdmin.email}>

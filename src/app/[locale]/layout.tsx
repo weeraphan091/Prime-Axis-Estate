@@ -22,10 +22,10 @@ export async function generateMetadata({ params }: Props) {
     ru: 'Недвижимость Паттайи — Покупка, аренда, размещение',
   }
   const descriptions: Record<string, string> = {
-    th: 'PRIME AXIS ESTATE ค้นหาคอนโด บ้าน วิลล่า ที่ดินในพัทยา ขาย-เช่า ฝากขายฝากเช่า',
-    en: 'PRIME AXIS ESTATE — Condos, houses, villas, land in Pattaya. Buy, rent, list with us.',
-    zh: 'PRIME AXIS ESTATE — 芭堤雅公寓、别墅、土地。买卖、租赁、委托挂牌。',
-    ru: 'PRIME AXIS ESTATE — Кондо, дома, виллы, участки в Паттайе. Покупка, аренда, размещение.',
+    th: 'Pattaya Estate Hub ค้นหาคอนโด บ้าน วิลล่า ที่ดินในพัทยา ขาย-เช่า ฝากขายฝากเช่า',
+    en: 'Pattaya Estate Hub — Condos, houses, villas, land in Pattaya. Buy, rent, list with us.',
+    zh: 'Pattaya Estate Hub — 芭堤雅公寓、别墅、土地。买卖、租赁、委托挂牌。',
+    ru: 'Pattaya Estate Hub — Кондо, дома, виллы, участки в Паттайе. Покупка, аренда, размещение.',
   }
   const url = `${base}/${locale}`
   return {
@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props) {
       ),
     },
     openGraph: {
-      title: `PRIME AXIS ESTATE | ${titles[locale] ?? titles.th}`,
+      title: `Pattaya Estate Hub | ${titles[locale] ?? titles.th}`,
       description: descriptions[locale] ?? descriptions.th,
       url,
       locale: locale === 'zh' ? 'zh_CN' : locale === 'th' ? 'th_TH' : locale,

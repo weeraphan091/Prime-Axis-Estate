@@ -2,9 +2,9 @@
  * ข้อมูลติดต่อนายหน้า (เรา) — แก้ไขเบอร์/ไอดีตรงนี้แล้วจะอัปเดตทั้งเว็บ
  */
 export const agentContact = {
-  name: 'PRIME AXIS ESTATE',
+  name: 'Pattaya Estate Hub',
   phone: '038-xxx-xxx',
-  email: 'contact@primeaxisestate.com',
+  email: 'contact@pattayaestatehub.com',
   address: 'พัทยา ชลบุรี',
   /** Line OA ID ต้องมี @ เช่น @187umoiw */
   line: '@187umoiw',

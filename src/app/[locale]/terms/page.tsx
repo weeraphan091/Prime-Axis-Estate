@@ -8,7 +8,7 @@ export default async function TermsPage({ params }: { params: Promise<{ locale: 
       <h1 className="font-display text-2xl lg:text-3xl text-stone-900">Terms and Conditions</h1>
       <p className="mt-2 text-stone-500 text-sm">Last updated: March 2025</p>
       <div className="mt-8 prose prose-stone max-w-none text-stone-600 space-y-4">
-        <p>By using PRIME AXIS ESTATE you agree to these terms.</p>
+        <p>By using Pattaya Estate Hub you agree to these terms.</p>
         <h2 className="text-lg font-semibold text-stone-900 mt-6">1. Services</h2>
         <p>We provide a platform for real estate listings in Pattaya.</p>
         <h2 className="text-lg font-semibold text-stone-900 mt-6">2. Listing information</h2>

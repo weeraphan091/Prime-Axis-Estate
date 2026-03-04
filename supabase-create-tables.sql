@@ -110,9 +110,9 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 INSERT INTO "ContactSettings" ("id", "name", "phone", "email", "address", "line", "whatsapp", "wechat", "telegram", "updatedAt")
 VALUES (
   'default',
-  'PRIME AXIS ESTATE',
+  'Pattaya Estate Hub',
   '038-xxx-xxx',
-  'contact@primeaxisestate.com',
+  'contact@pattayaestatehub.com',
   'พัทยา ชลบุรี',
   '@187umoiw',
   '66812345678',

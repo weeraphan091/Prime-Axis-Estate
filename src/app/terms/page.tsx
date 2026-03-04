@@ -7,7 +7,7 @@ export default function TermsPage() {
       <p className="mt-2 text-stone-500 text-sm">อัปเดตล่าสุด: มีนาคม 2568</p>
       <div className="mt-8 prose prose-stone max-w-none text-stone-600 space-y-4">
         <p>
-          การใช้งานเว็บไซต์ PRIME AXIS ESTATE หมายความว่าท่านยอมรับข้อตกลงและเงื่อนไขการให้บริการนี้
+          การใช้งานเว็บไซต์ Pattaya Estate Hub หมายความว่าท่านยอมรับข้อตกลงและเงื่อนไขการให้บริการนี้
         </p>
         <h2 className="text-lg font-semibold text-stone-900 mt-6">1. การให้บริการ</h2>
         <p>

@@ -14,8 +14,8 @@ export function Footer({ locale }: { locale: Locale }) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
             <Link href={base} className="inline-flex items-center gap-2 mb-4">
-              <Image src="/logo.png" alt="PRIME AXIS ESTATE" width={36} height={36} className="object-contain" />
-              <h3 className="font-display text-lg text-white">PRIME AXIS ESTATE</h3>
+              <Image src="/logo.png" alt="Pattaya Estate Hub" width={36} height={36} className="object-contain" />
+              <h3 className="font-display text-lg text-white">Pattaya Estate Hub</h3>
             </Link>
             <p className="text-sm leading-relaxed">
               {t('footer.description')}
@@ -60,7 +60,7 @@ export function Footer({ locale }: { locale: Locale }) {
           <NewsletterForm />
         </div>
         <div className="mt-10 pt-8 border-t border-stone-700 text-center text-sm">
-          © {new Date().getFullYear()} PRIME AXIS ESTATE. {locale === 'th' ? 'สงวนลิขสิทธิ์' : locale === 'en' ? 'All rights reserved.' : locale === 'zh' ? '版权所有' : 'Все права защищены.'}
+          © {new Date().getFullYear()} Pattaya Estate Hub. {locale === 'th' ? 'สงวนลิขสิทธิ์' : locale === 'en' ? 'All rights reserved.' : locale === 'zh' ? '版权所有' : 'Все права защищены.'}
         </div>
       </div>
     </footer>

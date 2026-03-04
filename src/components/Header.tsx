@@ -62,9 +62,9 @@ export function Header() {
         </div>
         <div className="flex items-center justify-between h-14 lg:h-16">
           <Link href={base} className="flex items-center gap-2 hover:opacity-90 transition">
-            <Image src="/logo.png" alt="PRIME AXIS ESTATE" width={44} height={44} className="h-10 w-10 object-contain" />
+            <Image src="/logo.png" alt="Pattaya Estate Hub" width={44} height={44} className="h-10 w-10 object-contain" />
             <span className="font-display text-lg lg:text-xl text-stone-800 hidden sm:inline">
-              PRIME AXIS <span className="text-primary-600">ESTATE</span>
+              Pattaya Estate <span className="text-primary-600">Hub</span>
             </span>
           </Link>
 

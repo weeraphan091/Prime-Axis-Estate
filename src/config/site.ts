@@ -6,9 +6,9 @@ export function getSiteUrl(): string {
   if (typeof process.env.VERCEL_URL === 'string' && process.env.VERCEL_URL) {
     return `https://${process.env.VERCEL_URL}`
   }
-  return 'https://primeaxisestate.com'
+  return 'https://pattayaestatehub.com'
 }
 
-export const SITE_NAME = 'PRIME AXIS ESTATE'
+export const SITE_NAME = 'Pattaya Estate Hub'
 export const DEFAULT_DESCRIPTION =
-  'PRIME AXIS ESTATE นายหน้าอสังหาริมทรัพย์พัทยา ค้นหาคอนโด บ้าน วิลล่า ที่ดิน ขาย-เช่า ฝากขายฝากเช่า'
+  'Pattaya Estate Hub นายหน้าอสังหาริมทรัพย์พัทยา ค้นหาคอนโด บ้าน วิลล่า ที่ดิน ขาย-เช่า ฝากขายฝากเช่า'

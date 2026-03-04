@@ -39,7 +39,7 @@ export default function AdminLoginPage() {
     <div className="min-h-screen bg-stone-100 flex items-center justify-center px-4">
       <div className="w-full max-w-sm bg-white rounded-xl shadow-lg border border-stone-200 p-8">
         <h1 className="font-display text-2xl text-stone-900 text-center">หลังบ้าน</h1>
-        <p className="text-center text-stone-500 text-sm mt-1">PRIME AXIS ESTATE</p>
+        <p className="text-center text-stone-500 text-sm mt-1">Pattaya Estate Hub</p>
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1">อีเมล</label>

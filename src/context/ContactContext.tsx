@@ -22,9 +22,9 @@ type ContactContextType = {
 }
 
 const defaultContact: ContactData = {
-  name: 'PRIME AXIS ESTATE',
+  name: 'Pattaya Estate Hub',
   phone: '038-xxx-xxx',
-  email: 'contact@primeaxisestate.com',
+  email: 'contact@pattayaestatehub.com',
   address: 'พัทยา ชลบุรี',
   line: '@187umoiw',
   whatsapp: '66812345678',
