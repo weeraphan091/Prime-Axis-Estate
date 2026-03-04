@@ -33,3 +33,6 @@ Thumbs.db
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# SQL ที่มีรหัสแฮชแอดมิน (ไม่ push ขึ้น Git)
+รันใน-Supabase-สร้างแอดมินแรก.sql

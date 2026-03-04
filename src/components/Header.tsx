@@ -29,6 +29,9 @@ export function Header() {
           <span className="font-medium text-stone-700">THB ฿</span>
           {user ? (
             <>
+              <Link href="/my-listings" className="hover:text-primary-600 py-1 px-2 -m-2 rounded">
+                รายการของฉัน
+              </Link>
               <span className="text-stone-600">{user.name || user.email}</span>
               <button type="button" onClick={() => logout()} className="hover:text-primary-600 py-1 px-2 -m-2 rounded">
                 ออกจากระบบ
@@ -120,6 +123,13 @@ export function Header() {
             <div className="flex items-center gap-2 mb-3 text-sm">
               {user ? (
                 <>
+                  <Link
+                    href="/my-listings"
+                    onClick={() => setMobileOpen(false)}
+                    className="text-primary-600 py-2 px-3 rounded-lg hover:bg-primary-50 -mx-1"
+                  >
+                    รายการของฉัน
+                  </Link>
                   <span className="text-stone-600 py-2 px-3">{user.name || user.email}</span>
                   <button
                     type="button"

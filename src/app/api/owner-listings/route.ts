@@ -42,7 +42,7 @@ export async function POST(request: Request) {
       floors: (body.propertyType === 'house' || body.propertyType === 'villa') && body.floors != null && body.floors !== '' ? Number(body.floors) : undefined,
       createdAt: now,
     }
-    const data = propertyToPrisma(payload)
+    const data = { ...propertyToPrisma(payload), userId: session.userId }
     const created = await prisma.property.create({
       data: data as Parameters<typeof prisma.property.create>[0]['data'],
     })

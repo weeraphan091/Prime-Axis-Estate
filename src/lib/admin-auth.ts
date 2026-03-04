@@ -4,9 +4,17 @@ import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 
 const ADMIN_COOKIE = 'admin_session'
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.ADMIN_SESSION_SECRET || process.env.SESSION_SECRET || 'admin-secret-change-in-production'
-)
+const DEFAULT_SECRET = 'admin-secret-change-in-production'
+
+function getJwtSecret(): Uint8Array | null {
+  const raw =
+    process.env.ADMIN_SESSION_SECRET ||
+    process.env.SESSION_SECRET ||
+    (process.env.NODE_ENV === 'production' ? '' : DEFAULT_SECRET)
+  if (!raw || raw.length < 32) return null
+  return new TextEncoder().encode(raw)
+}
+
 const JWT_EXP = '7d'
 
 export type AdminSession = {
@@ -38,7 +46,14 @@ export async function verifyAdminCredentials(email: string, password: string): P
   }
 }
 
-export async function setAdminSession(session: AdminSession): Promise<void> {
+export async function setAdminSession(session: AdminSession): Promise<boolean> {
+  const secret = getJwtSecret()
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      console.error('[admin-auth] Production ต้องตั้ง ADMIN_SESSION_SECRET หรือ SESSION_SECRET ใน .env (อย่างน้อย 32 ตัวอักษร)')
+    }
+    return false
+  }
   const cookieStore = await cookies()
   const token = await new SignJWT({
     id: session.id,
@@ -48,7 +63,7 @@ export async function setAdminSession(session: AdminSession): Promise<void> {
   })
     .setProtectedHeader({ alg: 'HS256' })
     .setExpirationTime(JWT_EXP)
-    .sign(JWT_SECRET)
+    .sign(secret)
   cookieStore.set(ADMIN_COOKIE, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
@@ -56,6 +71,7 @@ export async function setAdminSession(session: AdminSession): Promise<void> {
     maxAge: 60 * 60 * 24 * 7, // 7 days
     path: '/',
   })
+  return true
 }
 
 export async function clearAdminSession(): Promise<void> {
@@ -64,11 +80,13 @@ export async function clearAdminSession(): Promise<void> {
 }
 
 export async function getCurrentAdmin(): Promise<AdminSession | null> {
+  const secret = getJwtSecret()
+  if (!secret) return null
   const cookieStore = await cookies()
   const token = cookieStore.get(ADMIN_COOKIE)?.value
   if (!token) return null
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET)
+    const { payload } = await jwtVerify(token, secret)
     const email = String(payload.email ?? '')
     const name = String(payload.name ?? payload.email ?? '')
     return {

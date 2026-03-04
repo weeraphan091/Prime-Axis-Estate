@@ -47,6 +47,7 @@ export default function PropertyDetailPage() {
         if (cancelled) return
         if (data) {
           setProperty(data)
+          fetch(`/api/properties/${id}/view`, { method: 'POST' }).catch(() => {})
           return
         }
         const fromStatic = staticProperties.find((p) => p.id === id)

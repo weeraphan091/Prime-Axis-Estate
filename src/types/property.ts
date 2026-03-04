@@ -51,6 +51,10 @@ export interface Property {
   roomNumber?: string
   /** บ้าน/วิลล่า: จำนวนชั้น (1 หรือ 2) */
   floors?: number
+  /** จำนวนครั้งที่有人เปิดหน้ารายละเอียด */
+  viewCount?: number
+  /** id สมาชิกที่ฝากขาย (เจ้าของรายการ) */
+  userId?: string
   createdAt: string
 }
 

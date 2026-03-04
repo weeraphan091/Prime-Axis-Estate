@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { hasAdminSession } from '@/lib/admin-auth'
+import { canAccessSettings } from '@/lib/admin-auth'
 import { agentContact } from '@/config/contact'
 
 const DEFAULT_ID = 'default'
@@ -51,7 +51,7 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
-  const ok = await hasAdminSession()
+  const ok = await canAccessSettings()
   if (!ok) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }

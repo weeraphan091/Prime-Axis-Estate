@@ -42,6 +42,8 @@ export function prismaToProperty(p: PrismaProperty): Property {
     floor: p.floor ?? undefined,
     roomNumber: p.roomNumber ?? undefined,
     floors: p.floors ?? undefined,
+    viewCount: p.viewCount ?? 0,
+    userId: p.userId ?? undefined,
     createdAt: p.createdAt,
   }
 }
@@ -77,6 +79,8 @@ export function propertyToPrisma(p: Omit<Property, 'id'> & { id?: string }) {
     floor: p.floor ?? null,
     roomNumber: p.roomNumber ?? null,
     floors: p.floors ?? null,
+    viewCount: p.viewCount ?? 0,
+    userId: p.userId ?? null,
     createdAt: p.createdAt,
     updatedAt: new Date().toISOString().slice(0, 10),
   }
