@@ -1,0 +1,51 @@
+export type ListingType = 'sale' | 'rent'
+
+export type PropertyType =
+  | 'condo'
+  | 'house'
+  | 'villa'
+  | 'apartment'
+  | 'land'
+  | 'commercial'
+
+export interface Property {
+  id: string
+  title: string
+  listingType: ListingType
+  propertyType: PropertyType
+  price: number
+  priceLabel?: string // e.g. "ต่อเดือน" for rent
+  location: string
+  /** ลิงก์ Google Map (คัดลอกจาก Google Maps ใส่ได้เลย) */
+  mapUrl?: string
+  area: number // sqm
+  bedrooms?: number
+  bathrooms?: number
+  images: string[]
+  description: string
+  features: string[]
+  contactName: string
+  contactPhone: string
+  contactEmail: string
+  isFeatured?: boolean
+  isOwnerListing?: boolean
+  createdAt: string
+}
+
+export interface ListPropertyForm {
+  listingType: ListingType
+  propertyType: PropertyType
+  title: string
+  description: string
+  price: number
+  priceLabel?: string
+  location: string
+  area: number
+  bedrooms?: number
+  bathrooms?: number
+  features: string[]
+  contactName: string
+  contactPhone: string
+  contactEmail: string
+  images?: File[] | string[]
+}

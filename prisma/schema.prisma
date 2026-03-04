@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Property {
+  id             String   @id @default(cuid())
+  title          String
+  listingType    String   // sale | rent
+  propertyType   String   // condo | house | villa | ...
+  price          Int
+  priceLabel     String?  // e.g. ต่อเดือน
+  location       String
+  mapUrl         String?
+  area           Int      // ตร.ม.
+  bedrooms       Int?
+  bathrooms      Int?
+  images         String   // JSON array of URLs
+  description    String
+  features       String   // JSON array
+  contactName    String
+  contactPhone   String
+  contactEmail   String
+  isFeatured     Boolean  @default(false)
+  isOwnerListing Boolean  @default(false)
+  createdAt      String
+  updatedAt      String
+}
+
+model ContactSettings {
+  id        String   @id @default("default")
+  name      String
+  phone     String
+  email     String
+  address   String
+  line      String
+  whatsapp  String
+  wechat    String
+  telegram  String
+  updatedAt String
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  phone        String?
+  createdAt    String
+  updatedAt    String
+}
+
