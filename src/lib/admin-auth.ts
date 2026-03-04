@@ -18,10 +18,16 @@ export type AdminSession = {
 
 export async function verifyAdminCredentials(email: string, password: string): Promise<AdminSession | null> {
   const emailNorm = email.trim().toLowerCase()
-  const admin = await prisma.adminUser.findUnique({
-    where: { email: emailNorm, isActive: true },
-  })
-  if (!admin) return null
+  let admin: { id: string; email: string; name: string; role: string; passwordHash: string; isActive: boolean } | null = null
+  try {
+    admin = await prisma.adminUser.findUnique({
+      where: { email: emailNorm },
+    })
+  } catch {
+    // ตาราง AdminUser ยังไม่มี (ยังไม่ได้รัน migration) — ไม่ให้ crash
+    return null
+  }
+  if (!admin || !admin.isActive) return null
   const ok = await bcrypt.compare(password, admin.passwordHash)
   if (!ok) return null
   return {
