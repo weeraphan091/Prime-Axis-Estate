@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { hasAdminSession, canManageAdminUsers } from '@/lib/admin-auth'
 import { prisma } from '@/lib/prisma'
-import { List, PlusCircle, Phone, Users, MessageSquare, Download, UserCheck, UserCog } from 'lucide-react'
+import { List, PlusCircle, Phone, Users, MessageSquare, Download, UserCheck, UserCog, Eye, TrendingUp } from 'lucide-react'
 
 export default async function AdminHomePage() {
   if (!(await hasAdminSession())) redirect('/admin/login')
@@ -14,12 +14,24 @@ export default async function AdminHomePage() {
   let newLeadsThisWeek = 0
   let totalAgents = 0
   let totalMembers = 0
+  let topByViews: { id: string; title: string; viewCount: number }[] = []
+  let topByLeads: { id: string; title: string; leadCount: number }[] = []
   try {
-    const [listings, leads, agents, memberCount] = await Promise.all([
+    const [listings, leads, agents, memberCount, allProps, leadCounts] = await Promise.all([
       prisma.property.findMany({ select: { id: true, status: true, createdAt: true } }),
-      prisma.lead.findMany({ select: { id: true, createdAt: true } }),
+      prisma.lead.findMany({ select: { id: true, createdAt: true, propertyId: true } }),
       prisma.agent.count(),
       prisma.user.count(),
+      prisma.property.findMany({
+        where: { status: 'published' },
+        select: { id: true, title: true, viewCount: true },
+        orderBy: { viewCount: 'desc' },
+        take: 5,
+      }),
+      prisma.lead.groupBy({
+        by: ['propertyId'],
+        _count: { id: true },
+      }),
     ])
     totalListings = listings.length
     publishedListings = listings.filter((p) => p.status === 'published').length
@@ -30,6 +42,21 @@ export default async function AdminHomePage() {
     newLeadsThisWeek = leads.filter((l) => l.createdAt >= weekAgoStr).length
     totalAgents = agents
     totalMembers = memberCount
+    topByViews = allProps.map((p) => ({ id: p.id, title: p.title, viewCount: p.viewCount ?? 0 }))
+    const sortedLeads = [...leadCounts].sort((a, b) => b._count.id - a._count.id).slice(0, 5)
+    const topLeadIds = sortedLeads.map((l) => l.propertyId)
+    if (topLeadIds.length > 0) {
+      const props = await prisma.property.findMany({
+        where: { id: { in: topLeadIds } },
+        select: { id: true, title: true },
+      })
+      const byId = new Map(props.map((p) => [p.id, p.title]))
+      topByLeads = sortedLeads.map((l) => ({
+        id: l.propertyId,
+        title: byId.get(l.propertyId) ?? '(ลบแล้ว)',
+        leadCount: l._count.id,
+      }))
+    }
   } catch {
     // DB error - show 0
   }
@@ -57,6 +84,72 @@ export default async function AdminHomePage() {
         <div className="bg-white rounded-xl border border-stone-200 p-4">
           <p className="text-sm text-stone-500">สมาชิก</p>
           <p className="text-2xl font-bold text-stone-900">{totalMembers}</p>
+        </div>
+      </div>
+
+      {/* ความเคลื่อนไหวแต่ละทรัพย์ */}
+      <div className="mt-8">
+        <h2 className="font-display text-lg text-stone-800 mb-4 flex items-center gap-2">
+          <TrendingUp className="w-5 h-5 text-primary-600" />
+          ความเคลื่อนไหวรายการ
+        </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+            <div className="px-4 py-3 bg-stone-50 border-b border-stone-200 flex items-center gap-2 text-sm font-semibold text-stone-700">
+              <Eye className="w-4 h-4 text-stone-500" />
+              รายการที่ถูกดูมากที่สุด
+            </div>
+            <ul className="divide-y divide-stone-100">
+              {topByViews.length === 0 ? (
+                <li className="px-4 py-6 text-center text-stone-500 text-sm">ยังไม่มีข้อมูล</li>
+              ) : (
+                topByViews.map((p) => (
+                  <li key={p.id}>
+                    <Link
+                      href={`/admin/listings/${p.id}/edit`}
+                      className="flex items-center justify-between px-4 py-3 hover:bg-stone-50 text-sm"
+                    >
+                      <span className="text-stone-800 line-clamp-1 pr-2">{p.title}</span>
+                      <span className="text-stone-500 shrink-0">{p.viewCount} ครั้ง</span>
+                    </Link>
+                  </li>
+                ))
+              )}
+            </ul>
+            <div className="px-4 py-2 border-t border-stone-100 text-right">
+              <Link href="/admin/listings" className="text-xs text-primary-600 hover:underline">
+                ดูทั้งหมด →
+              </Link>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+            <div className="px-4 py-3 bg-stone-50 border-b border-stone-200 flex items-center gap-2 text-sm font-semibold text-stone-700">
+              <MessageSquare className="w-4 h-4 text-stone-500" />
+              รายการที่มีคนสนใจมากที่สุด
+            </div>
+            <ul className="divide-y divide-stone-100">
+              {topByLeads.length === 0 ? (
+                <li className="px-4 py-6 text-center text-stone-500 text-sm">ยังไม่มีลีด</li>
+              ) : (
+                topByLeads.map((p) => (
+                  <li key={p.id}>
+                    <Link
+                      href={`/admin/leads?propertyId=${p.id}`}
+                      className="flex items-center justify-between px-4 py-3 hover:bg-stone-50 text-sm"
+                    >
+                      <span className="text-stone-800 line-clamp-1 pr-2">{p.title}</span>
+                      <span className="text-primary-600 shrink-0 font-medium">{p.leadCount} คน</span>
+                    </Link>
+                  </li>
+                ))
+              )}
+            </ul>
+            <div className="px-4 py-2 border-t border-stone-100 text-right">
+              <Link href="/admin/leads" className="text-xs text-primary-600 hover:underline">
+                ดูลีดทั้งหมด →
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
 

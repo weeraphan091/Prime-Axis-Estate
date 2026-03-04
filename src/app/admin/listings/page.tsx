@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma'
 import { prismaToProperty } from '@/lib/property-db'
 import { propertyTypeLabels, listingTypeLabels } from '@/data/properties'
 import type { Property } from '@/types/property'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Trash2, Eye, MessageCircle } from 'lucide-react'
 import { AdminDeleteButton } from './AdminDeleteButton'
 
 function formatPrice(price: number) {
@@ -16,14 +16,26 @@ export default async function AdminListingsPage() {
   const ok = await hasAdminSession()
   if (!ok) redirect('/admin/login')
 
-  let properties: (Property & { agentName?: string })[] = []
+  let properties: (Property & { agentName?: string; viewCount?: number; leadCount?: number })[] = []
   let dbError = false
   try {
-    const list = await prisma.property.findMany({
-      orderBy: { updatedAt: 'desc' },
-      include: { agent: { select: { name: true } } },
-    })
-    properties = list.map((p) => ({ ...prismaToProperty(p), agentName: p.agent?.name }))
+    const [list, leadCounts] = await Promise.all([
+      prisma.property.findMany({
+        orderBy: { updatedAt: 'desc' },
+        include: { agent: { select: { name: true } } },
+      }),
+      prisma.lead.groupBy({
+        by: ['propertyId'],
+        _count: { id: true },
+      }),
+    ])
+    const leadMap = new Map(leadCounts.map((l) => [l.propertyId, l._count.id]))
+    properties = list.map((p) => ({
+      ...prismaToProperty(p),
+      agentName: p.agent?.name,
+      viewCount: p.viewCount ?? 0,
+      leadCount: leadMap.get(p.id) ?? 0,
+    }))
   } catch (e) {
     console.error('[Admin listings] DB error:', e)
     dbError = true
@@ -62,6 +74,8 @@ export default async function AdminListingsPage() {
                 <th className="text-left p-3 font-semibold text-stone-700">ราคา</th>
                 <th className="text-left p-3 font-semibold text-stone-700">ทำเล</th>
                 <th className="text-left p-3 font-semibold text-stone-700">สถานะ</th>
+                <th className="text-center p-3 font-semibold text-stone-700" title="จำนวนการดู">ดู</th>
+                <th className="text-center p-3 font-semibold text-stone-700" title="คนกดสนใจ">สนใจ</th>
                 <th className="text-left p-3 font-semibold text-stone-700">พนักงาน</th>
                 <th className="text-left p-3 font-semibold text-stone-700">อัปเดต</th>
                 <th className="text-right p-3 font-semibold text-stone-700">จัดการ</th>
@@ -82,6 +96,25 @@ export default async function AdminListingsPage() {
                     <span className={p.status === 'published' ? 'text-green-600' : p.status === 'draft' ? 'text-amber-600' : 'text-stone-400'}>
                       {p.status === 'published' ? 'เผยแพร่' : p.status === 'draft' ? 'แบบร่าง' : 'ขาย/เช่าแล้ว'}
                     </span>
+                  </td>
+                  <td className="p-3 text-center text-stone-600" title="จำนวนครั้งที่เปิดดู">
+                    <span className="inline-flex items-center gap-1">
+                      <Eye className="w-3.5 h-3.5 text-stone-400" />
+                      {p.viewCount ?? 0}
+                    </span>
+                  </td>
+                  <td className="p-3 text-center text-stone-600" title="จำนวนคนกดสนใจทรัพย์">
+                    {p.leadCount ? (
+                      <Link href={`/admin/leads?propertyId=${p.id}`} className="inline-flex items-center gap-1 text-primary-600 hover:underline">
+                        <MessageCircle className="w-3.5 h-3.5" />
+                        {p.leadCount}
+                      </Link>
+                    ) : (
+                      <span className="inline-flex items-center gap-1">
+                        <MessageCircle className="w-3.5 h-3.5 text-stone-300" />
+                        0
+                      </span>
+                    )}
                   </td>
                   <td className="p-3 text-stone-500">{p.agentName ?? '—'}</td>
                   <td className="p-3 text-stone-500">{p.createdAt}</td>
