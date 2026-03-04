@@ -45,6 +45,7 @@ export default function ListYourPropertyPage() {
     listingType: 'sale' as ListingType,
     propertyType: 'condo' as PropertyType,
     title: '',
+    projectName: '',
     description: '',
     price: '',
     priceLabel: '',
@@ -57,6 +58,14 @@ export default function ListYourPropertyPage() {
     contactName: '',
     contactPhone: '',
     contactEmail: '',
+    contactLine: '',
+    contactWhatsapp: '',
+    floor: '',
+    roomNumber: '',
+    floors: '',
+    rentOccupied: false,
+    rentLeaseStart: '',
+    rentLeaseEnd: '',
   })
 
   useEffect(() => {
@@ -133,6 +142,7 @@ export default function ListYourPropertyPage() {
         : []
       const payload = {
         title: form.title,
+        projectName: form.projectName?.trim() || undefined,
         listingType: form.listingType,
         propertyType: form.propertyType,
         price: Number(form.price),
@@ -148,6 +158,14 @@ export default function ListYourPropertyPage() {
         contactName: form.contactName,
         contactPhone: form.contactPhone,
         contactEmail: form.contactEmail,
+        contactLine: form.contactLine?.trim() || undefined,
+        contactWhatsapp: form.contactWhatsapp?.trim() || undefined,
+        floor: (form.propertyType === 'condo' || form.propertyType === 'apartment') && form.floor !== '' ? Number(form.floor) : undefined,
+        roomNumber: (form.propertyType === 'condo' || form.propertyType === 'apartment') && form.roomNumber ? form.roomNumber : undefined,
+        floors: (form.propertyType === 'house' || form.propertyType === 'villa') && form.floors !== '' ? Number(form.floors) : undefined,
+        rentOccupied: form.listingType === 'rent' ? form.rentOccupied : false,
+        rentLeaseStart: form.listingType === 'rent' && form.rentLeaseStart ? form.rentLeaseStart : undefined,
+        rentLeaseEnd: form.listingType === 'rent' && form.rentLeaseEnd ? form.rentLeaseEnd : undefined,
       }
       const res = await fetch('/api/owner-listings', {
         method: 'POST',
@@ -170,7 +188,7 @@ export default function ListYourPropertyPage() {
     }
   }
 
-  const update = (key: string, value: string | number) => {
+  const update = (key: string, value: string | number | boolean) => {
     setForm((prev) => ({ ...prev, [key]: value }))
   }
 
@@ -322,6 +340,18 @@ export default function ListYourPropertyPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-1.5">
+                ชื่อโปรเจ็ค/โครงการ
+              </label>
+              <input
+                type="text"
+                placeholder="เช่น ซี บี ดี พัทยา, หมู่บ้านสุขสันต์"
+                value={form.projectName}
+                onChange={(e) => update('projectName', e.target.value)}
+                className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-1.5">
                 รายละเอียด *
               </label>
               <textarea
@@ -363,6 +393,42 @@ export default function ListYourPropertyPage() {
                 </div>
               )}
             </div>
+            {form.listingType === 'rent' && (
+              <div className="border-t border-stone-200 pt-4 mt-4 space-y-4">
+                <h3 className="text-sm font-medium text-stone-800">ข้อมูลสัญญาเช่า (ลูกค้าวางแผนหาห้องล่วงหน้า)</h3>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={form.rentOccupied}
+                    onChange={(e) => update('rentOccupied', e.target.checked)}
+                    className="rounded border-stone-300"
+                  />
+                  <span className="text-sm">เช่าอยู่แล้ว — ระบุระยะสัญญาด้านล่าง</span>
+                </label>
+                {(form.rentOccupied || form.rentLeaseStart || form.rentLeaseEnd) && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-stone-700 mb-1">วันที่เริ่มสัญญา</label>
+                      <input
+                        type="date"
+                        value={form.rentLeaseStart}
+                        onChange={(e) => update('rentLeaseStart', e.target.value)}
+                        className="w-full px-4 py-2.5 border border-stone-300 rounded-lg outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-stone-700 mb-1">วันที่สิ้นสุดสัญญา</label>
+                      <input
+                        type="date"
+                        value={form.rentLeaseEnd}
+                        onChange={(e) => update('rentLeaseEnd', e.target.value)}
+                        className="w-full px-4 py-2.5 border border-stone-300 rounded-lg outline-none"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </section>
 
@@ -440,6 +506,45 @@ export default function ListYourPropertyPage() {
                 className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
               />
             </div>
+            {(form.propertyType === 'condo' || form.propertyType === 'apartment') && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-stone-700 mb-1.5">ชั้น</label>
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="เช่น 5"
+                    value={form.floor}
+                    onChange={(e) => update('floor', e.target.value)}
+                    className="w-full px-4 py-2.5 border border-stone-300 rounded-lg outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-stone-700 mb-1.5">เลขห้อง</label>
+                  <input
+                    type="text"
+                    placeholder="เช่น 301, A-502"
+                    value={form.roomNumber}
+                    onChange={(e) => update('roomNumber', e.target.value)}
+                    className="w-full px-4 py-2.5 border border-stone-300 rounded-lg outline-none"
+                  />
+                </div>
+              </>
+            )}
+            {(form.propertyType === 'house' || form.propertyType === 'villa') && (
+              <div>
+                <label className="block text-sm font-medium text-stone-700 mb-1.5">จำนวนชั้นของบ้าน</label>
+                <select
+                  value={form.floors}
+                  onChange={(e) => update('floors', e.target.value)}
+                  className="w-full px-4 py-2.5 border border-stone-300 rounded-lg outline-none"
+                >
+                  <option value="">— เลือก —</option>
+                  <option value="1">1 ชั้น</option>
+                  <option value="2">2 ชั้น</option>
+                </select>
+              </div>
+            )}
           </div>
           <div className="mt-4">
             <label className="block text-sm font-medium text-stone-700 mb-1.5">
@@ -498,6 +603,30 @@ export default function ListYourPropertyPage() {
                 value={form.contactEmail}
                 onChange={(e) => update('contactEmail', e.target.value)}
                 className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-1.5">
+                Line ID (ไม่บังคับ)
+              </label>
+              <input
+                type="text"
+                placeholder="เช่น @username"
+                value={form.contactLine}
+                onChange={(e) => update('contactLine', e.target.value)}
+                className="w-full px-4 py-2.5 border border-stone-300 rounded-lg outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-1.5">
+                WhatsApp (ไม่บังคับ)
+              </label>
+              <input
+                type="text"
+                placeholder="เบอร์พร้อมรหัสประเทศ"
+                value={form.contactWhatsapp}
+                onChange={(e) => update('contactWhatsapp', e.target.value)}
+                className="w-full px-4 py-2.5 border border-stone-300 rounded-lg outline-none"
               />
             </div>
           </div>

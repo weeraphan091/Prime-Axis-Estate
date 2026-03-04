@@ -13,6 +13,7 @@ export async function POST(request: Request) {
     const now = new Date().toISOString().slice(0, 10)
     const payload = {
       title: body.title,
+      projectName: body.projectName?.trim() || undefined,
       listingType: body.listingType || 'sale',
       propertyType: body.propertyType || 'condo',
       price: Number(body.price) || 0,
@@ -28,10 +29,17 @@ export async function POST(request: Request) {
       contactName: body.contactName || '',
       contactPhone: body.contactPhone || '',
       contactEmail: body.contactEmail || '',
-      contactLine: body.contactLine || undefined,
-      contactWhatsapp: body.contactWhatsapp || undefined,
+      contactLine: body.contactLine?.trim() || undefined,
+      contactWhatsapp: body.contactWhatsapp?.trim() || undefined,
       isFeatured: false,
       isOwnerListing: true,
+      status: 'published',
+      rentOccupied: body.listingType === 'rent' ? !!body.rentOccupied : false,
+      rentLeaseStart: body.listingType === 'rent' && body.rentLeaseStart ? String(body.rentLeaseStart).slice(0, 10) : undefined,
+      rentLeaseEnd: body.listingType === 'rent' && body.rentLeaseEnd ? String(body.rentLeaseEnd).slice(0, 10) : undefined,
+      floor: (body.propertyType === 'condo' || body.propertyType === 'apartment') && body.floor != null && body.floor !== '' ? Number(body.floor) : undefined,
+      roomNumber: (body.propertyType === 'condo' || body.propertyType === 'apartment') && body.roomNumber ? String(body.roomNumber).trim() : undefined,
+      floors: (body.propertyType === 'house' || body.propertyType === 'villa') && body.floors != null && body.floors !== '' ? Number(body.floors) : undefined,
       createdAt: now,
     }
     const data = propertyToPrisma(payload)
