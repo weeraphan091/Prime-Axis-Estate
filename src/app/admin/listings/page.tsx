@@ -16,13 +16,14 @@ export default async function AdminListingsPage() {
   const ok = await hasAdminSession()
   if (!ok) redirect('/admin/login')
 
-  let properties: Property[] = []
+  let properties: (Property & { agentName?: string })[] = []
   let dbError = false
   try {
     const list = await prisma.property.findMany({
       orderBy: { updatedAt: 'desc' },
+      include: { agent: { select: { name: true } } },
     })
-    properties = list.map(prismaToProperty)
+    properties = list.map((p) => ({ ...prismaToProperty(p), agentName: p.agent?.name }))
   } catch (e) {
     console.error('[Admin listings] DB error:', e)
     dbError = true
@@ -60,6 +61,8 @@ export default async function AdminListingsPage() {
                 <th className="text-left p-3 font-semibold text-stone-700">ประเภท</th>
                 <th className="text-left p-3 font-semibold text-stone-700">ราคา</th>
                 <th className="text-left p-3 font-semibold text-stone-700">ทำเล</th>
+                <th className="text-left p-3 font-semibold text-stone-700">สถานะ</th>
+                <th className="text-left p-3 font-semibold text-stone-700">พนักงาน</th>
                 <th className="text-left p-3 font-semibold text-stone-700">อัปเดต</th>
                 <th className="text-right p-3 font-semibold text-stone-700">จัดการ</th>
               </tr>
@@ -75,6 +78,12 @@ export default async function AdminListingsPage() {
                   <td className="p-3">{listingTypeLabels[p.listingType]} · {propertyTypeLabels[p.propertyType]}</td>
                   <td className="p-3">{formatPrice(p.price)}{p.priceLabel ? ` ${p.priceLabel}` : ''}</td>
                   <td className="p-3">{p.location}</td>
+                  <td className="p-3">
+                    <span className={p.status === 'published' ? 'text-green-600' : p.status === 'draft' ? 'text-amber-600' : 'text-stone-400'}>
+                      {p.status === 'published' ? 'เผยแพร่' : p.status === 'draft' ? 'แบบร่าง' : 'ขาย/เช่าแล้ว'}
+                    </span>
+                  </td>
+                  <td className="p-3 text-stone-500">{p.agentName ?? '—'}</td>
                   <td className="p-3 text-stone-500">{p.createdAt}</td>
                   <td className="p-3 text-right">
                     <div className="flex items-center justify-end gap-2">

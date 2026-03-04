@@ -1,11 +1,13 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ImagePlus, X } from 'lucide-react'
 import { propertyTypeLabels } from '@/data/properties'
 import type { Property } from '@/types/property'
+
+type Agent = { id: string; name: string; phone: string; email: string; lineId: string | null; isActive: boolean }
 
 const listingTypes = [
   { value: 'sale', label: 'ขาย' },
@@ -54,7 +56,17 @@ export function AdminListingForm({ initial }: Props) {
     contactWhatsapp: initial?.contactWhatsapp ?? '',
     isFeatured: initial?.isFeatured ?? false,
     isOwnerListing: initial?.isOwnerListing ?? false,
+    status: initial?.status ?? 'published',
+    agentId: initial?.agentId ?? '',
   })
+  const [agents, setAgents] = useState<Agent[]>([])
+
+  useEffect(() => {
+    fetch('/api/agents')
+      .then((r) => r.ok ? r.json() : [])
+      .then(setAgents)
+      .catch(() => setAgents([]))
+  }, [])
 
   const update = (key: string, value: string | number | boolean) => {
     setForm((prev) => ({ ...prev, [key]: value }))
@@ -106,6 +118,8 @@ export function AdminListingForm({ initial }: Props) {
         contactWhatsapp: form.contactWhatsapp || undefined,
         isFeatured: form.isFeatured,
         isOwnerListing: form.isOwnerListing,
+        status: form.status || 'published',
+        agentId: form.agentId || undefined,
         createdAt: initial?.createdAt ?? new Date().toISOString().slice(0, 10),
       }
       const url = initial ? `/api/properties/${initial.id}` : '/api/properties'
@@ -374,6 +388,33 @@ export function AdminListingForm({ initial }: Props) {
               placeholder="66812345678 (ใส่เบอร์พร้อม country code)"
               className="w-full px-4 py-2.5 border border-stone-300 rounded-lg outline-none"
             />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-stone-700 mb-1">สถานะรายการ</label>
+            <select
+              value={form.status}
+              onChange={(e) => update('status', e.target.value)}
+              className="w-full px-4 py-2.5 border border-stone-300 rounded-lg outline-none"
+            >
+              <option value="draft">แบบร่าง (ไม่โชว์ในเว็บ)</option>
+              <option value="published">เผยแพร่</option>
+              <option value="sold_rented">ขายแล้ว/เช่าแล้ว</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-stone-700 mb-1">พนักงานรับผิดชอบ</label>
+            <select
+              value={form.agentId}
+              onChange={(e) => update('agentId', e.target.value)}
+              className="w-full px-4 py-2.5 border border-stone-300 rounded-lg outline-none"
+            >
+              <option value="">— ไม่ระบุ —</option>
+              {agents.filter((a) => a.isActive).map((a) => (
+                <option key={a.id} value={a.id}>{a.name}</option>
+              ))}
+            </select>
           </div>
         </div>
         <div className="flex gap-6">

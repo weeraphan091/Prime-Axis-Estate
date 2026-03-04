@@ -2,9 +2,25 @@
 -- คัดลอกทั้งหมดแล้วไปวางที่ https://supabase.com/dashboard/project/liyjjuqzsvgwwopvcdko/sql/new
 
 -- ลบตารางเก่าถ้ามี (ถ้าเป็นครั้งแรกรัน ไม่มีผล)
+-- ถ้ามีข้อมูลอยู่แล้ว ใช้ supabase-migration-leads-agents-status.sql แทน
+DROP TABLE IF EXISTS "Lead";
 DROP TABLE IF EXISTS "Property";
+DROP TABLE IF EXISTS "Agent";
 DROP TABLE IF EXISTS "ContactSettings";
 DROP TABLE IF EXISTS "User";
+
+-- ตารางพนักงานขาย
+CREATE TABLE "Agent" (
+  "id" TEXT NOT NULL,
+  "name" TEXT NOT NULL,
+  "phone" TEXT NOT NULL,
+  "email" TEXT NOT NULL,
+  "lineId" TEXT,
+  "isActive" BOOLEAN NOT NULL DEFAULT true,
+  "createdAt" TEXT NOT NULL,
+  "updatedAt" TEXT NOT NULL,
+  CONSTRAINT "Agent_pkey" PRIMARY KEY ("id")
+);
 
 -- ตารางทรัพย์
 CREATE TABLE "Property" (
@@ -29,9 +45,30 @@ CREATE TABLE "Property" (
   "contactWhatsapp" TEXT,
   "isFeatured" BOOLEAN NOT NULL DEFAULT false,
   "isOwnerListing" BOOLEAN NOT NULL DEFAULT false,
+  "status" TEXT NOT NULL DEFAULT 'published',
+  "agentId" TEXT,
   "createdAt" TEXT NOT NULL,
   "updatedAt" TEXT NOT NULL,
   CONSTRAINT "Property_pkey" PRIMARY KEY ("id")
+);
+
+-- ตารางลีด
+CREATE TABLE "Lead" (
+  "id" TEXT NOT NULL,
+  "propertyId" TEXT NOT NULL,
+  "propertyTitle" TEXT,
+  "agentId" TEXT,
+  "name" TEXT NOT NULL,
+  "phone" TEXT NOT NULL,
+  "email" TEXT NOT NULL,
+  "interestType" TEXT,
+  "contactWhen" TEXT,
+  "viewWhen" TEXT,
+  "message" TEXT,
+  "status" TEXT NOT NULL DEFAULT 'new',
+  "createdAt" TEXT NOT NULL,
+  "updatedAt" TEXT NOT NULL,
+  CONSTRAINT "Lead_pkey" PRIMARY KEY ("id")
 );
 
 -- ตารางตั้งค่าติดต่อ
@@ -90,7 +127,7 @@ VALUES (
 );
 
 -- ข้อมูลเริ่มต้น: ตัวอย่างทรัพย์ 2 รายการ
-INSERT INTO "Property" ("id", "title", "listingType", "propertyType", "price", "priceLabel", "location", "mapUrl", "area", "bedrooms", "bathrooms", "images", "description", "features", "contactName", "contactPhone", "contactEmail", "contactLine", "contactWhatsapp", "isFeatured", "isOwnerListing", "createdAt", "updatedAt")
+INSERT INTO "Property" ("id", "title", "listingType", "propertyType", "price", "priceLabel", "location", "mapUrl", "area", "bedrooms", "bathrooms", "images", "description", "features", "contactName", "contactPhone", "contactEmail", "contactLine", "contactWhatsapp", "isFeatured", "isOwnerListing", "status", "agentId", "createdAt", "updatedAt")
 VALUES
 (
   'clseedprop01',
@@ -114,6 +151,8 @@ VALUES
   NULL,
   true,
   true,
+  'published',
+  NULL,
   '2024-01-15',
   '2024-01-15'
 ),
@@ -139,6 +178,8 @@ VALUES
   NULL,
   true,
   false,
+  'published',
+  NULL,
   '2024-02-01',
   '2024-02-01'
 );

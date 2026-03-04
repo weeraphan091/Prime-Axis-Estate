@@ -13,12 +13,21 @@ export function AdminNav() {
   }
 
   return (
-    <div className="flex items-center gap-4 text-sm">
+    <div className="flex items-center gap-4 text-sm flex-wrap">
+      <Link href="/admin" className="text-stone-600 hover:text-primary-600">
+        แดชบอร์ด
+      </Link>
       <Link href="/admin/listings" className="text-stone-600 hover:text-primary-600">
         จัดการรายการ
       </Link>
       <Link href="/admin/listings/new" className="text-primary-600 font-medium">
         + ลงลิสใหม่
+      </Link>
+      <Link href="/admin/leads" className="text-stone-600 hover:text-primary-600">
+        ลีด
+      </Link>
+      <Link href="/admin/agents" className="text-stone-600 hover:text-primary-600">
+        พนักงานขาย
       </Link>
       <Link href="/admin/settings" className="text-stone-600 hover:text-primary-600">
         ข้อมูลติดต่อ

@@ -7,6 +7,37 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Agent {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  email     String
+  lineId    String?  // Line ID พนักงาน (เช่น @xxx)
+  isActive  Boolean  @default(true)
+  createdAt String
+  updatedAt String
+  leads     Lead[]
+  properties Property[]
+}
+
+model Lead {
+  id          String   @id @default(cuid())
+  propertyId  String
+  propertyTitle String?
+  agentId     String?
+  name        String
+  phone       String
+  email       String
+  interestType String?  // view | inquiry
+  contactWhen String?
+  viewWhen    String?
+  message     String?
+  status      String   @default("new") // new | contacted | viewing_scheduled | closed
+  createdAt   String
+  updatedAt   String
+  agent       Agent?   @relation(fields: [agentId], references: [id], onDelete: SetNull)
+}
+
 model Property {
   id             String   @id @default(cuid())
   title          String
@@ -25,12 +56,15 @@ model Property {
   contactName    String
   contactPhone   String
   contactEmail   String
-  contactLine    String?  // Line ID เจ้าของทรัพย์ (เช่น @xxx)
-  contactWhatsapp String? // เบอร์ WhatsApp เจ้าของทรัพย์
+  contactLine    String?
+  contactWhatsapp String?
   isFeatured     Boolean  @default(false)
   isOwnerListing Boolean  @default(false)
+  status         String   @default("published") // draft | published | sold_rented
+  agentId        String?
   createdAt      String
   updatedAt      String
+  agent          Agent?   @relation(fields: [agentId], references: [id], onDelete: SetNull)
 }
 
 model ContactSettings {

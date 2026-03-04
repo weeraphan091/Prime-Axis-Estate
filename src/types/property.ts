@@ -33,6 +33,10 @@ export interface Property {
   contactWhatsapp?: string
   isFeatured?: boolean
   isOwnerListing?: boolean
+  /** draft | published | sold_rented */
+  status?: string
+  /** id ของพนักงานรับผิดชอบ */
+  agentId?: string
   createdAt: string
 }
 

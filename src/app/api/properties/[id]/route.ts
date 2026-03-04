@@ -11,6 +11,7 @@ export async function GET(
   try {
     const p = await prisma.property.findUnique({ where: { id } })
     if (!p) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    if (p.status !== 'published') return NextResponse.json({ error: 'Not found' }, { status: 404 })
     return NextResponse.json(prismaToProperty(p))
   } catch (e) {
     console.error(e)

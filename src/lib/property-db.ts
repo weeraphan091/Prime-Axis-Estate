@@ -33,6 +33,8 @@ export function prismaToProperty(p: PrismaProperty): Property {
     contactWhatsapp: p.contactWhatsapp ?? undefined,
     isFeatured: p.isFeatured,
     isOwnerListing: p.isOwnerListing,
+    status: p.status ?? 'published',
+    agentId: p.agentId ?? undefined,
     createdAt: p.createdAt,
   }
 }
@@ -59,15 +61,19 @@ export function propertyToPrisma(p: Omit<Property, 'id'> & { id?: string }) {
     contactWhatsapp: p.contactWhatsapp ?? null,
     isFeatured: p.isFeatured ?? false,
     isOwnerListing: p.isOwnerListing ?? false,
+    status: p.status ?? 'published',
+    agentId: p.agentId ?? null,
     createdAt: p.createdAt,
     updatedAt: new Date().toISOString().slice(0, 10),
   }
 }
 
-export async function getPropertiesFromDb(): Promise<Property[]> {
+/** onlyPublished: true = หน้าเว็บทั่วไป (เฉพาะ published), false = หลังบ้าน (ทุกสถานะ) */
+export async function getPropertiesFromDb(onlyPublished = true): Promise<Property[]> {
   try {
     const { prisma } = await import('@/lib/prisma')
     const list = await prisma.property.findMany({
+      where: onlyPublished ? { status: 'published' } : undefined,
       orderBy: { updatedAt: 'desc' },
     })
     return list.map(prismaToProperty)

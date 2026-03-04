@@ -7,6 +7,7 @@ import type { Property } from '@/types/property'
 export async function GET() {
   try {
     const list = await prisma.property.findMany({
+      where: { status: 'published' },
       orderBy: { updatedAt: 'desc' },
     })
     const properties: Property[] = list.map(prismaToProperty)
