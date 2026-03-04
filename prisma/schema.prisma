@@ -100,3 +100,15 @@ model User {
   updatedAt    String
 }
 
+// บัญชีผู้ใช้หลังบ้าน (แอดมิน/พนักงาน) — ล็อกอินด้วยอีเมล+รหัสผ่าน
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("staff")  // admin = ระบบหลัก สิทธิ์เต็ม | staff = พนักงาน สิทธิ์จำกัด
+  isActive     Boolean  @default(true)
+  createdAt    String
+  updatedAt    String
+}
+

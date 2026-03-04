@@ -2,9 +2,13 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import type { AdminSession } from '@/lib/admin-auth'
 
-export function AdminNav() {
+type Props = { currentAdmin: AdminSession }
+
+export function AdminNav({ currentAdmin }: Props) {
   const router = useRouter()
+  const isAdmin = currentAdmin.role === 'admin'
 
   const handleLogout = async () => {
     await fetch('/api/admin/logout', { method: 'POST' })
@@ -32,9 +36,16 @@ export function AdminNav() {
       <Link href="/admin/members" className="text-stone-600 hover:text-primary-600">
         สมาชิก
       </Link>
-      <Link href="/admin/settings" className="text-stone-600 hover:text-primary-600">
-        ข้อมูลติดต่อ
-      </Link>
+      {isAdmin && (
+        <Link href="/admin/settings" className="text-stone-600 hover:text-primary-600">
+          ข้อมูลติดต่อ
+        </Link>
+      )}
+      {isAdmin && (
+        <Link href="/admin/users" className="text-stone-600 hover:text-primary-600">
+          บัญชีผู้ใช้
+        </Link>
+      )}
       <Link href="/" target="_blank" className="text-stone-500 hover:text-stone-700">
         ดูเว็บหลัก
       </Link>

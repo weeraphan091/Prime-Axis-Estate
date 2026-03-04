@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { hasAdminSession } from '@/lib/admin-auth'
+import { hasAdminSession, canAccessSettings } from '@/lib/admin-auth'
 import { prisma } from '@/lib/prisma'
 import { ContactSettingsForm } from './ContactSettingsForm'
 
@@ -15,8 +15,8 @@ const defaultInitial = {
 }
 
 export default async function AdminSettingsPage() {
-  const ok = await hasAdminSession()
-  if (!ok) redirect('/admin/login')
+  if (!(await hasAdminSession())) redirect('/admin/login')
+  if (!(await canAccessSettings())) redirect('/admin')
 
   let row: Awaited<ReturnType<typeof prisma.contactSettings.findUnique>> = null
   try {

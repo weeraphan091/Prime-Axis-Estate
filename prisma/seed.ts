@@ -180,6 +180,25 @@ async function main() {
     update: { passwordHash: demoPasswordHash, updatedAt: now },
   })
   console.log('Seeded demo user: demo@example.com / demo123')
+
+  // บัญชีแอดมินคนแรก (ผู้ดูแลระบบหลัก) — อีเมล Kiranat56201@gmail.com รหัสตามที่ตั้งไว้
+  const adminPassword = process.env.ADMIN_INITIAL_PASSWORD || 'Venus0979961789'
+  const adminHash = await bcrypt.hash(adminPassword, 10)
+  const adminNow = new Date().toISOString().slice(0, 19)
+  await prisma.adminUser.upsert({
+    where: { email: 'kiranat56201@gmail.com' },
+    create: {
+      email: 'kiranat56201@gmail.com',
+      passwordHash: adminHash,
+      name: 'ผู้ดูแลระบบหลัก',
+      role: 'admin',
+      isActive: true,
+      createdAt: adminNow,
+      updatedAt: adminNow,
+    },
+    update: { passwordHash: adminHash, name: 'ผู้ดูแลระบบหลัก', role: 'admin', updatedAt: adminNow },
+  })
+  console.log('Seeded admin: Kiranat56201@gmail.com (รหัสตาม .env ADMIN_INITIAL_PASSWORD หรือค่าเริ่มต้น)')
 }
 
 main()

@@ -6,6 +6,7 @@ import Link from 'next/link'
 
 export default function AdminLoginPage() {
   const router = useRouter()
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -18,7 +19,7 @@ export default function AdminLoginPage() {
       const res = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ email: email.trim(), password }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -41,7 +42,18 @@ export default function AdminLoginPage() {
         <p className="text-center text-stone-500 text-sm mt-1">PRIME AXIS ESTATE</p>
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">รหัสผ่านแอดมิน</label>
+            <label className="block text-sm font-medium text-stone-700 mb-1">อีเมล</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="your@email.com"
+              className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-stone-700 mb-1">รหัสผ่าน</label>
             <input
               type="password"
               value={password}
@@ -60,10 +72,7 @@ export default function AdminLoginPage() {
             {loading ? 'กำลังเข้า...' : 'เข้าสู่ระบบ'}
           </button>
         </form>
-        <p className="mt-6 text-center text-stone-400 text-xs">
-          รหัสเริ่มต้น: ดูใน .env ตั้งค่า ADMIN_PASSWORD (ถ้าไม่มีใช้ admin123)
-        </p>
-        <Link href="/" className="block mt-4 text-center text-stone-500 hover:underline text-sm">
+        <Link href="/" className="block mt-6 text-center text-stone-500 hover:underline text-sm">
           ← กลับหน้าแรก
         </Link>
       </div>

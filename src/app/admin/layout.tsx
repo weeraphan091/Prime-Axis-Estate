@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { hasAdminSession } from '@/lib/admin-auth'
+import { getCurrentAdmin } from '@/lib/admin-auth'
 import { AdminNav } from './AdminNav'
 
 export default async function AdminLayout({
@@ -7,16 +7,24 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  const ok = await hasAdminSession()
+  const currentAdmin = await getCurrentAdmin()
   return (
     <div className="min-h-screen bg-stone-100">
-      {ok && (
+      {currentAdmin && (
         <header className="bg-white border-b border-stone-200 px-4 py-3">
-          <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="max-w-6xl mx-auto flex items-center justify-between flex-wrap gap-2">
             <Link href="/admin" className="font-display text-xl text-stone-800">
               หลังบ้าน PRIME AXIS ESTATE
             </Link>
-            <AdminNav />
+            <div className="flex items-center gap-4 flex-wrap">
+              <span className="text-sm text-stone-500" title={currentAdmin.email}>
+                เข้าสู่ระบบในฐานะ: <strong className="text-stone-700">{currentAdmin.name || currentAdmin.email}</strong>
+                {currentAdmin.role === 'admin' && (
+                  <span className="ml-1 text-primary-600 text-xs">(ระบบหลัก)</span>
+                )}
+              </span>
+              <AdminNav currentAdmin={currentAdmin} />
+            </div>
           </div>
         </header>
       )}

@@ -1,14 +1,18 @@
 import { NextResponse } from 'next/server'
-import { isAdminPassword, setAdminSession } from '@/lib/admin-auth'
+import { verifyAdminCredentials, setAdminSession } from '@/lib/admin-auth'
 
 export async function POST(request: Request) {
   try {
-    const { password } = await request.json()
-    if (!password || !isAdminPassword(password)) {
-      return NextResponse.json({ error: 'รหัสผ่านไม่ถูกต้อง' }, { status: 401 })
+    const { email, password } = await request.json()
+    if (!email?.trim() || !password) {
+      return NextResponse.json({ error: 'กรุณากรอกอีเมลและรหัสผ่าน' }, { status: 400 })
     }
-    await setAdminSession()
-    return NextResponse.json({ ok: true })
+    const session = await verifyAdminCredentials(email.trim(), password)
+    if (!session) {
+      return NextResponse.json({ error: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' }, { status: 401 })
+    }
+    await setAdminSession(session)
+    return NextResponse.json({ ok: true, user: { email: session.email, name: session.name, role: session.role } })
   } catch (e) {
     console.error(e)
     return NextResponse.json({ error: 'Server error' }, { status: 500 })

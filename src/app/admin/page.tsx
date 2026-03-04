@@ -1,12 +1,12 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { hasAdminSession } from '@/lib/admin-auth'
+import { hasAdminSession, canManageAdminUsers } from '@/lib/admin-auth'
 import { prisma } from '@/lib/prisma'
-import { List, PlusCircle, Phone, Users, MessageSquare, Download, UserCheck } from 'lucide-react'
+import { List, PlusCircle, Phone, Users, MessageSquare, Download, UserCheck, UserCog } from 'lucide-react'
 
 export default async function AdminHomePage() {
-  const ok = await hasAdminSession()
-  if (!ok) redirect('/admin/login')
+  if (!(await hasAdminSession())) redirect('/admin/login')
+  const showAdminUsers = await canManageAdminUsers()
 
   let totalListings = 0
   let publishedListings = 0
@@ -121,18 +121,34 @@ export default async function AdminHomePage() {
             <p className="text-sm text-stone-500">รายการลูกค้าที่สมัครสมาชิก</p>
           </div>
         </Link>
-        <Link
-          href="/admin/settings"
-          className="flex items-center gap-4 p-6 bg-white rounded-xl border border-stone-200 hover:border-primary-300 hover:shadow-md transition"
-        >
-          <div className="w-12 h-12 rounded-lg bg-amber-100 flex items-center justify-center">
-            <Phone className="w-6 h-6 text-amber-600" />
-          </div>
-          <div>
-            <h2 className="font-semibold text-stone-900">ข้อมูลติดต่อ</h2>
-            <p className="text-sm text-stone-500">แก้เบอร์/Line/อีเมล — เปลี่ยนจุดเดียวทั้งเว็บ</p>
-          </div>
-        </Link>
+        {showAdminUsers && (
+          <Link
+            href="/admin/settings"
+            className="flex items-center gap-4 p-6 bg-white rounded-xl border border-stone-200 hover:border-primary-300 hover:shadow-md transition"
+          >
+            <div className="w-12 h-12 rounded-lg bg-amber-100 flex items-center justify-center">
+              <Phone className="w-6 h-6 text-amber-600" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-stone-900">ข้อมูลติดต่อ</h2>
+              <p className="text-sm text-stone-500">แก้เบอร์/Line/อีเมล — เปลี่ยนจุดเดียวทั้งเว็บ</p>
+            </div>
+          </Link>
+        )}
+        {showAdminUsers && (
+          <Link
+            href="/admin/users"
+            className="flex items-center gap-4 p-6 bg-white rounded-xl border border-stone-200 hover:border-primary-300 hover:shadow-md transition"
+          >
+            <div className="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center">
+              <UserCog className="w-6 h-6 text-slate-600" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-stone-900">บัญชีผู้ใช้หลังบ้าน</h2>
+              <p className="text-sm text-stone-500">สร้างบัญชีพนักงาน เลือกสิทธิ์ admin / staff</p>
+            </div>
+          </Link>
+        )}
         <div className="flex flex-col gap-2 p-6 bg-white rounded-xl border border-stone-200">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-lg bg-stone-100 flex items-center justify-center">
