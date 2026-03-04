@@ -1,0 +1,21 @@
+=== ใส่ในไฟล์ .env (ในเครื่อง) และใน Vercel → Settings → Environment Variables ===
+
+1) Supabase Storage (เก็บรูป)
+   Name:  NEXT_PUBLIC_SUPABASE_URL
+   Value: https://liyjjuqzsvgwwopvcdko.supabase.co
+
+   Name:  SUPABASE_SERVICE_ROLE_KEY
+   Value: (วาง API Key / Secret key ที่คุณ copy ไว้ — เช่น sb_secret_...)
+
+2) ฐานข้อมูล PostgreSQL
+   Name:  DATABASE_URL
+   Value: postgresql://postgres.liyjjuqzsvgwwopvcdko:รหัสผ่านDBจริง@aws-1-ap-south-1.pooler.supabase.com:6543/postgres?sslmode=require
+          ^^^^^^^^^^^^^^^^
+          แทน "รหัสผ่านDBจริง" ด้วยรหัสผ่าน Database ของโปรเจกต์ Supabase (ที่ตั้งตอนสร้างโปรเจกต์ หรือไปเปลี่ยนที่ Project Settings → Database)
+
+   ถ้าใช้ผ่าน Vercel แนะนำต่อท้ายด้วย:  &pgbouncer=true
+   เช่น ...postgres?sslmode=require&pgbouncer=true
+
+=== หมายเหตุ ===
+- อย่า commit ไฟล์ .env ขึ้น Git (มีใน .gitignore อยู่แล้ว)
+- บน Vercel ใส่ทีละตัว แล้วกด Save จากนั้น Redeploy

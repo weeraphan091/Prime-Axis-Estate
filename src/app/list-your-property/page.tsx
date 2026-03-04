@@ -117,25 +117,23 @@ export default function ListYourPropertyPage() {
     try {
       let imageUrls: string[] = []
       if (imageFiles.length > 0) {
+        let uploadOk = true
         for (const file of imageFiles) {
           const fd = new FormData()
           fd.append('file', file, file.name || 'image.jpg')
-          const res = await fetch('/api/upload', {
-            method: 'POST',
-            credentials: 'include',
-            body: fd,
-          })
+          const res = await fetch('/api/upload', { method: 'POST', credentials: 'include', body: fd })
           const data = await res.json()
-          if (!res.ok || !data.url) {
-            alert(data.error || 'อัปโหลดรูปไม่สำเร็จ')
-            setLoading(false)
-            return
+          if (res.ok && data.url) {
+            imageUrls.push(data.url)
+          } else {
+            uploadOk = false
+            break
           }
-          imageUrls.push(data.url)
         }
+        if (!uploadOk) imageUrls = imagePreview
       }
       if (imageUrls.length === 0) {
-        imageUrls = ['https://placehold.co/800x600/f4f1de/1c1917?text=ไม่มีรูป']
+        imageUrls = imagePreview.length > 0 ? imagePreview : ['https://placehold.co/800x600/f4f1de/1c1917?text=ไม่มีรูป']
       }
       const features = form.features
         ? form.features.split(',').map((s) => s.trim()).filter(Boolean)
