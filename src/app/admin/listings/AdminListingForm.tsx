@@ -50,6 +50,8 @@ export function AdminListingForm({ initial }: Props) {
     contactName: initial?.contactName ?? '',
     contactPhone: initial?.contactPhone ?? '',
     contactEmail: initial?.contactEmail ?? '',
+    contactLine: initial?.contactLine ?? '',
+    contactWhatsapp: initial?.contactWhatsapp ?? '',
     isFeatured: initial?.isFeatured ?? false,
     isOwnerListing: initial?.isOwnerListing ?? false,
   })
@@ -100,6 +102,8 @@ export function AdminListingForm({ initial }: Props) {
         contactName: form.contactName,
         contactPhone: form.contactPhone,
         contactEmail: form.contactEmail,
+        contactLine: form.contactLine || undefined,
+        contactWhatsapp: form.contactWhatsapp || undefined,
         isFeatured: form.isFeatured,
         isOwnerListing: form.isOwnerListing,
         createdAt: initial?.createdAt ?? new Date().toISOString().slice(0, 10),
@@ -311,15 +315,21 @@ export function AdminListingForm({ initial }: Props) {
       </div>
 
       <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
-        <h2 className="font-semibold text-stone-900">ข้อมูลติดต่อ (แสดงบนการ์ด)</h2>
+        <div>
+          <h2 className="font-semibold text-stone-900">ข้อมูลช่องทางติดต่อเจ้าของทรัพย์</h2>
+          <p className="text-sm text-stone-500 mt-1">
+            บันทึกข้อมูลติดต่อเจ้าของทรัพย์ไว้ใช้ติดต่อภายใน — ลูกค้าที่สนใจจะติดต่อผ่านช่องทางของเรา (ตั้งค่าใน ตั้งค่าเว็บ)
+          </p>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">ชื่อ *</label>
+            <label className="block text-sm font-medium text-stone-700 mb-1">ชื่อเจ้าของ/ผู้ติดต่อ *</label>
             <input
               type="text"
               required
               value={form.contactName}
               onChange={(e) => update('contactName', e.target.value)}
+              placeholder="ชื่อ-นามสกุล หรือชื่อบริษัท"
               className="w-full px-4 py-2.5 border border-stone-300 rounded-lg outline-none"
             />
           </div>
@@ -330,6 +340,7 @@ export function AdminListingForm({ initial }: Props) {
               required
               value={form.contactPhone}
               onChange={(e) => update('contactPhone', e.target.value)}
+              placeholder="081-234-5678"
               className="w-full px-4 py-2.5 border border-stone-300 rounded-lg outline-none"
             />
           </div>
@@ -340,6 +351,27 @@ export function AdminListingForm({ initial }: Props) {
               required
               value={form.contactEmail}
               onChange={(e) => update('contactEmail', e.target.value)}
+              placeholder="owner@example.com"
+              className="w-full px-4 py-2.5 border border-stone-300 rounded-lg outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-stone-700 mb-1">Line ID เจ้าของ (ไม่บังคับ)</label>
+            <input
+              type="text"
+              value={form.contactLine}
+              onChange={(e) => update('contactLine', e.target.value)}
+              placeholder="@username หรือเบอร์โทรที่ใช้กับ Line"
+              className="w-full px-4 py-2.5 border border-stone-300 rounded-lg outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-stone-700 mb-1">WhatsApp เจ้าของ (ไม่บังคับ)</label>
+            <input
+              type="text"
+              value={form.contactWhatsapp}
+              onChange={(e) => update('contactWhatsapp', e.target.value)}
+              placeholder="66812345678 (ใส่เบอร์พร้อม country code)"
               className="w-full px-4 py-2.5 border border-stone-300 rounded-lg outline-none"
             />
           </div>

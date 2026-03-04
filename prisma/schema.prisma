@@ -25,6 +25,8 @@ model Property {
   contactName    String
   contactPhone   String
   contactEmail   String
+  contactLine    String?  // Line ID เจ้าของทรัพย์ (เช่น @xxx)
+  contactWhatsapp String? // เบอร์ WhatsApp เจ้าของทรัพย์
   isFeatured     Boolean  @default(false)
   isOwnerListing Boolean  @default(false)
   createdAt      String

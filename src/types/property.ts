@@ -27,6 +27,10 @@ export interface Property {
   contactName: string
   contactPhone: string
   contactEmail: string
+  /** Line ID เจ้าของทรัพย์ (เช่น @xxx) — ใช้ในแอดมิน */
+  contactLine?: string
+  /** เบอร์ WhatsApp เจ้าของทรัพย์ — ใช้ในแอดมิน */
+  contactWhatsapp?: string
   isFeatured?: boolean
   isOwnerListing?: boolean
   createdAt: string
@@ -47,5 +51,7 @@ export interface ListPropertyForm {
   contactName: string
   contactPhone: string
   contactEmail: string
+  contactLine?: string
+  contactWhatsapp?: string
   images?: File[] | string[]
 }

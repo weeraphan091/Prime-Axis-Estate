@@ -24,6 +24,15 @@ export async function POST(request: Request) {
   }
   try {
     const body = (await request.json()) as Omit<Property, 'id' | 'createdAt'> & { createdAt?: string }
+    if (!body.title?.trim()) {
+      return NextResponse.json({ error: 'กรุณากรอกหัวข้อ' }, { status: 400 })
+    }
+    if (!body.contactName?.trim() || !body.contactPhone?.trim() || !body.contactEmail?.trim()) {
+      return NextResponse.json({ error: 'กรุณากรอกข้อมูลช่องทางติดต่อเจ้าของทรัพย์ (ชื่อ, เบอร์โทร, อีเมล)' }, { status: 400 })
+    }
+    if (Number(body.price) < 0 || Number(body.area) < 0) {
+      return NextResponse.json({ error: 'ราคาและพื้นที่ต้องไม่ต่ำกว่า 0' }, { status: 400 })
+    }
     const now = new Date().toISOString().slice(0, 10)
     const data = propertyToPrisma({
       ...body,

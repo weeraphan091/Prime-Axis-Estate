@@ -1,6 +1,15 @@
 import type { Property } from '@/types/property'
 import type { Property as PrismaProperty } from '@prisma/client'
 
+function parseJsonArray(raw: string): string[] {
+  try {
+    const v = JSON.parse(raw)
+    return Array.isArray(v) ? v : []
+  } catch {
+    return []
+  }
+}
+
 export function prismaToProperty(p: PrismaProperty): Property {
   return {
     id: p.id,
@@ -14,12 +23,14 @@ export function prismaToProperty(p: PrismaProperty): Property {
     area: p.area,
     bedrooms: p.bedrooms ?? undefined,
     bathrooms: p.bathrooms ?? undefined,
-    images: JSON.parse(p.images) as string[],
+    images: parseJsonArray(p.images),
     description: p.description,
-    features: JSON.parse(p.features) as string[],
+    features: parseJsonArray(p.features),
     contactName: p.contactName,
     contactPhone: p.contactPhone,
     contactEmail: p.contactEmail,
+    contactLine: p.contactLine ?? undefined,
+    contactWhatsapp: p.contactWhatsapp ?? undefined,
     isFeatured: p.isFeatured,
     isOwnerListing: p.isOwnerListing,
     createdAt: p.createdAt,
@@ -38,12 +49,14 @@ export function propertyToPrisma(p: Omit<Property, 'id'> & { id?: string }) {
     area: p.area,
     bedrooms: p.bedrooms ?? null,
     bathrooms: p.bathrooms ?? null,
-    images: JSON.stringify(p.images || []),
+    images: JSON.stringify(Array.isArray(p.images) ? p.images : []),
     description: p.description,
-    features: JSON.stringify(p.features || []),
+    features: JSON.stringify(Array.isArray(p.features) ? p.features : []),
     contactName: p.contactName,
     contactPhone: p.contactPhone,
     contactEmail: p.contactEmail,
+    contactLine: p.contactLine ?? null,
+    contactWhatsapp: p.contactWhatsapp ?? null,
     isFeatured: p.isFeatured ?? false,
     isOwnerListing: p.isOwnerListing ?? false,
     createdAt: p.createdAt,

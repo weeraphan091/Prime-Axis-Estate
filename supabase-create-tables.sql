@@ -25,6 +25,8 @@ CREATE TABLE "Property" (
   "contactName" TEXT NOT NULL,
   "contactPhone" TEXT NOT NULL,
   "contactEmail" TEXT NOT NULL,
+  "contactLine" TEXT,
+  "contactWhatsapp" TEXT,
   "isFeatured" BOOLEAN NOT NULL DEFAULT false,
   "isOwnerListing" BOOLEAN NOT NULL DEFAULT false,
   "createdAt" TEXT NOT NULL,
@@ -88,7 +90,7 @@ VALUES (
 );
 
 -- ข้อมูลเริ่มต้น: ตัวอย่างทรัพย์ 2 รายการ
-INSERT INTO "Property" ("id", "title", "listingType", "propertyType", "price", "priceLabel", "location", "mapUrl", "area", "bedrooms", "bathrooms", "images", "description", "features", "contactName", "contactPhone", "contactEmail", "isFeatured", "isOwnerListing", "createdAt", "updatedAt")
+INSERT INTO "Property" ("id", "title", "listingType", "propertyType", "price", "priceLabel", "location", "mapUrl", "area", "bedrooms", "bathrooms", "images", "description", "features", "contactName", "contactPhone", "contactEmail", "contactLine", "contactWhatsapp", "isFeatured", "isOwnerListing", "createdAt", "updatedAt")
 VALUES
 (
   'clseedprop01',
@@ -108,6 +110,8 @@ VALUES
   'คุณสมชาย',
   '081-234-5678',
   'somchai@email.com',
+  NULL,
+  NULL,
   true,
   true,
   '2024-01-15',
@@ -131,6 +135,8 @@ VALUES
   'คุณมณี',
   '082-345-6789',
   'manee@email.com',
+  NULL,
+  NULL,
   true,
   false,
   '2024-02-01',

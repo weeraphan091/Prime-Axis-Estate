@@ -28,6 +28,8 @@ export async function POST(request: Request) {
       contactName: body.contactName || '',
       contactPhone: body.contactPhone || '',
       contactEmail: body.contactEmail || '',
+      contactLine: body.contactLine || undefined,
+      contactWhatsapp: body.contactWhatsapp || undefined,
       isFeatured: false,
       isOwnerListing: true,
       createdAt: now,

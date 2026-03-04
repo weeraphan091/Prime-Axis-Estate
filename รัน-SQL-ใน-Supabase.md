@@ -35,3 +35,9 @@
 - ลองเข้า **หลังบ้าน → จัดการทรัพย์** ในเว็บที่ deploy แล้ว ควรโหลดได้
 
 **ผู้ใช้ทดสอบ:** อีเมล `demo@example.com` รหัส `demo123`
+
+---
+
+## ถ้ามีตารางอยู่แล้ว (เคยรัน supabase-create-tables.sql ไปก่อนหน้า)
+
+ให้รันไฟล์ **`supabase-add-owner-contact-columns.sql`** ใน SQL Editor อีกครั้ง เพื่อเพิ่มคอลัมน์ช่องทางติดต่อเจ้าของทรัพย์ (Line, WhatsApp)

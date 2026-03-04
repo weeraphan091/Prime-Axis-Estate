@@ -29,6 +29,12 @@ export async function PUT(
   const { id } = await params
   try {
     const body = await request.json()
+    if (!body.title?.trim()) {
+      return NextResponse.json({ error: 'กรุณากรอกหัวข้อ' }, { status: 400 })
+    }
+    if (!body.contactName?.trim() || !body.contactPhone?.trim() || !body.contactEmail?.trim()) {
+      return NextResponse.json({ error: 'กรุณากรอกข้อมูลช่องทางติดต่อเจ้าของทรัพย์ (ชื่อ, เบอร์โทร, อีเมล)' }, { status: 400 })
+    }
     const data = propertyToPrisma(body)
     const updated = await prisma.property.update({
       where: { id },
