@@ -32,3 +32,24 @@ html { scroll-behavior: smooth; }
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
+
+/* แถบ progress ตอนเปลี่ยนหน้า — คลิกแล้วรู้สึกตอบสนองทันที */
+@keyframes navigation-progress {
+  0% { transform: scaleX(0); transform-origin: left; }
+  40% { transform: scaleX(0.4); transform-origin: left; }
+  60% { transform: scaleX(0.6); transform-origin: right; }
+  100% { transform: scaleX(1); transform-origin: right; }
+}
+.animate-navigation-progress {
+  animation: navigation-progress 1.2s ease-out forwards;
+}
+
+/* ลิงก์ในไซต์ — กดแล้วมี feedback ทันที ลดความรู้สึกหน่วง */
+a[href^="/"]:not([target="_blank"]):active {
+  opacity: 0.92;
+}
+@media (prefers-reduced-motion: no-preference) {
+  a[href^="/"]:not([target="_blank"]) {
+    transition: opacity 0.1s ease;
+  }
+}

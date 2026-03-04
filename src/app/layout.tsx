@@ -7,6 +7,7 @@ import { AuthProvider } from '@/context/AuthContext'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 import { JsonLdOrganization } from '@/components/JsonLdOrganization'
+import { NavigationProgress } from '@/components/NavigationProgress'
 import { getSiteUrl, SITE_NAME, DEFAULT_DESCRIPTION } from '@/config/site'
 
 const dmSans = DM_Sans({
@@ -77,6 +78,7 @@ export default function RootLayout({
         <AuthProvider>
           <ContactProvider>
             <FavoritesProvider>
+              <NavigationProgress />
               <Header />
               <main className="flex-1">{children}</main>
               <Footer />
