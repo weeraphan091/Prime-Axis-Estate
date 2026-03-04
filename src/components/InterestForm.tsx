@@ -29,6 +29,7 @@ export function InterestForm({ property, onClose }: Props) {
     setForm((prev) => ({ ...prev, [key]: value }))
   }
 
+  /** ข้อความที่ลูกค้าคัดลอกส่งเอง (กรณี Bot ไม่ไป) — ห้ามใส่ข้อมูลเจ้าของทรัพย์เด็ดขาด ให้มีแค่ข้อมูลลูกค้า + ชื่อรายการเท่านั้น */
   const buildMessage = () => {
     const lines = [
       `🏠 สนใจทรัพย์: ${property.title}`,

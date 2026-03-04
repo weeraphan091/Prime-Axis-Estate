@@ -12,6 +12,13 @@ function formatPrice(price: number, label?: string) {
   return label ? `${formatted} ${label}` : `${formatted} บาท`
 }
 
+const TH_MONTHS = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.']
+function formatLeaseDateShort(ymd: string): string {
+  const [y, m, d] = ymd.split('-').map(Number)
+  if (!d || !m || !y) return ymd
+  return `${d} ${TH_MONTHS[(m - 1) % 12] ?? ''} ${y + 543}`
+}
+
 export function PropertyCard({ property }: { property: Property }) {
   const { isFavorite, isCompare, toggleFavorite, toggleCompare } = useFavorites()
   const imgSrc = property.images[0] || 'https://placehold.co/600x400/f4f1de/1c1917?text=ไม่มีรูป'
@@ -88,7 +95,14 @@ export function PropertyCard({ property }: { property: Property }) {
       </div>
       <div className="p-4">
         <p className="text-xs text-stone-500 mb-1">
-          {propertyTypeLabels[property.propertyType]} · {property.location}
+          {propertyTypeLabels[property.propertyType]}
+          {(property.propertyType === 'condo' || property.propertyType === 'apartment') && (property.floor != null || property.roomNumber) && (
+            <> · {[property.floor != null ? `ชั้น ${property.floor}` : null, property.roomNumber ? `ห้อง ${property.roomNumber}` : null].filter(Boolean).join(' ')}</>
+          )}
+          {(property.propertyType === 'house' || property.propertyType === 'villa') && property.floors != null && (
+            <> · {property.floors} ชั้น</>
+          )}
+          {' · '}{property.location}
         </p>
         <h3 className="font-semibold text-stone-900 line-clamp-2 group-hover:text-primary-600 transition">
           {property.title}
@@ -96,6 +110,12 @@ export function PropertyCard({ property }: { property: Property }) {
         <p className="mt-2 text-lg font-bold text-primary-600">
           {formatPrice(property.price, property.priceLabel)}
         </p>
+        {property.listingType === 'rent' && property.rentOccupied && (property.rentLeaseEnd || property.rentLeaseStart) && (
+          <p className="mt-1 text-xs text-amber-700">
+            เช่าอยู่แล้ว
+            {property.rentLeaseEnd ? ` · ว่าง ${formatLeaseDateShort(property.rentLeaseEnd)}` : property.rentLeaseStart ? ` · เริ่ม ${formatLeaseDateShort(property.rentLeaseStart)}` : ''}
+          </p>
+        )}
         <div className="mt-3 flex items-center gap-4 text-sm text-stone-500">
           {property.bedrooms != null && (
             <span className="flex items-center gap-1">

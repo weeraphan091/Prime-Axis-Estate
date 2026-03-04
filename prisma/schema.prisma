@@ -62,6 +62,15 @@ model Property {
   isOwnerListing Boolean  @default(false)
   status         String   @default("published") // draft | published | sold_rented
   agentId        String?
+  // สำหรับรายการเช่า: เช่าอยู่แล้ว + ระยะสัญญา (ลูกค้าวางแผนหาห้องล่วงหน้า)
+  rentOccupied   Boolean  @default(false)  // true = มีคนเช่าอยู่
+  rentLeaseStart String?  // วันที่เริ่มสัญญา YYYY-MM-DD
+  rentLeaseEnd   String?  // วันที่สิ้นสุดสัญญา YYYY-MM-DD
+  // คอนโด/อพาร์ตเมนต์: ชั้น + เลขห้อง
+  floor          Int?     // ชั้นที่อยู่
+  roomNumber     String?  // เลขห้อง (เช่น 301)
+  // บ้าน/วิลล่า: จำนวนชั้นของอาคาร
+  floors         Int?     // 1 หรือ 2 ชั้น
   createdAt      String
   updatedAt      String
   agent          Agent?   @relation(fields: [agentId], references: [id], onDelete: SetNull)

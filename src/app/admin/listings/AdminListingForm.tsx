@@ -58,6 +58,12 @@ export function AdminListingForm({ initial }: Props) {
     isOwnerListing: initial?.isOwnerListing ?? false,
     status: initial?.status ?? 'published',
     agentId: initial?.agentId ?? '',
+    rentOccupied: initial?.rentOccupied ?? false,
+    rentLeaseStart: initial?.rentLeaseStart ?? '',
+    rentLeaseEnd: initial?.rentLeaseEnd ?? '',
+    floor: initial?.floor ?? '',
+    roomNumber: initial?.roomNumber ?? '',
+    floors: initial?.floors ?? '',
   })
   const [agents, setAgents] = useState<Agent[]>([])
 
@@ -120,6 +126,12 @@ export function AdminListingForm({ initial }: Props) {
         isOwnerListing: form.isOwnerListing,
         status: form.status || 'published',
         agentId: form.agentId || undefined,
+        rentOccupied: form.listingType === 'rent' ? form.rentOccupied : false,
+        rentLeaseStart: form.listingType === 'rent' && form.rentLeaseStart ? form.rentLeaseStart : undefined,
+        rentLeaseEnd: form.listingType === 'rent' && form.rentLeaseEnd ? form.rentLeaseEnd : undefined,
+        floor: (form.propertyType === 'condo' || form.propertyType === 'apartment') && form.floor !== '' ? Number(form.floor) : undefined,
+        roomNumber: (form.propertyType === 'condo' || form.propertyType === 'apartment') && form.roomNumber ? form.roomNumber : undefined,
+        floors: (form.propertyType === 'house' || form.propertyType === 'villa') && form.floors !== '' ? Number(form.floors) : undefined,
         createdAt: initial?.createdAt ?? new Date().toISOString().slice(0, 10),
       }
       const url = initial ? `/api/properties/${initial.id}` : '/api/properties'
@@ -215,6 +227,42 @@ export function AdminListingForm({ initial }: Props) {
             className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none resize-y"
           />
         </div>
+        {form.listingType === 'rent' && (
+          <div className="border-t border-stone-200 pt-4 mt-4 space-y-4">
+            <h3 className="font-medium text-stone-800">ข้อมูลสัญญาเช่า (ลูกค้าวางแผนหาห้องล่วงหน้า)</h3>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.rentOccupied}
+                onChange={(e) => update('rentOccupied', e.target.checked)}
+                className="rounded border-stone-300"
+              />
+              <span className="text-sm">เช่าอยู่แล้ว — ระบุระยะสัญญาด้านล่าง</span>
+            </label>
+            {(form.rentOccupied || form.rentLeaseStart || form.rentLeaseEnd) && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-stone-700 mb-1">วันที่เริ่มสัญญา</label>
+                  <input
+                    type="date"
+                    value={form.rentLeaseStart}
+                    onChange={(e) => update('rentLeaseStart', e.target.value)}
+                    className="w-full px-4 py-2.5 border border-stone-300 rounded-lg outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-stone-700 mb-1">วันที่สิ้นสุดสัญญา</label>
+                  <input
+                    type="date"
+                    value={form.rentLeaseEnd}
+                    onChange={(e) => update('rentLeaseEnd', e.target.value)}
+                    className="w-full px-4 py-2.5 border border-stone-300 rounded-lg outline-none"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
@@ -273,6 +321,45 @@ export function AdminListingForm({ initial }: Props) {
             />
           </div>
         </div>
+        {(form.propertyType === 'condo' || form.propertyType === 'apartment') && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-1">ชั้น (แสดงต่อลูกค้า + ส่งใน Bot)</label>
+              <input
+                type="number"
+                min="0"
+                value={form.floor}
+                onChange={(e) => update('floor', e.target.value)}
+                placeholder="เช่น 5"
+                className="w-full px-4 py-2.5 border border-stone-300 rounded-lg outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-1">เลขห้อง</label>
+              <input
+                type="text"
+                value={form.roomNumber}
+                onChange={(e) => update('roomNumber', e.target.value)}
+                placeholder="เช่น 301, A-502"
+                className="w-full px-4 py-2.5 border border-stone-300 rounded-lg outline-none"
+              />
+            </div>
+          </div>
+        )}
+        {(form.propertyType === 'house' || form.propertyType === 'villa') && (
+          <div>
+            <label className="block text-sm font-medium text-stone-700 mb-1">จำนวนชั้นของบ้าน (แสดงต่อลูกค้า + ส่งใน Bot)</label>
+            <select
+              value={form.floors}
+              onChange={(e) => update('floors', e.target.value)}
+              className="w-full max-w-xs px-4 py-2.5 border border-stone-300 rounded-lg outline-none"
+            >
+              <option value="">— เลือก —</option>
+              <option value="1">1 ชั้น</option>
+              <option value="2">2 ชั้น</option>
+            </select>
+          </div>
+        )}
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">จุดเด่น (คั่นด้วย comma)</label>
           <input

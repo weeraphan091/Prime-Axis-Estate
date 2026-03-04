@@ -16,6 +16,16 @@ function formatPrice(price: number, label?: string) {
   return label ? `${formatted} ${label}` : `${formatted} บาท`
 }
 
+const TH_MONTHS = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.']
+function formatLeaseDate(ymd: string): string {
+  const [y, m, d] = ymd.split('-').map(Number)
+  if (!d || !m || !y) return ymd
+  const day = d
+  const month = TH_MONTHS[(m - 1) % 12] ?? ymd
+  const year = y + 543
+  return `${day} ${month} ${year}`
+}
+
 const PLACEHOLDER = 'https://placehold.co/800x600/f4f1de/1c1917?text=ไม่มีรูป'
 
 export default function PropertyDetailPage() {
@@ -92,6 +102,21 @@ export default function PropertyDetailPage() {
       <h1 className="font-display text-2xl lg:text-3xl text-stone-900 mb-2">
         {property.title}
       </h1>
+      {property.listingType === 'rent' && property.rentOccupied && (property.rentLeaseStart || property.rentLeaseEnd) && (
+        <div className="mb-4 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900">
+          <p className="font-medium">เช่าอยู่แล้ว</p>
+          <p className="text-sm mt-0.5">
+            {property.rentLeaseStart && property.rentLeaseEnd
+              ? `ระยะสัญญา ${formatLeaseDate(property.rentLeaseStart)} – ${formatLeaseDate(property.rentLeaseEnd)}`
+              : property.rentLeaseEnd
+                ? `ว่างวันที่ ${formatLeaseDate(property.rentLeaseEnd)}`
+                : property.rentLeaseStart
+                  ? `เริ่มสัญญา ${formatLeaseDate(property.rentLeaseStart)}`
+                  : 'ระบุระยะสัญญาในรายการ'}
+          </p>
+          <p className="text-xs text-amber-700 mt-1">ลูกค้าสามารถวางแผนหาห้องล่วงหน้าได้</p>
+        </div>
+      )}
       <div className="flex flex-wrap items-center gap-2">
         <p className="text-stone-500 flex items-center gap-1">
           <MapPin className="w-4 h-4" />
@@ -183,6 +208,18 @@ export default function PropertyDetailPage() {
             {formatPrice(property.price, property.priceLabel)}
           </p>
           <div className="flex flex-wrap gap-4 text-stone-600">
+            {(property.propertyType === 'condo' || property.propertyType === 'apartment') && (property.floor != null || property.roomNumber) && (
+              <span className="flex items-center gap-2">
+                {property.floor != null && <>ชั้น {property.floor}</>}
+                {property.floor != null && property.roomNumber && ' · '}
+                {property.roomNumber && <>ห้อง {property.roomNumber}</>}
+              </span>
+            )}
+            {(property.propertyType === 'house' || property.propertyType === 'villa') && property.floors != null && (
+              <span className="flex items-center gap-2">
+                บ้าน {property.floors} ชั้น
+              </span>
+            )}
             {property.bedrooms != null && (
               <span className="flex items-center gap-2">
                 <Bed className="w-5 h-5" /> {property.bedrooms} ห้องนอน

@@ -35,6 +35,12 @@ export function prismaToProperty(p: PrismaProperty): Property {
     isOwnerListing: p.isOwnerListing,
     status: p.status ?? 'published',
     agentId: p.agentId ?? undefined,
+    rentOccupied: p.rentOccupied ?? false,
+    rentLeaseStart: p.rentLeaseStart ?? undefined,
+    rentLeaseEnd: p.rentLeaseEnd ?? undefined,
+    floor: p.floor ?? undefined,
+    roomNumber: p.roomNumber ?? undefined,
+    floors: p.floors ?? undefined,
     createdAt: p.createdAt,
   }
 }
@@ -63,6 +69,12 @@ export function propertyToPrisma(p: Omit<Property, 'id'> & { id?: string }) {
     isOwnerListing: p.isOwnerListing ?? false,
     status: p.status ?? 'published',
     agentId: p.agentId ?? null,
+    rentOccupied: p.rentOccupied ?? false,
+    rentLeaseStart: p.rentLeaseStart ?? null,
+    rentLeaseEnd: p.rentLeaseEnd ?? null,
+    floor: p.floor ?? null,
+    roomNumber: p.roomNumber ?? null,
+    floors: p.floors ?? null,
     createdAt: p.createdAt,
     updatedAt: new Date().toISOString().slice(0, 10),
   }

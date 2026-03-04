@@ -47,6 +47,12 @@ CREATE TABLE "Property" (
   "isOwnerListing" BOOLEAN NOT NULL DEFAULT false,
   "status" TEXT NOT NULL DEFAULT 'published',
   "agentId" TEXT,
+  "rentOccupied" BOOLEAN NOT NULL DEFAULT false,
+  "rentLeaseStart" TEXT,
+  "rentLeaseEnd" TEXT,
+  "floor" INTEGER,
+  "roomNumber" TEXT,
+  "floors" INTEGER,
   "createdAt" TEXT NOT NULL,
   "updatedAt" TEXT NOT NULL,
   CONSTRAINT "Property_pkey" PRIMARY KEY ("id")
@@ -127,7 +133,7 @@ VALUES (
 );
 
 -- ข้อมูลเริ่มต้น: ตัวอย่างทรัพย์ 2 รายการ
-INSERT INTO "Property" ("id", "title", "listingType", "propertyType", "price", "priceLabel", "location", "mapUrl", "area", "bedrooms", "bathrooms", "images", "description", "features", "contactName", "contactPhone", "contactEmail", "contactLine", "contactWhatsapp", "isFeatured", "isOwnerListing", "status", "agentId", "createdAt", "updatedAt")
+INSERT INTO "Property" ("id", "title", "listingType", "propertyType", "price", "priceLabel", "location", "mapUrl", "area", "bedrooms", "bathrooms", "images", "description", "features", "contactName", "contactPhone", "contactEmail", "contactLine", "contactWhatsapp", "isFeatured", "isOwnerListing", "status", "agentId", "rentOccupied", "rentLeaseStart", "rentLeaseEnd", "floor", "roomNumber", "floors", "createdAt", "updatedAt")
 VALUES
 (
   'clseedprop01',
@@ -152,6 +158,12 @@ VALUES
   true,
   true,
   'published',
+  NULL,
+  false,
+  NULL,
+  NULL,
+  5,
+  '301',
   NULL,
   '2024-01-15',
   '2024-01-15'
@@ -180,6 +192,12 @@ VALUES
   false,
   'published',
   NULL,
+  false,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  2,
   '2024-02-01',
   '2024-02-01'
 );

@@ -40,4 +40,7 @@
 
 ## ถ้ามีตารางอยู่แล้ว (เคยรัน supabase-create-tables.sql ไปก่อนหน้า)
 
-ให้รันไฟล์ **`supabase-add-owner-contact-columns.sql`** ใน SQL Editor อีกครั้ง เพื่อเพิ่มคอลัมน์ช่องทางติดต่อเจ้าของทรัพย์ (Line, WhatsApp)
+- **`supabase-add-owner-contact-columns.sql`** — เพิ่มคอลัมน์ช่องทางติดต่อเจ้าของทรัพย์ (Line, WhatsApp)
+- **`supabase-migration-leads-agents-status.sql`** — สร้างตาราง Agent, Lead และคอลัมน์ status, agentId
+- **`supabase-migration-rent-lease.sql`** — เพิ่มคอลัมน์สำหรับรายการเช่า: เช่าอยู่แล้ว + วันที่เริ่ม/สิ้นสุดสัญญา (ลูกค้าวางแผนหาห้องล่วงหน้า)
+- **`supabase-migration-floor-room-floors.sql`** — คอนโด: ชั้น + เลขห้อง | บ้าน/วิลล่า: จำนวนชั้น (1 หรือ 2)

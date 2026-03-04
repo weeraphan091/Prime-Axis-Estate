@@ -37,6 +37,18 @@ export interface Property {
   status?: string
   /** id ของพนักงานรับผิดชอบ */
   agentId?: string
+  /** รายการเช่า: มีคนเช่าอยู่ */
+  rentOccupied?: boolean
+  /** รายการเช่า: วันที่เริ่มสัญญา YYYY-MM-DD */
+  rentLeaseStart?: string
+  /** รายการเช่า: วันที่สิ้นสุดสัญญา YYYY-MM-DD */
+  rentLeaseEnd?: string
+  /** คอนโด/อพาร์ตเมนต์: ชั้นที่อยู่ */
+  floor?: number
+  /** คอนโด/อพาร์ตเมนต์: เลขห้อง */
+  roomNumber?: string
+  /** บ้าน/วิลล่า: จำนวนชั้น (1 หรือ 2) */
+  floors?: number
   createdAt: string
 }
 
