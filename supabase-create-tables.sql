@@ -26,6 +26,7 @@ CREATE TABLE "Agent" (
 CREATE TABLE "Property" (
   "id" TEXT NOT NULL,
   "title" TEXT NOT NULL,
+  "projectName" TEXT,
   "listingType" TEXT NOT NULL,
   "propertyType" TEXT NOT NULL,
   "price" INTEGER NOT NULL,
@@ -133,11 +134,12 @@ VALUES (
 );
 
 -- ข้อมูลเริ่มต้น: ตัวอย่างทรัพย์ 2 รายการ
-INSERT INTO "Property" ("id", "title", "listingType", "propertyType", "price", "priceLabel", "location", "mapUrl", "area", "bedrooms", "bathrooms", "images", "description", "features", "contactName", "contactPhone", "contactEmail", "contactLine", "contactWhatsapp", "isFeatured", "isOwnerListing", "status", "agentId", "rentOccupied", "rentLeaseStart", "rentLeaseEnd", "floor", "roomNumber", "floors", "createdAt", "updatedAt")
+INSERT INTO "Property" ("id", "title", "projectName", "listingType", "propertyType", "price", "priceLabel", "location", "mapUrl", "area", "bedrooms", "bathrooms", "images", "description", "features", "contactName", "contactPhone", "contactEmail", "contactLine", "contactWhatsapp", "isFeatured", "isOwnerListing", "status", "agentId", "rentOccupied", "rentLeaseStart", "rentLeaseEnd", "floor", "roomNumber", "floors", "createdAt", "updatedAt")
 VALUES
 (
   'clseedprop01',
   'คอนโดวิวทะเล พัทยาเหนือ 2 ห้องนอน',
+  NULL,
   'sale',
   'condo',
   8500000,
@@ -171,6 +173,7 @@ VALUES
 (
   'clseedprop02',
   'วิลล่า Private โซนจอมเทียน',
+  NULL,
   'rent',
   'villa',
   45000,

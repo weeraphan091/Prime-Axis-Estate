@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Bed, Bath, Maximize2, MapPin, BadgeCheck, Heart, GitCompare } from 'lucide-react'
+import { Bed, Bath, Maximize2, MapPin, BadgeCheck, Heart, GitCompare, ChevronLeft, ChevronRight } from 'lucide-react'
 import { propertyTypeLabels, listingTypeLabels } from '@/data/properties'
 import { useFavorites } from '@/context/FavoritesContext'
 import type { Property } from '@/types/property'
@@ -25,13 +25,27 @@ const PLACEHOLDER_IMG = 'https://placehold.co/600x400/f4f1de/1c1917?text=ไม�
 export function PropertyCard({ property }: { property: Property }) {
   const { isFavorite, isCompare, toggleFavorite, toggleCompare } = useFavorites()
   const images = Array.isArray(property.images) ? property.images : []
-  const imgSrc = images[0] || PLACEHOLDER_IMG
-  // ใช้ <img> สำหรับ data URL หรือ path ภายใน (/uploads/) — บน Vercel /uploads/ อาจไม่มี ใช้ placeholder แทน
-  const useImgTag = imgSrc.startsWith('data:') || imgSrc.startsWith('/')
+  const hasMultiple = images.length > 1
+  const [slideIndex, setSlideIndex] = useState(0)
+  const [imgError, setImgError] = useState(false)
+  const currentSrc = images[slideIndex] || images[0] || PLACEHOLDER_IMG
+  const useImgTag = currentSrc.startsWith('data:') || currentSrc.startsWith('/')
+  const effectiveSrc = useImgTag && imgError ? PLACEHOLDER_IMG : currentSrc
   const fav = isFavorite(property.id)
   const comp = isCompare(property.id)
-  const [imgError, setImgError] = useState(false)
-  const effectiveSrc = useImgTag && imgError ? PLACEHOLDER_IMG : imgSrc
+
+  const goPrev = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setSlideIndex((i) => (i === 0 ? images.length - 1 : i - 1))
+    setImgError(false)
+  }
+  const goNext = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setSlideIndex((i) => (i === images.length - 1 ? 0 : i + 1))
+    setImgError(false)
+  }
 
   const handleFav = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -54,18 +68,56 @@ export function PropertyCard({ property }: { property: Property }) {
         {useImgTag ? (
           <img
             src={effectiveSrc}
-            alt={property.title}
+            alt={`${property.title} - รูป ${slideIndex + 1}`}
             className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-300"
             onError={() => setImgError(true)}
           />
         ) : (
           <Image
             src={effectiveSrc}
-            alt={property.title}
+            alt={`${property.title} - รูป ${slideIndex + 1}`}
             fill
             className="object-cover group-hover:scale-105 transition duration-300"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
+        )}
+        {hasMultiple && (
+          <>
+            <button
+              type="button"
+              onClick={goPrev}
+              className="absolute left-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-black/60 active:bg-black/70 transition z-10"
+              aria-label="รูปก่อนหน้า"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              type="button"
+              onClick={goNext}
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-black/60 active:bg-black/70 transition z-10"
+              aria-label="รูปถัดไป"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+              {images.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    setSlideIndex(i)
+                    setImgError(false)
+                  }}
+                  className={`w-2 h-2 rounded-full transition ${
+                    i === slideIndex ? 'bg-white scale-110' : 'bg-white/60 hover:bg-white/80'
+                  }`}
+                  aria-label={`รูปที่ ${i + 1}`}
+                />
+              ))}
+            </div>
+          </>
         )}
         <div className="absolute top-3 left-3 flex gap-2">
           <span className="px-2.5 py-1 bg-primary-600 text-white text-xs font-semibold rounded-md">
@@ -103,6 +155,7 @@ export function PropertyCard({ property }: { property: Property }) {
       </div>
       <div className="p-4">
         <p className="text-xs text-stone-500 mb-1">
+          {property.projectName && <>{property.projectName} · </>}
           {propertyTypeLabels[property.propertyType]}
           {(property.propertyType === 'condo' || property.propertyType === 'apartment') && (property.floor != null || property.roomNumber) && (
             <> · {[property.floor != null ? `ชั้น ${property.floor}` : null, property.roomNumber ? `ห้อง ${property.roomNumber}` : null].filter(Boolean).join(' ')}</>

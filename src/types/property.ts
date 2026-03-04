@@ -11,6 +11,8 @@ export type PropertyType =
 export interface Property {
   id: string
   title: string
+  /** ชื่อโปรเจ็ค/โครงการ (เช่น คอนโด หมู่บ้าน) */
+  projectName?: string
   listingType: ListingType
   propertyType: PropertyType
   price: number

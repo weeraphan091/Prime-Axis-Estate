@@ -41,6 +41,7 @@ model Lead {
 model Property {
   id             String   @id @default(cuid())
   title          String
+  projectName    String?  // ชื่อโปรเจ็ค/โครงการ (เช่น คอนโดชื่ออะไร หมู่บ้านชื่ออะไร)
   listingType    String   // sale | rent
   propertyType   String   // condo | house | villa | ...
   price          Int

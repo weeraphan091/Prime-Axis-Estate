@@ -14,6 +14,7 @@ export function prismaToProperty(p: PrismaProperty): Property {
   return {
     id: p.id,
     title: p.title,
+    projectName: p.projectName ?? undefined,
     listingType: p.listingType as Property['listingType'],
     propertyType: p.propertyType as Property['propertyType'],
     price: p.price,
@@ -48,6 +49,7 @@ export function prismaToProperty(p: PrismaProperty): Property {
 export function propertyToPrisma(p: Omit<Property, 'id'> & { id?: string }) {
   return {
     title: p.title,
+    projectName: p.projectName ?? null,
     listingType: p.listingType,
     propertyType: p.propertyType,
     price: p.price,

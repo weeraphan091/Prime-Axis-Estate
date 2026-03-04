@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import { SearchBar } from '@/components/SearchBar'
@@ -6,10 +7,23 @@ import { properties as staticProperties } from '@/data/properties'
 import { pattayaZones } from '@/config/zones'
 import { LatestListings } from '@/components/LatestListings'
 import { getPropertiesFromDb } from '@/lib/property-db'
+import { getSiteUrl } from '@/config/site'
 import { FilePlus, Shield, Home, Zap, MapPin } from 'lucide-react'
 
 // บังคับดึงข้อมูลใหม่ทุกครั้ง — แก้หลังบ้านแล้วหน้าแรกจะอัปเดต
 export const dynamic = 'force-dynamic'
+
+export const metadata: Metadata = {
+  title: 'นายหน้าอสังหา พัทยา ขาย-เช่า ฝากขายฝากเช่า',
+  description:
+    'PRIME AXIS ESTATE ค้นหาคอนโด บ้าน วิลล่า ที่ดินในพัทยา ขาย-เช่า ฝากขายฝากเช่า ติดต่อนายหน้าพัทยา',
+  alternates: { canonical: getSiteUrl() },
+  openGraph: {
+    title: 'PRIME AXIS ESTATE | นายหน้าอสังหา พัทยา ขาย-เช่า ฝากขายฝากเช่า',
+    description: 'ค้นหาคอนโด บ้าน วิลล่า ที่ดินในพัทยา ขาย-เช่า ฝากขายฝากเช่า',
+    url: getSiteUrl(),
+  },
+}
 
 export default async function HomePage() {
   const dbList = await getPropertiesFromDb()

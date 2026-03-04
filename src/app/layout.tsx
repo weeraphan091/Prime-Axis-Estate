@@ -6,6 +6,8 @@ import { ContactProvider } from '@/context/ContactContext'
 import { AuthProvider } from '@/context/AuthContext'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
+import { JsonLdOrganization } from '@/components/JsonLdOrganization'
+import { getSiteUrl, SITE_NAME, DEFAULT_DESCRIPTION } from '@/config/site'
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
@@ -20,11 +22,47 @@ const dmSerif = DM_Serif_Display({
   display: 'swap',
 })
 
+const siteUrl = getSiteUrl()
+
 export const metadata: Metadata = {
-  title: 'PRIME AXIS ESTATE | นายหน้าอสังหา ขาย-เช่า ฝากขายฝากเช่า',
-  description:
-    'PRIME AXIS ESTATE ค้นหาคอนโด บ้าน วิลล่า ที่ดิน ขาย-เช่า หรือฝากขาย-ฝากเช่าทรัพย์กับเรา',
-  keywords: 'นายหน้าอสังหา, อสังหาริมทรัพย์, ขายคอนโด, เช่าบ้าน, ฝากขาย, Prime Axis Estate',
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: `${SITE_NAME} | นายหน้าอสังหา พัทยา ขาย-เช่า ฝากขายฝากเช่า`,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: DEFAULT_DESCRIPTION,
+  keywords: [
+    'นายหน้าอสังหา',
+    'อสังหาริมทรัพย์พัทยา',
+    'ขายคอนโดพัทยา',
+    'เช่าบ้านพัทยา',
+    'ฝากขายฝากเช่า',
+    'Prime Axis Estate',
+  ],
+  authors: [{ name: SITE_NAME }],
+  creator: SITE_NAME,
+  openGraph: {
+    type: 'website',
+    locale: 'th_TH',
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} | นายหน้าอสังหา พัทยา ขาย-เช่า ฝากขายฝากเช่า`,
+    description: DEFAULT_DESCRIPTION,
+    url: siteUrl,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `${SITE_NAME} | นายหน้าอสังหา พัทยา`,
+    description: DEFAULT_DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
+  alternates: { canonical: siteUrl },
+  verification: {
+    // ใส่ค่าเมื่อมี: google: 'xxx', yandex: 'xxx'
+  },
 }
 
 export default function RootLayout({
@@ -35,6 +73,7 @@ export default function RootLayout({
   return (
     <html lang="th" className={`${dmSans.variable} ${dmSerif.variable}`}>
       <body className="min-h-screen flex flex-col antialiased">
+        <JsonLdOrganization />
         <AuthProvider>
           <ContactProvider>
             <FavoritesProvider>

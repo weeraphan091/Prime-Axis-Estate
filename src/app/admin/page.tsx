@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { hasAdminSession } from '@/lib/admin-auth'
 import { prisma } from '@/lib/prisma'
-import { List, PlusCircle, Phone, Users, MessageSquare, Download } from 'lucide-react'
+import { List, PlusCircle, Phone, Users, MessageSquare, Download, UserCheck } from 'lucide-react'
 
 export default async function AdminHomePage() {
   const ok = await hasAdminSession()
@@ -13,11 +13,13 @@ export default async function AdminHomePage() {
   let totalLeads = 0
   let newLeadsThisWeek = 0
   let totalAgents = 0
+  let totalMembers = 0
   try {
-    const [listings, leads, agents] = await Promise.all([
+    const [listings, leads, agents, memberCount] = await Promise.all([
       prisma.property.findMany({ select: { id: true, status: true, createdAt: true } }),
       prisma.lead.findMany({ select: { id: true, createdAt: true } }),
       prisma.agent.count(),
+      prisma.user.count(),
     ])
     totalListings = listings.length
     publishedListings = listings.filter((p) => p.status === 'published').length
@@ -27,6 +29,7 @@ export default async function AdminHomePage() {
     const weekAgoStr = oneWeekAgo.toISOString().slice(0, 19)
     newLeadsThisWeek = leads.filter((l) => l.createdAt >= weekAgoStr).length
     totalAgents = agents
+    totalMembers = memberCount
   } catch {
     // DB error - show 0
   }
@@ -36,7 +39,7 @@ export default async function AdminHomePage() {
       <h1 className="font-display text-2xl text-stone-900">แดชบอร์ด</h1>
       <p className="mt-1 text-stone-600">ภาพรวมรายการ ลีด และพนักงานขาย</p>
 
-      <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="mt-6 grid grid-cols-2 sm:grid-cols-5 gap-4">
         <div className="bg-white rounded-xl border border-stone-200 p-4">
           <p className="text-sm text-stone-500">รายการทั้งหมด</p>
           <p className="text-2xl font-bold text-stone-900">{totalListings}</p>
@@ -50,6 +53,10 @@ export default async function AdminHomePage() {
         <div className="bg-white rounded-xl border border-stone-200 p-4">
           <p className="text-sm text-stone-500">พนักงานขาย</p>
           <p className="text-2xl font-bold text-stone-900">{totalAgents}</p>
+        </div>
+        <div className="bg-white rounded-xl border border-stone-200 p-4">
+          <p className="text-sm text-stone-500">สมาชิก</p>
+          <p className="text-2xl font-bold text-stone-900">{totalMembers}</p>
         </div>
       </div>
 
@@ -100,6 +107,18 @@ export default async function AdminHomePage() {
           <div>
             <h2 className="font-semibold text-stone-900">พนักงานขาย</h2>
             <p className="text-sm text-stone-500">จัดการโปรไฟล์พนักงาน</p>
+          </div>
+        </Link>
+        <Link
+          href="/admin/members"
+          className="flex items-center gap-4 p-6 bg-white rounded-xl border border-stone-200 hover:border-primary-300 hover:shadow-md transition"
+        >
+          <div className="w-12 h-12 rounded-lg bg-emerald-100 flex items-center justify-center">
+            <UserCheck className="w-6 h-6 text-emerald-600" />
+          </div>
+          <div>
+            <h2 className="font-semibold text-stone-900">สมาชิก</h2>
+            <p className="text-sm text-stone-500">รายการลูกค้าที่สมัครสมาชิก</p>
           </div>
         </Link>
         <Link

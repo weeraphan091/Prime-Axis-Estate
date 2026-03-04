@@ -29,6 +29,9 @@ export function AdminNav() {
       <Link href="/admin/agents" className="text-stone-600 hover:text-primary-600">
         พนักงานขาย
       </Link>
+      <Link href="/admin/members" className="text-stone-600 hover:text-primary-600">
+        สมาชิก
+      </Link>
       <Link href="/admin/settings" className="text-stone-600 hover:text-primary-600">
         ข้อมูลติดต่อ
       </Link>

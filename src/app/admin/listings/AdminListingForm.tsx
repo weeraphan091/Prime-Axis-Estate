@@ -38,6 +38,7 @@ export function AdminListingForm({ initial }: Props) {
   const [imagePreview, setImagePreview] = useState<string[]>(initial?.images ?? [])
   const [form, setForm] = useState({
     title: initial?.title ?? '',
+    projectName: initial?.projectName ?? '',
     listingType: (initial?.listingType ?? 'sale') as 'sale' | 'rent',
     propertyType: (initial?.propertyType ?? 'condo') as Property['propertyType'],
     price: initial?.price ?? 0,
@@ -105,6 +106,7 @@ export function AdminListingForm({ initial }: Props) {
         : ['https://placehold.co/800x600/f4f1de/1c1917?text=ไม่มีรูป']
       const payload = {
         title: form.title,
+        projectName: form.projectName?.trim() || undefined,
         listingType: form.listingType,
         propertyType: form.propertyType,
         price: Number(form.price),
@@ -167,6 +169,16 @@ export function AdminListingForm({ initial }: Props) {
             value={form.title}
             onChange={(e) => update('title', e.target.value)}
             className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-stone-700 mb-1">ชื่อโปรเจ็ค/โครงการ</label>
+          <input
+            type="text"
+            value={form.projectName}
+            onChange={(e) => update('projectName', e.target.value)}
+            placeholder="เช่น ซี บี ดี พัทยา, หมู่บ้านสุขสันต์"
+            className="w-full px-4 py-2.5 border border-stone-300 rounded-lg outline-none"
           />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

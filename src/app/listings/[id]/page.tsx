@@ -99,6 +99,9 @@ export default function PropertyDetailPage() {
         )}
       </div>
 
+      {property.projectName && (
+        <p className="text-primary-600 font-medium mb-1">{property.projectName}</p>
+      )}
       <h1 className="font-display text-2xl lg:text-3xl text-stone-900 mb-2">
         {property.title}
       </h1>

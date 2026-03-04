@@ -44,3 +44,4 @@
 - **`supabase-migration-leads-agents-status.sql`** — สร้างตาราง Agent, Lead และคอลัมน์ status, agentId
 - **`supabase-migration-rent-lease.sql`** — เพิ่มคอลัมน์สำหรับรายการเช่า: เช่าอยู่แล้ว + วันที่เริ่ม/สิ้นสุดสัญญา (ลูกค้าวางแผนหาห้องล่วงหน้า)
 - **`supabase-migration-floor-room-floors.sql`** — คอนโด: ชั้น + เลขห้อง | บ้าน/วิลล่า: จำนวนชั้น (1 หรือ 2)
+- **`supabase-migration-project-name.sql`** — ชื่อโปรเจ็ค/โครงการ (เช่น คอนโด หมู่บ้าน)
