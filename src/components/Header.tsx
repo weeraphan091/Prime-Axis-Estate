@@ -7,50 +7,61 @@ import { useState } from 'react'
 import { Menu, X, Home, Search, FilePlus, Phone, Heart, GitCompare } from 'lucide-react'
 import { useFavorites } from '@/context/FavoritesContext'
 import { useAuth } from '@/context/AuthContext'
+import { useLocale } from '@/context/LocaleContext'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 
-const navItems = [
-  { href: '/', label: 'หน้าแรก', icon: Home },
-  { href: '/listings', label: 'ค้นหาทรัพย์', icon: Search },
-  { href: '/list-your-property', label: 'ฝากขาย/เช่า', icon: FilePlus },
-  { href: '/contact', label: 'ติดต่อเรา', icon: Phone },
-]
+const navKeys = [
+  { path: '', key: 'nav.home', icon: Home },
+  { path: 'listings', key: 'nav.search', icon: Search },
+  { path: 'list-your-property', key: 'nav.listProperty', icon: FilePlus },
+  { path: 'contact', key: 'nav.contact', icon: Phone },
+] as const
 
 export function Header() {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
   const { favoriteIds, compareIds } = useFavorites()
   const { user, logout } = useAuth()
+  const { locale, t } = useLocale()
+  const base = `/${locale}`
+  const navItems = navKeys.map(({ path, key, icon }) => ({
+    href: path ? `${base}/${path}` : base,
+    label: t(key),
+    icon,
+  }))
+  const isActive = (href: string) => pathname === href || (href !== base && pathname.startsWith(href))
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-stone-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Top bar: สกุลเงิน + ล็อกอิน/สมาชิก */}
+        {/* Top bar: ภาษา + สกุลเงิน + ล็อกอิน/สมาชิก */}
         <div className="hidden md:flex items-center justify-end gap-4 py-2 text-sm text-stone-500 border-b border-stone-100">
+          <LanguageSwitcher />
           <span className="font-medium text-stone-700">THB ฿</span>
           {user ? (
             <>
-              <Link href="/my-listings" className="hover:text-primary-600 py-1 px-2 -m-2 rounded">
-                รายการของฉัน
+              <Link href={`${base}/my-listings`} className="hover:text-primary-600 py-1 px-2 -m-2 rounded">
+                {t('nav.myListings')}
               </Link>
               <span className="text-stone-600">{user.name || user.email}</span>
               <button type="button" onClick={() => logout()} className="hover:text-primary-600 py-1 px-2 -m-2 rounded">
-                ออกจากระบบ
+                {t('nav.logout')}
               </button>
             </>
           ) : (
             <>
-              <Link href="/login" className="hover:text-primary-600 py-1 px-2 -m-2 rounded">
-                เข้าสู่ระบบ
+              <Link href={`${base}/login`} className="hover:text-primary-600 py-1 px-2 -m-2 rounded">
+                {t('nav.login')}
               </Link>
               <span className="text-stone-300">|</span>
-              <Link href="/register" className="hover:text-primary-600 py-1 px-2 -m-2 rounded">
-                สมัครสมาชิก
+              <Link href={`${base}/register`} className="hover:text-primary-600 py-1 px-2 -m-2 rounded">
+                {t('nav.register')}
               </Link>
             </>
           )}
         </div>
         <div className="flex items-center justify-between h-14 lg:h-16">
-          <Link href="/" className="flex items-center gap-2 hover:opacity-90 transition">
+          <Link href={base} className="flex items-center gap-2 hover:opacity-90 transition">
             <Image src="/logo.png" alt="PRIME AXIS ESTATE" width={44} height={44} className="h-10 w-10 object-contain" />
             <span className="font-display text-lg lg:text-xl text-stone-800 hidden sm:inline">
               PRIME AXIS <span className="text-primary-600">ESTATE</span>
@@ -63,7 +74,7 @@ export function Header() {
                 key={href}
                 href={href}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition ${
-                  pathname === href
+                  isActive(href)
                     ? 'bg-primary-50 text-primary-700'
                     : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
                 }`}
@@ -76,9 +87,9 @@ export function Header() {
 
           <div className="hidden md:flex items-center gap-2">
             <Link
-              href="/favorites"
+              href={`${base}/favorites`}
               className="relative p-2 rounded-lg text-stone-600 hover:bg-stone-100 hover:text-red-500 transition"
-              title="รายการโปรด"
+              title={t('nav.favorites')}
             >
               <Heart className="w-5 h-5" />
               {favoriteIds.length > 0 && (
@@ -88,9 +99,9 @@ export function Header() {
               )}
             </Link>
             <Link
-              href="/compare"
+              href={`${base}/compare`}
               className="relative p-2 rounded-lg text-stone-600 hover:bg-stone-100 hover:text-primary-600 transition"
-              title="เปรียบเทียบ"
+              title={t('nav.compare')}
             >
               <GitCompare className="w-5 h-5" />
               {compareIds.length > 0 && (
@@ -100,11 +111,11 @@ export function Header() {
               )}
             </Link>
             <Link
-              href="/list-your-property"
+              href={`${base}/list-your-property`}
               className="inline-flex items-center gap-2 px-4 py-2.5 bg-accent-coral text-white rounded-lg text-sm font-semibold hover:bg-accent-coral/90 transition shadow-sm"
             >
               <FilePlus className="w-4 h-4" />
-              ฝากขาย/เช่า
+              {t('nav.listProperty')}
             </Link>
           </div>
 
@@ -124,11 +135,11 @@ export function Header() {
               {user ? (
                 <>
                   <Link
-                    href="/my-listings"
+                    href={`${base}/my-listings`}
                     onClick={() => setMobileOpen(false)}
                     className="text-primary-600 py-2 px-3 rounded-lg hover:bg-primary-50 -mx-1"
                   >
-                    รายการของฉัน
+                    {t('nav.myListings')}
                   </Link>
                   <span className="text-stone-600 py-2 px-3">{user.name || user.email}</span>
                   <button
@@ -136,25 +147,25 @@ export function Header() {
                     onClick={() => { setMobileOpen(false); logout(); }}
                     className="text-primary-600 py-2 px-3 rounded-lg hover:bg-primary-50 -mx-1"
                   >
-                    ออกจากระบบ
+                    {t('nav.logout')}
                   </button>
                 </>
               ) : (
                 <>
                   <Link
-                    href="/login"
+                    href={`${base}/login`}
                     onClick={() => setMobileOpen(false)}
                     className="text-primary-600 py-2 px-3 rounded-lg hover:bg-primary-50 -mx-1"
                   >
-                    เข้าสู่ระบบ
+                    {t('nav.login')}
                   </Link>
                   <span className="text-stone-300">|</span>
                   <Link
-                    href="/register"
+                    href={`${base}/register`}
                     onClick={() => setMobileOpen(false)}
                     className="text-primary-600 py-2 px-3 rounded-lg hover:bg-primary-50 -mx-1"
                   >
-                    สมัครสมาชิก
+                    {t('nav.register')}
                   </Link>
                 </>
               )}
@@ -166,7 +177,7 @@ export function Header() {
                   href={href}
                   onClick={() => setMobileOpen(false)}
                   className={`flex items-center gap-2 px-4 py-3 rounded-lg ${
-                    pathname === href ? 'bg-primary-50 text-primary-700' : 'text-stone-700'
+                    isActive(href) ? 'bg-primary-50 text-primary-700' : 'text-stone-700'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -174,28 +185,28 @@ export function Header() {
                 </Link>
               ))}
               <Link
-                href="/favorites"
+                href={`${base}/favorites`}
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center gap-2 px-4 py-3 rounded-lg text-stone-700"
               >
                 <Heart className="w-4 h-4" />
-                รายการโปรด {favoriteIds.length > 0 && `(${favoriteIds.length})`}
+                {t('nav.favorites')} {favoriteIds.length > 0 && `(${favoriteIds.length})`}
               </Link>
               <Link
-                href="/compare"
+                href={`${base}/compare`}
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center gap-2 px-4 py-3 rounded-lg text-stone-700"
               >
                 <GitCompare className="w-4 h-4" />
-                เปรียบเทียบ {compareIds.length > 0 && `(${compareIds.length})`}
+                {t('nav.compare')} {compareIds.length > 0 && `(${compareIds.length})`}
               </Link>
               <Link
-                href="/list-your-property"
+                href={`${base}/list-your-property`}
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center gap-2 px-4 py-3 mt-2 bg-accent-coral text-white rounded-lg font-semibold"
               >
                 <FilePlus className="w-4 h-4" />
-                ฝากขาย/เช่า
+                {t('nav.listProperty')}
               </Link>
             </nav>
           </div>

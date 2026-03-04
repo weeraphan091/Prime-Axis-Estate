@@ -1,0 +1,81 @@
+'use client'
+
+import { useState } from 'react'
+import Link from 'next/link'
+import { useRouter, useSearchParams, useParams } from 'next/navigation'
+import { useAuth } from '@/context/AuthContext'
+import { useLocale } from '@/context/LocaleContext'
+
+export default function LoginPage() {
+  const router = useRouter()
+  const params = useParams()
+  const locale = (params?.locale as string) || 'th'
+  const searchParams = useSearchParams()
+  const nextParam = searchParams.get('next') || ''
+  const next = nextParam ? (nextParam.startsWith('/') ? nextParam : `/${nextParam}`) : `/${locale}`
+  const nextWithLocale = next.startsWith(`/${locale}`) ? next : `/${locale}${next === '/' ? '' : next}`
+  const { refresh } = useAuth()
+  const { t } = useLocale()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [form, setForm] = useState({ login: '', password: '' })
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    if (!form.login.trim() || !form.password) {
+      setError(locale === 'th' ? 'กรุณากรอกเบอร์โทรหรืออีเมล และรหัสผ่าน' : locale === 'en' ? 'Please enter email and password' : locale === 'zh' ? '请填写邮箱和密码' : 'Введите email и пароль')
+      return
+    }
+    setLoading(true)
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email: form.login.trim(), password: form.password }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || (locale === 'th' ? 'เข้าสู่ระบบไม่สำเร็จ' : 'Login failed'))
+        return
+      }
+      await refresh()
+      router.push(nextWithLocale)
+      router.refresh()
+    } catch {
+      setError(locale === 'th' ? 'เกิดข้อผิดพลาด ลองใหม่' : 'Something went wrong')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const base = `/${locale}`
+  return (
+    <div className="max-w-md mx-auto px-4 py-16">
+      <h1 className="font-display text-2xl text-stone-900">{t('nav.login')}</h1>
+      <p className="mt-2 text-stone-600 text-sm">
+        {nextParam.includes('list-your-property') ? (locale === 'th' ? 'กรุณาเข้าสู่ระบบเพื่อฝากขาย/ฝากเช่าทรัพย์' : 'Log in to list your property') : (locale === 'th' ? 'กรอกอีเมลและรหัสผ่าน' : 'Enter email and password')}
+      </p>
+      <form onSubmit={handleSubmit} className="mt-8 p-6 bg-white rounded-xl border border-stone-200 space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-stone-700 mb-1">Email *</label>
+          <input type="email" required placeholder="email@example.com" value={form.login} onChange={(e) => setForm((p) => ({ ...p, login: e.target.value }))} className="w-full px-4 py-2.5 border border-stone-300 rounded-lg outline-none focus:ring-2 focus:ring-primary-500" />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-stone-700 mb-1">{locale === 'th' ? 'รหัสผ่าน' : locale === 'en' ? 'Password' : locale === 'zh' ? '密码' : 'Пароль'} *</label>
+          <input type="password" required value={form.password} onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))} className="w-full px-4 py-2.5 border border-stone-300 rounded-lg outline-none focus:ring-2 focus:ring-primary-500" />
+        </div>
+        {error && <p className="text-sm text-red-600">{error}</p>}
+        <button type="submit" disabled={loading} className="w-full py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 disabled:opacity-60">
+          {loading ? (locale === 'th' ? 'กำลังเข้า...' : 'Loading...') : t('nav.login')}
+        </button>
+      </form>
+      <p className="mt-4 text-center text-sm text-stone-500">
+        {locale === 'th' ? 'ยังไม่มีบัญชี?' : locale === 'en' ? "Don't have an account?" : locale === 'zh' ? '还没有账号？' : 'Нет аккаунта?'}{' '}
+        <Link href={`${base}/register?next=${encodeURIComponent(nextWithLocale)}`} className="text-primary-600 hover:underline">{t('nav.register')}</Link>
+      </p>
+      <Link href={base} className="block mt-6 text-center text-stone-500 hover:text-stone-700 text-sm">← {t('nav.home')}</Link>
+    </div>
+  )
+}

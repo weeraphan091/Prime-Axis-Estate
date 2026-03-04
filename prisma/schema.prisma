@@ -74,6 +74,12 @@ model Property {
   floors         Int?     // 1 หรือ 2 ชั้น
   viewCount      Int      @default(0)  // จำนวนครั้งที่有人เปิดหน้ารายละเอียด
   userId         String?  // เจ้าของที่ฝากขาย (สมาชิกที่ลงรายการ)
+  titleEn        String?  // ชื่อรายการภาษาอังกฤษ
+  descriptionEn  String?  // รายละเอียดภาษาอังกฤษ
+  titleZh        String?  // ชื่อรายการภาษาจีน
+  descriptionZh  String?  // รายละเอียดภาษาจีน
+  titleRu        String?  // ชื่อรายการภาษารัสเซีย
+  descriptionRu  String?  // รายละเอียดภาษารัสเซีย
   createdAt      String
   updatedAt      String
   agent          Agent?   @relation(fields: [agentId], references: [id], onDelete: SetNull)

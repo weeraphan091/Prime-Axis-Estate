@@ -55,6 +55,13 @@ export interface Property {
   viewCount?: number
   /** id สมาชิกที่ฝากขาย (เจ้าของรายการ) */
   userId?: string
+  /** ชื่อรายการภาษาอังกฤษ (ใช้แสดงเมื่อเลือกภาษา en) */
+  titleEn?: string
+  descriptionEn?: string
+  titleZh?: string
+  descriptionZh?: string
+  titleRu?: string
+  descriptionRu?: string
   createdAt: string
 }
 

@@ -6,20 +6,30 @@ import { Search, MapPin, Home, ChevronDown } from 'lucide-react'
 import { propertyTypeLabels } from '@/data/properties'
 import { pattayaZones, priceRangesSale, priceRangesRent } from '@/config/zones'
 import type { ListingType, PropertyType } from '@/types/property'
+import { useLocaleOptional } from '@/context/LocaleContext'
 
-const listingOptions: { value: ListingType; label: string }[] = [
-  { value: 'sale', label: 'ขาย' },
-  { value: 'rent', label: 'เช่า' },
-]
+function getListingOptions(t: (k: string) => string): { value: ListingType; label: string }[] {
+  return [
+    { value: 'sale', label: t('listing.sale') },
+    { value: 'rent', label: t('listing.rent') },
+  ]
+}
 
-const propertyTypes = Object.entries(propertyTypeLabels).map(([value, label]) => ({
-  value: value as PropertyType,
-  label,
-}))
-
-export function SearchBar({ compact = false }: { compact?: boolean }) {
+export function SearchBar({ compact = false, locale: localeProp }: { compact?: boolean; locale?: string }) {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const localeContext = useLocaleOptional()
+  const locale = localeProp ?? localeContext?.locale ?? 'th'
+  const t = localeContext?.t ?? ((k: string) => k)
+  const listingOptions = getListingOptions(t)
+  const propertyTypes = [
+    { value: 'condo' as PropertyType, label: t('listing.condo') },
+    { value: 'house' as PropertyType, label: t('listing.house') },
+    { value: 'villa' as PropertyType, label: t('listing.villa') },
+    { value: 'apartment' as PropertyType, label: t('listing.apartment') },
+    { value: 'land' as PropertyType, label: t('listing.land') },
+    { value: 'commercial' as PropertyType, label: t('listing.commercial') },
+  ]
   const [listingType, setListingType] = useState<ListingType>(
     (searchParams.get('type') as ListingType) || 'sale'
   )
@@ -38,7 +48,8 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
     if (location) params.set('location', location)
     if (minPrice) params.set('minPrice', minPrice)
     if (maxPrice) params.set('maxPrice', maxPrice)
-    router.push(`/listings?${params.toString()}`)
+    const prefix = locale ? `/${locale}` : ''
+    router.push(`${prefix}/listings?${params.toString()}`)
   }
 
   if (compact) {
@@ -71,7 +82,7 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
               onChange={(e) => setLocation(e.target.value)}
               className="w-full pl-10 pr-8 py-2.5 border border-stone-300 rounded-lg appearance-none bg-white focus:ring-2 focus:ring-primary-500 outline-none"
             >
-              <option value="">ทุกโซน</option>
+              <option value="">{locale === 'th' ? 'ทุกโซน' : locale === 'en' ? 'All areas' : locale === 'zh' ? '全部区域' : 'Все районы'}</option>
               {pattayaZones.map((z) => (
                 <option key={z.id} value={z.slug}>
                   {z.label}
@@ -86,7 +97,7 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
           className="flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition"
         >
           <Search className="w-4 h-4" />
-          ค้นหา
+          {t('search.search')}
         </button>
       </form>
     )
@@ -99,7 +110,7 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
     >
       <div className="flex flex-wrap gap-4 items-end">
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1.5">ประเภทประกาศ</label>
+          <label className="block text-sm font-medium text-stone-700 mb-1.5">{t('search.type')}</label>
           <div className="flex rounded-lg border border-stone-300 overflow-hidden">
             {listingOptions.map((opt) => (
               <button
@@ -118,7 +129,7 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
           </div>
         </div>
         <div className="flex-1 min-w-[180px]">
-          <label className="block text-sm font-medium text-stone-700 mb-1.5">ประเภทอสังหา</label>
+          <label className="block text-sm font-medium text-stone-700 mb-1.5">{t('search.propertyType')}</label>
           <div className="relative">
             <Home className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
             <select
@@ -126,7 +137,7 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
               onChange={(e) => setPropertyType(e.target.value as PropertyType | '')}
               className="w-full pl-10 pr-8 py-2.5 border border-stone-300 rounded-lg appearance-none bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
             >
-              <option value="">ทั้งหมด</option>
+              <option value="">{locale === 'th' ? 'ทั้งหมด' : locale === 'en' ? 'All' : locale === 'zh' ? '全部' : 'Все'}</option>
               {propertyTypes.map((pt) => (
                 <option key={pt.value} value={pt.value}>
                   {pt.label}
@@ -137,7 +148,7 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
           </div>
         </div>
         <div className="flex-1 min-w-[200px]">
-          <label className="block text-sm font-medium text-stone-700 mb-1.5">โซนทำเล</label>
+          <label className="block text-sm font-medium text-stone-700 mb-1.5">{t('search.location')}</label>
           <div className="relative">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
             <select
@@ -145,7 +156,7 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
               onChange={(e) => setLocation(e.target.value)}
               className="w-full pl-10 pr-8 py-2.5 border border-stone-300 rounded-lg appearance-none bg-white focus:ring-2 focus:ring-primary-500 outline-none"
             >
-              <option value="">ทุกโซน</option>
+              <option value="">{locale === 'th' ? 'ทุกโซน' : locale === 'en' ? 'All areas' : locale === 'zh' ? '全部区域' : 'Все районы'}</option>
               {pattayaZones.map((z) => (
                 <option key={z.id} value={z.slug}>
                   {z.label}
@@ -158,7 +169,7 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
       </div>
       <div className="flex flex-wrap gap-4 items-end">
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1.5">ช่วงราคา</label>
+          <label className="block text-sm font-medium text-stone-700 mb-1.5">{locale === 'th' ? 'ช่วงราคา' : locale === 'en' ? 'Price range' : locale === 'zh' ? '价格范围' : 'Цена'}</label>
           <select
             value={minPrice && maxPrice ? `${minPrice}-${maxPrice}` : ''}
             onChange={(e) => {
@@ -174,7 +185,7 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
             }}
             className="w-48 px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
           >
-            <option value="">ไม่ระบุ</option>
+            <option value="">{locale === 'th' ? 'ไม่ระบุ' : locale === 'en' ? 'Any' : locale === 'zh' ? '不限' : 'Любая'}</option>
             {(listingType === 'rent' ? priceRangesRent : priceRangesSale).map((r) => (
               <option key={r.label} value={`${r.min}-${r.max}`}>
                 {r.label}
@@ -184,7 +195,7 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
         </div>
         <div className="hidden sm:block text-stone-400 text-sm">หรือ</div>
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1.5">ราคาต่ำสุด</label>
+          <label className="block text-sm font-medium text-stone-700 mb-1.5">{t('search.minPrice')}</label>
           <input
             type="number"
             placeholder="กำหนดเอง"
@@ -194,7 +205,7 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1.5">ราคาสูงสุด</label>
+          <label className="block text-sm font-medium text-stone-700 mb-1.5">{t('search.maxPrice')}</label>
           <input
             type="number"
             placeholder="กำหนดเอง"
@@ -208,7 +219,7 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
           className="flex items-center gap-2 px-6 py-2.5 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition ml-auto"
         >
           <Search className="w-4 h-4" />
-          ค้นหาทรัพย์
+          {t('search.search')}
         </button>
       </div>
     </form>

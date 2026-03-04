@@ -1,16 +1,24 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { prismaToProperty, propertyToPrisma } from '@/lib/property-db'
+import { prismaToProperty, propertyToPrisma, propertyForPublic, propertyForLocale } from '@/lib/property-db'
 import { hasAdminSession } from '@/lib/admin-auth'
+import { isValidLocale, type Locale } from '@/config/i18n'
 import type { Property } from '@/types/property'
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const list = await prisma.property.findMany({
       where: { status: 'published' },
       orderBy: { updatedAt: 'desc' },
     })
-    const properties: Property[] = list.map(prismaToProperty)
+    const url = request.url ? new URL(request.url) : null
+    const localeParam = url?.searchParams?.get('locale')
+    const locale: Locale | undefined = localeParam && isValidLocale(localeParam) ? localeParam : undefined
+    const properties: Property[] = list.map((p) => {
+      let prop = prismaToProperty(p)
+      if (locale) prop = propertyForLocale(prop, locale)
+      return propertyForPublic(prop)
+    })
     const res = NextResponse.json(properties)
     res.headers.set('Cache-Control', 'no-store, max-age=0')
     return res

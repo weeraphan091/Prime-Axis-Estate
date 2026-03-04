@@ -1,14 +1,14 @@
 import type { Metadata } from 'next'
+import { cookies } from 'next/headers'
 import { DM_Sans, DM_Serif_Display } from 'next/font/google'
 import './globals.css'
 import { FavoritesProvider } from '@/context/FavoritesContext'
 import { ContactProvider } from '@/context/ContactContext'
 import { AuthProvider } from '@/context/AuthContext'
-import { Header } from '@/components/Header'
-import { Footer } from '@/components/Footer'
 import { JsonLdOrganization } from '@/components/JsonLdOrganization'
 import { NavigationProgress } from '@/components/NavigationProgress'
 import { getSiteUrl, SITE_NAME, DEFAULT_DESCRIPTION } from '@/config/site'
+import { isValidLocale } from '@/config/i18n'
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
@@ -66,22 +66,25 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+const localeToLang: Record<string, string> = { th: 'th', en: 'en', zh: 'zh-Hans', ru: 'ru' }
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const cookieStore = await cookies()
+  const localeCookie = cookieStore.get('NEXT_LOCALE')?.value
+  const lang = localeCookie && isValidLocale(localeCookie) ? localeToLang[localeCookie] : 'th'
   return (
-    <html lang="th" className={`${dmSans.variable} ${dmSerif.variable}`}>
+    <html lang={lang} className={`${dmSans.variable} ${dmSerif.variable}`} suppressHydrationWarning>
       <body className="min-h-screen flex flex-col antialiased">
         <JsonLdOrganization />
         <AuthProvider>
           <ContactProvider>
             <FavoritesProvider>
               <NavigationProgress />
-              <Header />
-              <main className="flex-1">{children}</main>
-              <Footer />
+              {children}
             </FavoritesProvider>
           </ContactProvider>
         </AuthProvider>

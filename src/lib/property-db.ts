@@ -1,5 +1,15 @@
 import type { Property } from '@/types/property'
 import type { Property as PrismaProperty } from '@prisma/client'
+import type { Locale } from '@/config/i18n'
+
+type PrismaPropertyRow = PrismaProperty & {
+  titleEn?: string | null
+  descriptionEn?: string | null
+  titleZh?: string | null
+  descriptionZh?: string | null
+  titleRu?: string | null
+  descriptionRu?: string | null
+}
 
 function parseJsonArray(raw: string): string[] {
   try {
@@ -10,7 +20,8 @@ function parseJsonArray(raw: string): string[] {
   }
 }
 
-export function prismaToProperty(p: PrismaProperty): Property {
+export function prismaToProperty(p: PrismaPropertyRow): Property {
+  const row = p as PrismaPropertyRow
   return {
     id: p.id,
     title: p.title,
@@ -44,6 +55,12 @@ export function prismaToProperty(p: PrismaProperty): Property {
     floors: p.floors ?? undefined,
     viewCount: p.viewCount ?? 0,
     userId: p.userId ?? undefined,
+    titleEn: row.titleEn ?? undefined,
+    descriptionEn: row.descriptionEn ?? undefined,
+    titleZh: row.titleZh ?? undefined,
+    descriptionZh: row.descriptionZh ?? undefined,
+    titleRu: row.titleRu ?? undefined,
+    descriptionRu: row.descriptionRu ?? undefined,
     createdAt: p.createdAt,
   }
 }
@@ -81,20 +98,58 @@ export function propertyToPrisma(p: Omit<Property, 'id'> & { id?: string }) {
     floors: p.floors ?? null,
     viewCount: p.viewCount ?? 0,
     userId: p.userId ?? null,
+    titleEn: p.titleEn ?? null,
+    descriptionEn: p.descriptionEn ?? null,
+    titleZh: p.titleZh ?? null,
+    descriptionZh: p.descriptionZh ?? null,
+    titleRu: p.titleRu ?? null,
+    descriptionRu: p.descriptionRu ?? null,
     createdAt: p.createdAt,
     updatedAt: new Date().toISOString().slice(0, 10),
   }
 }
 
-/** onlyPublished: true = หน้าเว็บทั่วไป (เฉพาะ published), false = หลังบ้าน (ทุกสถานะ) */
-export async function getPropertiesFromDb(onlyPublished = true): Promise<Property[]> {
+/** คืน title/description ตาม locale (fallback เป็นภาษาไทย) */
+export function propertyForLocale(p: Property, locale: Locale): Property {
+  if (locale === 'th') return p
+  const title =
+    (locale === 'en' && p.titleEn) ||
+    (locale === 'zh' && p.titleZh) ||
+    (locale === 'ru' && p.titleRu) ||
+    p.title
+  const description =
+    (locale === 'en' && p.descriptionEn) ||
+    (locale === 'zh' && p.descriptionZh) ||
+    (locale === 'ru' && p.descriptionRu) ||
+    p.description
+  return { ...p, title, description }
+}
+
+/** สำหรับส่งกลับให้ลูกค้า/สาธารณะ — ไม่ส่งข้อมูลติดต่อเจ้าของทรัพย์ (ติดต่อผ่านนายหน้าเท่านั้น) */
+export function propertyForPublic(p: Property): Property {
+  const { contactName, contactPhone, contactEmail, contactLine, contactWhatsapp, userId, ...rest } = p
+  return {
+    ...rest,
+    contactName: '',
+    contactPhone: '',
+    contactEmail: '',
+    contactLine: undefined,
+    contactWhatsapp: undefined,
+    userId: undefined,
+  }
+}
+
+/** onlyPublished: true = หน้าเว็บทั่วไป (เฉพาะ published), false = หลังบ้าน (ทุกสถานะ). locale = แปล title/description ตามภาษาที่เลือก */
+export async function getPropertiesFromDb(onlyPublished = true, locale?: Locale): Promise<Property[]> {
   try {
     const { prisma } = await import('@/lib/prisma')
     const list = await prisma.property.findMany({
       where: onlyPublished ? { status: 'published' } : undefined,
       orderBy: { updatedAt: 'desc' },
     })
-    return list.map(prismaToProperty)
+    const mapped = list.map(prismaToProperty)
+    if (locale) return mapped.map((p) => propertyForLocale(p, locale))
+    return mapped
   } catch {
     return []
   }

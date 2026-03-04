@@ -1,18 +1,24 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { prismaToProperty, propertyToPrisma } from '@/lib/property-db'
+import { prismaToProperty, propertyToPrisma, propertyForPublic, propertyForLocale } from '@/lib/property-db'
 import { hasAdminSession } from '@/lib/admin-auth'
+import { isValidLocale, type Locale } from '@/config/i18n'
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
+  const url = request.url ? new URL(request.url) : null
+  const localeParam = url?.searchParams?.get('locale')
+  const locale: Locale | undefined = localeParam && isValidLocale(localeParam) ? localeParam : undefined
   try {
     const p = await prisma.property.findUnique({ where: { id } })
     if (!p) return NextResponse.json({ error: 'Not found' }, { status: 404 })
     if (p.status !== 'published') return NextResponse.json({ error: 'Not found' }, { status: 404 })
-    return NextResponse.json(prismaToProperty(p))
+    let prop = propertyForPublic(prismaToProperty(p))
+    if (locale) prop = propertyForLocale(prop, locale)
+    return NextResponse.json(prop)
   } catch (e) {
     console.error(e)
     return NextResponse.json({ error: 'Failed to fetch' }, { status: 500 })

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { FilePlus, CheckCircle, Home, MapPin, ImagePlus, X } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { propertyTypeLabels } from '@/data/properties'
@@ -30,10 +30,12 @@ function readFileAsDataUrl(file: File): Promise<string> {
   })
 }
 
-const LIST_PAGE = '/list-your-property'
-
 export default function ListYourPropertyPage() {
   const router = useRouter()
+  const params = useParams()
+  const locale = (params as { locale?: string })?.locale
+  const base = locale ? `/${locale}` : ''
+  const LIST_PAGE = base ? `${base}/list-your-property` : '/list-your-property'
   const { user, loading: authLoading } = useAuth()
   const [authChecked, setAuthChecked] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -71,11 +73,11 @@ export default function ListYourPropertyPage() {
   useEffect(() => {
     if (authLoading) return
     if (!user) {
-      router.replace(`/login?next=${encodeURIComponent(LIST_PAGE)}`)
+      router.replace(`${base || ''}/login?next=${encodeURIComponent(LIST_PAGE)}`)
       return
     }
     setAuthChecked(true)
-  }, [user, authLoading, router])
+  }, [user, authLoading, router, base, LIST_PAGE])
 
   useEffect(() => {
     if (!user) return
@@ -206,7 +208,7 @@ export default function ListYourPropertyPage() {
             หากมีคำถาม โทรหรือไลน์เราได้ที่หมายเลขด้านล่างของเว็บ
           </p>
           <Link
-            href="/listings"
+            href={base ? `${base}/listings` : '/listings'}
             className="inline-block mt-6 px-5 py-2.5 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition"
           >
             ดูรายการทั้งหมด
