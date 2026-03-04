@@ -69,11 +69,13 @@ export async function getCurrentAdmin(): Promise<AdminSession | null> {
   if (!token) return null
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET)
+    const email = String(payload.email ?? '')
+    const name = String(payload.name ?? payload.email ?? '')
     return {
-      id: payload.id as string,
-      email: payload.email as string,
-      name: (payload.name as string) || payload.email,
-      role: (payload.role as 'admin' | 'staff') || 'staff',
+      id: String(payload.id ?? ''),
+      email,
+      name: name || email,
+      role: (payload.role === 'admin' ? 'admin' : 'staff') as 'admin' | 'staff',
     }
   } catch {
     return null
