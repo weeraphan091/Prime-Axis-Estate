@@ -28,7 +28,7 @@ export function LanguageSwitcher() {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg text-stone-600 hover:bg-stone-100 text-sm font-medium"
+        className="flex items-center gap-2 py-2.5 px-3 rounded-lg text-stone-600 hover:bg-stone-100 text-sm font-medium min-h-[44px] touch-manipulation"
         aria-expanded={open}
         aria-haspopup="true"
       >
