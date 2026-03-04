@@ -3,13 +3,29 @@ import { hasAdminSession } from '@/lib/admin-auth'
 import { prisma } from '@/lib/prisma'
 import { ContactSettingsForm } from './ContactSettingsForm'
 
+const defaultInitial = {
+  name: 'PRIME AXIS ESTATE',
+  phone: '038-xxx-xxx',
+  email: 'contact@primeaxisestate.com',
+  address: 'พัทยา ชลบุรี',
+  line: '@187umoiw',
+  whatsapp: '66812345678',
+  wechat: 'pattayaproperty',
+  telegram: 'pattayaproperty',
+}
+
 export default async function AdminSettingsPage() {
   const ok = await hasAdminSession()
   if (!ok) redirect('/admin/login')
 
-  const row = await prisma.contactSettings.findUnique({
-    where: { id: 'default' },
-  })
+  let row: Awaited<ReturnType<typeof prisma.contactSettings.findUnique>> = null
+  try {
+    row = await prisma.contactSettings.findUnique({
+      where: { id: 'default' },
+    })
+  } catch {
+    row = null
+  }
 
   const initial = row
     ? {
@@ -22,16 +38,7 @@ export default async function AdminSettingsPage() {
         wechat: row.wechat,
         telegram: row.telegram,
       }
-    : {
-        name: 'PRIME AXIS ESTATE',
-        phone: '038-xxx-xxx',
-        email: 'contact@primeaxisestate.com',
-        address: 'พัทยา ชลบุรี',
-        line: '@187umoiw',
-        whatsapp: '66812345678',
-        wechat: 'pattayaproperty',
-        telegram: 'pattayaproperty',
-      }
+    : defaultInitial
 
   return (
     <div>

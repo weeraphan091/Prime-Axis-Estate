@@ -12,7 +12,12 @@ export default async function AdminEditListingPage({
   const ok = await hasAdminSession()
   if (!ok) redirect('/admin/login')
   const { id } = await params
-  const p = await prisma.property.findUnique({ where: { id } })
+  let p: Awaited<ReturnType<typeof prisma.property.findUnique>>
+  try {
+    p = await prisma.property.findUnique({ where: { id } })
+  } catch {
+    redirect('/admin/listings')
+  }
   if (!p) notFound()
   const initial = prismaToProperty(p)
 

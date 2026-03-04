@@ -4,6 +4,7 @@ import { hasAdminSession } from '@/lib/admin-auth'
 import { prisma } from '@/lib/prisma'
 import { prismaToProperty } from '@/lib/property-db'
 import { propertyTypeLabels, listingTypeLabels } from '@/data/properties'
+import type { Property } from '@/types/property'
 import { Pencil, Trash2 } from 'lucide-react'
 import { AdminDeleteButton } from './AdminDeleteButton'
 
@@ -15,10 +16,29 @@ export default async function AdminListingsPage() {
   const ok = await hasAdminSession()
   if (!ok) redirect('/admin/login')
 
-  const list = await prisma.property.findMany({
-    orderBy: { updatedAt: 'desc' },
-  })
-  const properties = list.map(prismaToProperty)
+  let properties: Property[] = []
+  let dbError = false
+  try {
+    const list = await prisma.property.findMany({
+      orderBy: { updatedAt: 'desc' },
+    })
+    properties = list.map(prismaToProperty)
+  } catch (e) {
+    console.error('[Admin listings] DB error:', e)
+    dbError = true
+  }
+
+  if (dbError) {
+    return (
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 text-amber-900">
+        <h2 className="font-semibold text-lg mb-2">โหลดฐานข้อมูลไม่ได้</h2>
+        <p className="text-sm mb-4">
+          บน Vercel ใช้ SQLite ไม่ได้ ต้องใช้ PostgreSQL แทน — ไปที่ Vercel Postgres หรือ Supabase สร้างฐานข้อมูล แล้วตั้งค่า <strong>DATABASE_URL</strong> ใน Environment Variables แล้วเปลี่ยน prisma/schema.prisma เป็น provider = &quot;postgresql&quot;
+        </p>
+        <p className="text-sm text-amber-700">หรือรันเว็บในเครื่อง (npm run dev) จะใช้ SQLite ได้ตามปกติ</p>
+      </div>
+    )
+  }
 
   return (
     <div>

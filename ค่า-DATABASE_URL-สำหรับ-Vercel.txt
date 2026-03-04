@@ -1,0 +1,11 @@
+คัดลอกบรรทัดด้านล่างไปวางใน Vercel → Settings → Environment Variables → Value ของ DATABASE_URL
+
+postgresql://postgres.liyjjuqzsvgwwopvcdko:Venus0979961789@aws-1-ap-south-1.pooler.supabase.com:6543/postgres?sslmode=require&pgbouncer=true
+
+สำคัญ: ต้องมี &pgbouncer=true ต่อท้าย ถึงจะใช้กับ Supabase Pooler ได้ (แก้ Application error)
+
+---
+
+หลัง push/redeploy แล้ว ถ้ายัง error อยู่ ให้เปิดลิงก์นี้ (แทน your-site ด้วยโดเมนจริงของคุณ):
+https://your-site.vercel.app/api/debug-db
+จะได้ JSON บอก error จริงของ DB (เช่น connection ผิด หรือรหัสผ่านผิด) — เอาเนื้อในนั้นส่งให้คนช่วยดูได้

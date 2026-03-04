@@ -38,25 +38,35 @@ export async function POST(request: Request) {
 
     const telegramToken = process.env.TELEGRAM_BOT_TOKEN?.trim()
     const telegramChatId = process.env.TELEGRAM_CHAT_ID?.trim()
-    if (telegramToken && telegramChatId) {
-      const res = await fetch(
-        `https://api.telegram.org/bot${telegramToken}/sendMessage`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: telegramChatId,
-            text,
-            disable_web_page_preview: true,
-          }),
-        }
-      )
-      if (res.ok) {
-        return NextResponse.json({ sent: true, via: 'telegram' })
-      }
-      const errText = await res.text()
-      console.error('[Telegram]', res.status, errText)
+    if (!telegramToken || !telegramChatId) {
+      return NextResponse.json({
+        sent: false,
+        reason: 'telegram_not_configured',
+        hint: 'บนเซิร์ฟเวอร์ยังไม่มี TELEGRAM_BOT_TOKEN หรือ TELEGRAM_CHAT_ID — ไปที่ Vercel > โปรเจกต์ > Settings > Environment Variables เพิ่มทั้งสองตัวแล้ว Redeploy',
+      })
     }
+    const res = await fetch(
+      `https://api.telegram.org/bot${telegramToken}/sendMessage`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: telegramChatId,
+          text,
+          disable_web_page_preview: true,
+        }),
+      }
+    )
+    if (res.ok) {
+      return NextResponse.json({ sent: true, via: 'telegram' })
+    }
+    const errText = await res.text()
+    console.error('[Telegram]', res.status, errText)
+    return NextResponse.json({
+      sent: false,
+      reason: 'telegram_error',
+      hint: `Telegram API ตอบกลับ ${res.status} — ตรวจสอบว่า Token กับ Chat ID ถูกต้อง`,
+    })
 
     const channelToken = process.env.LINE_CHANNEL_ACCESS_TOKEN?.trim()
     const agentUserId = process.env.LINE_AGENT_USER_ID?.trim()
@@ -99,7 +109,7 @@ export async function POST(request: Request) {
       console.error('[Line Notify]', res.status, errText)
     }
 
-    return NextResponse.json({ sent: false })
+    return NextResponse.json({ sent: false, reason: 'no_channel', hint: 'ยังไม่ได้ตั้งค่า Telegram หรือ Line ใน Environment Variables' })
   } catch (e) {
     console.error(e)
     return NextResponse.json({ error: 'Failed', sent: false }, { status: 500 })
