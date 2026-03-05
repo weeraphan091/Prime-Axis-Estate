@@ -5,7 +5,7 @@ import { isValidLocale, type Locale } from '@/config/i18n'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { getT } from '@/messages'
 import { blogPosts as staticPosts } from '@/data/blog-posts'
-import { ArrowLeft, BookOpen } from 'lucide-react'
+import { ArrowLeft, BookOpen, Phone, FilePlus } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -69,8 +69,22 @@ export default async function BlogDetailPage({ params }: Props) {
       <div className="prose prose-stone max-w-none text-stone-700 whitespace-pre-line leading-relaxed">
         {content}
       </div>
-      <div className="mt-12 pt-6 border-t border-stone-200">
-        <Link href={`${base}/blog`} className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium">
+      <div className="mt-12 pt-8 border-t border-stone-200 flex flex-col sm:flex-row items-center gap-4">
+        <Link
+          href={`${base}/contact`}
+          className="inline-flex items-center gap-2 px-5 py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition shadow-sm"
+        >
+          <Phone className="w-4 h-4" />
+          {locale === 'th' ? 'ติดต่อเรา' : locale === 'en' ? 'Contact us' : locale === 'zh' ? '联系我们' : 'Связаться'}
+        </Link>
+        <Link
+          href={`${base}/list-your-property`}
+          className="inline-flex items-center gap-2 px-5 py-3 bg-accent-coral text-white rounded-xl font-semibold hover:bg-accent-coral/90 transition shadow-sm"
+        >
+          <FilePlus className="w-4 h-4" />
+          {locale === 'th' ? 'ฝากทรัพย์กับเรา' : locale === 'en' ? 'List your property' : locale === 'zh' ? '委托挂牌' : 'Разместить объявление'}
+        </Link>
+        <Link href={`${base}/blog`} className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium sm:ml-auto">
           <ArrowLeft className="w-4 h-4" />
           {locale === 'th' ? 'กลับหน้าบล็อก' : locale === 'en' ? 'Back to blog' : locale === 'zh' ? '返回博客' : 'Назад в блог'}
         </Link>

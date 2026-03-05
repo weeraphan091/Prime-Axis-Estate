@@ -7,7 +7,7 @@ import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { getT } from '@/messages'
 import { redirect } from 'next/navigation'
 import { blogPosts as staticPosts } from '@/data/blog-posts'
-import { BookOpen } from 'lucide-react'
+import { BookOpen, Phone, FilePlus } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -116,6 +116,31 @@ export default async function BlogIndexPage({ params }: Props) {
           {locale === 'th' ? 'ยังไม่มีบทความ' : 'No articles yet'}
         </div>
       )}
+
+      <section className="mt-12 bg-primary-600 rounded-2xl p-8 lg:p-12 text-center text-white">
+        <h2 className="font-display text-2xl lg:text-3xl">
+          {locale === 'th' ? 'สนใจอสังหาพัทยา?' : locale === 'en' ? 'Interested in Pattaya property?' : locale === 'zh' ? '对芭堤雅房产感兴趣？' : 'Интересует недвижимость Паттайи?'}
+        </h2>
+        <p className="mt-3 text-primary-100 max-w-xl mx-auto">
+          {locale === 'th' ? 'ไม่ว่าจะซื้อ เช่า หรือฝากขาย-ฝากเช่า ทีมงาน Pattaya Estate Hub พร้อมช่วยคุณ' : locale === 'en' ? 'Whether buying, renting, or listing — Pattaya Estate Hub is here to help.' : locale === 'zh' ? '无论是买房、租房还是委托挂牌 — Pattaya Estate Hub 随时为您服务。' : 'Покупка, аренда или размещение — Pattaya Estate Hub готов помочь.'}
+        </p>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
+          <Link
+            href={`${base}/contact`}
+            className="inline-flex items-center gap-2 px-6 py-3.5 bg-white text-primary-700 rounded-xl font-semibold hover:bg-primary-50 transition shadow-lg"
+          >
+            <Phone className="w-5 h-5" />
+            {t('footer.contact')}
+          </Link>
+          <Link
+            href={`${base}/list-your-property`}
+            className="inline-flex items-center gap-2 px-6 py-3.5 bg-primary-500/80 text-white rounded-xl font-semibold hover:bg-primary-500 transition border border-primary-400"
+          >
+            <FilePlus className="w-5 h-5" />
+            {t('home.listProperty')}
+          </Link>
+        </div>
+      </section>
     </div>
   )
 }
