@@ -82,11 +82,12 @@ export default function MyListingsPage() {
         <ul className="space-y-4">
           {list.map((item) => {
             const imgs = Array.isArray(item.images) ? item.images : []
-            const src = imgs[0]?.startsWith('data:') || imgs[0]?.startsWith('/') ? imgs[0] : imgs[0] || PLACEHOLDER
+            const src = imgs[0] || PLACEHOLDER
+            const useImgTag = src.startsWith('data:') || src.startsWith('/') || (src.startsWith('http') && !src.includes('placehold.co'))
             return (
               <li key={item.id} className="bg-white rounded-xl border border-stone-200 overflow-hidden flex flex-col sm:flex-row">
                 <div className="relative w-full sm:w-48 h-40 sm:h-auto shrink-0 bg-stone-100">
-                  {src.startsWith('data:') || src.startsWith('/') ? (
+                  {useImgTag ? (
                     <img src={src} alt="" className="absolute inset-0 w-full h-full object-cover" />
                   ) : (
                     <Image src={src} alt="" fill className="object-cover" sizes="192px" />

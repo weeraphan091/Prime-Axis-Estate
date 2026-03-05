@@ -12,9 +12,10 @@ type PrismaPropertyRow = PrismaProperty & {
   listingSource?: string | null
 }
 
-function parseJsonArray(raw: string): string[] {
+function parseJsonArray(raw: string | null | undefined): string[] {
+  if (raw == null || String(raw).trim() === '') return []
   try {
-    const v = JSON.parse(raw)
+    const v = JSON.parse(String(raw))
     return Array.isArray(v) ? v : []
   } catch {
     return []

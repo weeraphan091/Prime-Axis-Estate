@@ -72,7 +72,7 @@ export default function PropertyDetailPage() {
   const images = property.images?.length ? property.images : [PLACEHOLDER]
   const currentImg = images[currentIndex] || images[0]
   const isDataUrl = currentImg.startsWith('data:')
-  const isExternalUrl = currentImg.includes('supabase.co') || imgError
+  const isExternalUrl = (currentImg.startsWith('http') && !currentImg.includes('placehold.co')) || imgError
   const displayImg = (isExternalUrl && imgError) ? PLACEHOLDER : currentImg
   const hasMultiple = images.length > 1
   const base = `/${locale}`
@@ -191,7 +191,7 @@ export default function PropertyDetailPage() {
                   i === currentIndex ? 'border-primary-600 ring-2 ring-primary-200' : 'border-stone-200 hover:border-stone-300'
                 }`}
               >
-                {(src.startsWith('data:') || src.includes('supabase.co')) ? (
+                {(src.startsWith('data:') || (src.startsWith('http') && !src.includes('placehold.co'))) ? (
                   <img src={src} alt="" className="w-full h-full object-cover" />
                 ) : (
                   <Image src={src} alt="" width={64} height={64} className="w-full h-full object-cover" />

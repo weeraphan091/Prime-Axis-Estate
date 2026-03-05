@@ -34,6 +34,11 @@ export default function PropertyDetailPage() {
   const [property, setProperty] = useState<Property | null | 'loading'>('loading')
   const [currentIndex, setCurrentIndex] = useState(0)
   const [showInterest, setShowInterest] = useState(false)
+  const [imgError, setImgError] = useState(false)
+
+  useEffect(() => {
+    setImgError(false)
+  }, [currentIndex])
 
   useEffect(() => {
     if (!id) {
@@ -71,6 +76,9 @@ export default function PropertyDetailPage() {
   const images = property.images?.length ? property.images : [PLACEHOLDER]
   const currentImg = images[currentIndex] || images[0]
   const isDataUrl = currentImg.startsWith('data:')
+  const isExternalImg = currentImg.startsWith('http') && !currentImg.includes('placehold.co')
+  const displayImg = (isExternalImg && imgError) ? PLACEHOLDER : currentImg
+  const useImgForMain = isDataUrl || isExternalImg
   const hasMultiple = images.length > 1
 
   const goPrev = () => setCurrentIndex((i) => (i === 0 ? images.length - 1 : i - 1))
@@ -141,15 +149,16 @@ export default function PropertyDetailPage() {
 
       <div className="mt-6">
         <div className="relative aspect-video rounded-xl overflow-hidden bg-stone-100">
-          {isDataUrl ? (
+          {useImgForMain ? (
             <img
-              src={currentImg}
+              src={displayImg}
               alt={`${property.title} - รูป ${currentIndex + 1}`}
               className="w-full h-full object-cover"
+              onError={() => setImgError(true)}
             />
           ) : (
             <Image
-              src={currentImg}
+              src={displayImg}
               alt={`${property.title} - รูป ${currentIndex + 1}`}
               fill
               className="object-cover"
@@ -184,7 +193,7 @@ export default function PropertyDetailPage() {
         {hasMultiple && (
           <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
             {images.map((src, i) => {
-              const isData = src.startsWith('data:')
+              const useImg = src.startsWith('data:') || (src.startsWith('http') && !src.includes('placehold.co'))
               return (
                 <button
                   key={i}
@@ -194,7 +203,7 @@ export default function PropertyDetailPage() {
                     i === currentIndex ? 'border-primary-600 ring-2 ring-primary-200' : 'border-stone-200 hover:border-stone-300'
                   }`}
                 >
-                  {isData ? (
+                  {useImg ? (
                     <img src={src} alt="" className="w-full h-full object-cover" />
                   ) : (
                     <Image src={src} alt="" width={64} height={64} className="w-full h-full object-cover" />
