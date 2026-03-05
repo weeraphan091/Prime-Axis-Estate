@@ -45,6 +45,11 @@ export function Footer({ locale }: { locale: Locale }) {
                 </Link>
               </li>
               <li>
+                <Link href={`${base}/why-list-with-us`} className="hover:text-white transition">
+                  {locale === 'th' ? 'ทำไมต้องฝากกับเรา' : locale === 'en' ? 'Why list with us' : locale === 'zh' ? '为什么选择我们' : 'Почему мы'}
+                </Link>
+              </li>
+              <li>
                 <Link href={`${base}/blog`} className="hover:text-white transition">
                   {t('nav.blog')}
                 </Link>

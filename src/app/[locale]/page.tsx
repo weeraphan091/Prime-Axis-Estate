@@ -10,9 +10,10 @@ import { getPropertiesFromDb } from '@/lib/property-db'
 import { getT } from '@/messages'
 import { isValidLocale, type Locale } from '@/config/i18n'
 import { redirect } from 'next/navigation'
-import { FilePlus, Shield, Home, Zap, MapPin } from 'lucide-react'
+import { FilePlus, Shield, Home, Zap, MapPin, Users } from 'lucide-react'
 import { buildAlternates } from '@/lib/seo'
 import { SITE_NAME } from '@/config/site'
+import { StatsBar } from '@/components/StatsBar'
 
 export const dynamic = 'force-dynamic'
 
@@ -87,6 +88,10 @@ export default async function HomePage({ params }: Props) {
         <Suspense fallback={<div className="h-14 rounded-xl bg-stone-100 animate-pulse" />}>
           <SearchBar compact locale={locale} />
         </Suspense>
+      </section>
+
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-4">
+        <StatsBar locale={locale} />
       </section>
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -167,14 +172,46 @@ export default async function HomePage({ params }: Props) {
             {locale === 'th' ? 'มีทรัพย์อยู่ที่พัทยา? ฝากขาย-ฝากเช่ากับเรา' : locale === 'en' ? 'Got a property in Pattaya? List with us' : locale === 'zh' ? '在芭堤雅有房产？交给我们挂牌' : 'Есть недвижимость в Паттайе? Разместите у нас'}
           </h2>
           <p className="mt-3 text-primary-100 max-w-xl mx-auto">
-            {locale === 'th' ? 'ส่งข้อมูลและรูปมาได้เลย เราจะติดต่อกลับและช่วยลงประกาศ หาลูกค้าให้' : locale === 'en' ? 'Send us the details and photos — we\'ll get back to you and list it.' : locale === 'zh' ? '发资料和照片给我们，我们会回复并帮您挂牌。' : 'Пришлите данные и фото — мы свяжемся и разместим.'}
+            {locale === 'th' ? 'ส่งข้อมูลและรูปมาได้เลย หรือแชทผ่าน LINE สะดวกกว่า' : locale === 'en' ? 'Submit details online or chat with us on LINE — whichever is easier.' : locale === 'zh' ? '在线提交或通过LINE聊天——怎么方便怎么来。' : 'Отправьте данные онлайн или напишите нам в LINE.'}
           </p>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
+            <Link
+              href={`${base}/list-your-property`}
+              className="inline-flex items-center gap-2 px-6 py-3.5 bg-white text-primary-700 rounded-xl font-semibold hover:bg-primary-50 transition shadow-lg"
+            >
+              <FilePlus className="w-5 h-5" />
+              {t('home.listProperty')}
+            </Link>
+            <a
+              href="https://line.me/ti/p/@187umoiw"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3.5 bg-[#06C755] text-white rounded-xl font-semibold hover:bg-[#05b34d] transition shadow-lg"
+            >
+              {locale === 'th' ? 'แชทผ่าน LINE' : locale === 'en' ? 'Chat on LINE' : locale === 'zh' ? 'LINE聊天' : 'Чат LINE'}
+            </a>
+          </div>
           <Link
-            href={`${base}/list-your-property`}
-            className="inline-flex items-center gap-2 mt-6 px-6 py-3.5 bg-white text-primary-700 rounded-xl font-semibold hover:bg-primary-50 transition"
+            href={`${base}/why-list-with-us`}
+            className="inline-block mt-4 text-primary-200 hover:text-white text-sm font-medium underline underline-offset-2"
           >
-            <FilePlus className="w-5 h-5" />
-            {t('home.listProperty')}
+            {locale === 'th' ? 'ทำไมต้องฝากกับเรา?' : locale === 'en' ? 'Why list with us?' : locale === 'zh' ? '为什么选择我们？' : 'Почему мы?'}
+          </Link>
+        </div>
+      </section>
+
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 lg:p-8 flex flex-col sm:flex-row items-center gap-6">
+          <Users className="w-12 h-12 text-amber-600 shrink-0" />
+          <div className="flex-1 text-center sm:text-left">
+            <h3 className="font-semibold text-stone-900 text-lg">{t('whyList.referralTitle')}</h3>
+            <p className="text-sm text-stone-600 mt-1">{t('whyList.referralDesc')}</p>
+          </div>
+          <Link
+            href={`${base}/contact`}
+            className="shrink-0 px-6 py-3 bg-amber-600 text-white rounded-xl font-semibold hover:bg-amber-700 transition"
+          >
+            {t('whyList.referralCta')}
           </Link>
         </div>
       </section>
