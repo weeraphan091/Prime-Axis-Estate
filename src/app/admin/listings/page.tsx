@@ -17,7 +17,7 @@ export default async function AdminListingsPage() {
   if (!ok) redirect('/admin/login')
 
   let properties: (Property & { agentName?: string; viewCount?: number; leadCount?: number })[] = []
-  let dbError = false
+  let dbError: string | null = null
   try {
     const [list, leadCounts] = await Promise.all([
       prisma.property.findMany({
@@ -37,25 +37,50 @@ export default async function AdminListingsPage() {
       leadCount: leadMap.get(p.id) ?? 0,
     }))
   } catch (e) {
-    console.error('[Admin listings] DB error:', e)
-    dbError = true
+    const err = e as Error & { code?: string }
+    console.error('[Admin listings] DB error:', err)
+    const msg = err?.message ?? String(e)
+    const isConnectionError =
+      !process.env.DATABASE_URL?.trim() ||
+      msg.includes('DATABASE_URL') ||
+      msg.includes('Environment variable') ||
+      err?.code === 'P1001' ||
+      msg.includes('connect') ||
+      msg.includes('Connection')
+    dbError = isConnectionError ? 'connection' : msg
   }
 
   if (dbError) {
+    const isConnection = dbError === 'connection'
     return (
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 text-amber-900 max-w-2xl">
         <h2 className="font-semibold text-lg mb-2">โหลดฐานข้อมูลไม่ได้</h2>
-        <p className="text-sm mb-3">
-          โปรเจกต์ใช้ PostgreSQL อยู่แล้ว — ปัญหามักมาจาก <strong>DATABASE_URL</strong> ไม่ได้ตั้งหรือตั้งผิดบน Vercel
-        </p>
-        <ul className="text-sm list-disc list-inside space-y-1 mb-4">
-          <li>ไปที่ Vercel → โปรเจกต์ → Settings → Environment Variables</li>
-          <li>เพิ่มตัวแปร <strong>DATABASE_URL</strong> (ค่าเป็น connection string ของ PostgreSQL)</li>
-          <li>ถ้าใช้ Supabase: ใช้ URL จาก Project Settings → Database (แนะนำ Connection pooling เช่น Session mode)</li>
-          <li>จากนั้น Redeploy โปรเจกต์</li>
-        </ul>
+        {isConnection ? (
+          <>
+            <p className="text-sm mb-2">
+              ตั้งค่า <strong>DATABASE_URL</strong> ใน Vercel (หรือในไฟล์ <code className="bg-amber-100 px-1 rounded">.env</code> เมื่อรันในเครื่อง)
+            </p>
+            <p className="text-sm mb-3 font-medium">Vercel:</p>
+            <ul className="text-sm list-disc list-inside space-y-1 mb-3">
+              <li>Settings → Environment Variables → เพิ่ม <strong>DATABASE_URL</strong></li>
+              <li>ค่า = connection string ของ PostgreSQL</li>
+              <li>จากนั้น Redeploy</li>
+            </ul>
+            <p className="text-sm mb-2 font-medium">Supabase (แนะนำสำหรับ Vercel):</p>
+            <ul className="text-sm list-disc list-inside space-y-1 mb-4">
+              <li>Supabase Dashboard → Project Settings → Database</li>
+              <li>ใช้ <strong>Connection pooling</strong> (พอร์ต <strong>6543</strong>) — อย่าใช้ Direct connection (5432) บน Vercel</li>
+              <li>ถ้าเป็น Transaction mode ให้ต่อท้าย URL ด้วย <code className="bg-amber-100 px-1 rounded">?pgbouncer=true</code></li>
+              <li>คัดลอก URI ไปใส่ใน DATABASE_URL</li>
+            </ul>
+          </>
+        ) : (
+          <p className="text-sm mb-4">
+            ข้อผิดพลาด: <code className="bg-amber-100 px-1 rounded break-all">{dbError.slice(0, 200)}</code>
+          </p>
+        )}
         <p className="text-sm text-amber-700">
-          รันในเครื่อง: ใส่ DATABASE_URL ในไฟล์ <code className="bg-amber-100 px-1 rounded">.env</code> แล้วรัน <code className="bg-amber-100 px-1 rounded">npm run dev</code>
+          รันในเครื่อง: ใส่ DATABASE_URL ใน <code className="bg-amber-100 px-1 rounded">.env</code> แล้วรัน <code className="bg-amber-100 px-1 rounded">npm run dev</code>
         </p>
       </div>
     )
