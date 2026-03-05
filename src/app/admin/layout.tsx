@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { getCurrentAdmin } from '@/lib/admin-auth'
+import { getCurrentAdmin, type AdminSession } from '@/lib/admin-auth'
 import { AdminNav } from './AdminNav'
 
 export default async function AdminLayout({
@@ -7,7 +7,12 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  const currentAdmin = await getCurrentAdmin()
+  let currentAdmin: AdminSession | null = null
+  try {
+    currentAdmin = await getCurrentAdmin()
+  } catch {
+    // cookie หรือ JWT เสีย — ให้หน้าเด็กจัดการ redirect ไป login
+  }
   return (
     <div className="min-h-screen bg-stone-100">
       {currentAdmin && (

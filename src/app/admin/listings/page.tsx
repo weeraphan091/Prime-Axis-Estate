@@ -19,17 +19,20 @@ export default async function AdminListingsPage() {
   let properties: (Property & { agentName?: string; viewCount?: number; leadCount?: number })[] = []
   let dbError: string | null = null
   try {
-    const [list, leadCounts] = await Promise.all([
-      prisma.property.findMany({
-        orderBy: { updatedAt: 'desc' },
-        include: { agent: { select: { name: true } } },
-      }),
-      prisma.lead.groupBy({
+    const list = await prisma.property.findMany({
+      orderBy: { updatedAt: 'desc' },
+      include: { agent: { select: { name: true } } },
+    })
+    let leadMap = new Map<string, number>()
+    try {
+      const leadCounts = await prisma.lead.groupBy({
         by: ['propertyId'],
         _count: { id: true },
-      }),
-    ])
-    const leadMap = new Map(leadCounts.map((l) => [l.propertyId, l._count.id]))
+      })
+      leadMap = new Map(leadCounts.map((l) => [l.propertyId, l._count.id]))
+    } catch {
+      // ตาราง Lead อาจยังไม่มีหรือ query ล้ม — ใช้จำนวน 0
+    }
     properties = list.map((p) => ({
       ...prismaToProperty(p),
       agentName: p.agent?.name,
