@@ -62,8 +62,11 @@ export function AdminListingForm({ initial }: Props) {
     status: initial?.status ?? 'published',
     agentId: initial?.agentId ?? '',
     rentOccupied: initial?.rentOccupied ?? false,
+    rentMinLease: initial?.rentMinLease ?? '',
     rentLeaseStart: initial?.rentLeaseStart ?? '',
     rentLeaseEnd: initial?.rentLeaseEnd ?? '',
+    originalPrice: initial?.originalPrice ?? '',
+    quotaType: initial?.quotaType ?? '',
     floor: initial?.floor ?? '',
     roomNumber: initial?.roomNumber ?? '',
     floors: initial?.floors ?? '',
@@ -133,8 +136,11 @@ export function AdminListingForm({ initial }: Props) {
         status: form.status || 'published',
         agentId: form.agentId || undefined,
         rentOccupied: form.listingType === 'rent' ? form.rentOccupied : false,
+        rentMinLease: form.listingType === 'rent' && form.rentMinLease ? Number(form.rentMinLease) : undefined,
         rentLeaseStart: form.listingType === 'rent' && form.rentLeaseStart ? form.rentLeaseStart : undefined,
         rentLeaseEnd: form.listingType === 'rent' && form.rentLeaseEnd ? form.rentLeaseEnd : undefined,
+        originalPrice: form.listingType === 'sale' && form.originalPrice ? Number(form.originalPrice) : undefined,
+        quotaType: form.listingType === 'sale' && (form.propertyType === 'condo' || form.propertyType === 'apartment') && form.quotaType ? form.quotaType : undefined,
         floor: (form.propertyType === 'condo' || form.propertyType === 'apartment') && form.floor !== '' ? Number(form.floor) : undefined,
         roomNumber: (form.propertyType === 'condo' || form.propertyType === 'apartment') && form.roomNumber ? form.roomNumber : undefined,
         floors: (form.propertyType === 'house' || form.propertyType === 'villa') && form.floors !== '' ? Number(form.floors) : undefined,
@@ -227,7 +233,7 @@ export function AdminListingForm({ initial }: Props) {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">ราคา *</label>
+            <label className="block text-sm font-medium text-stone-700 mb-1">ราคาขาย/เช่าจริง *</label>
             <input
               type="number"
               required
@@ -247,6 +253,36 @@ export function AdminListingForm({ initial }: Props) {
             />
           </div>
         </div>
+        {form.listingType === 'sale' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-1">ราคาเดิม (ก่อนลด — ไม่บังคับ)</label>
+              <input
+                type="number"
+                min="0"
+                value={form.originalPrice}
+                onChange={(e) => update('originalPrice', e.target.value)}
+                placeholder="เช่น 5000000"
+                className="w-full px-4 py-2.5 border border-stone-300 rounded-lg outline-none"
+              />
+              <p className="text-xs text-stone-400 mt-1">ใส่เพื่อแสดง % ลดในการ์ด (ถ้าไม่ใส่ = ไม่แสดง)</p>
+            </div>
+            {(form.propertyType === 'condo' || form.propertyType === 'apartment') && (
+              <div>
+                <label className="block text-sm font-medium text-stone-700 mb-1">โควต้ากรรมสิทธิ์</label>
+                <select
+                  value={form.quotaType}
+                  onChange={(e) => update('quotaType', e.target.value)}
+                  className="w-full px-4 py-2.5 border border-stone-300 rounded-lg outline-none"
+                >
+                  <option value="">— ไม่ระบุ —</option>
+                  <option value="TH">TH — โควต้าไทย</option>
+                  <option value="FQ">FQ — โควต้าต่างชาติ (Foreign Quota)</option>
+                </select>
+              </div>
+            )}
+          </div>
+        )}
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">รายละเอียด *</label>
           <textarea
@@ -260,6 +296,19 @@ export function AdminListingForm({ initial }: Props) {
         {form.listingType === 'rent' && (
           <div className="border-t border-stone-200 pt-4 mt-4 space-y-4">
             <h3 className="font-medium text-stone-800">ข้อมูลสัญญาเช่า (ลูกค้าวางแผนหาห้องล่วงหน้า)</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-stone-700 mb-1">สัญญาเช่าขั้นต่ำ (เดือน)</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={form.rentMinLease}
+                  onChange={(e) => update('rentMinLease', e.target.value)}
+                  placeholder="เช่น 6, 12"
+                  className="w-full px-4 py-2.5 border border-stone-300 rounded-lg outline-none"
+                />
+              </div>
+            </div>
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"

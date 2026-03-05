@@ -58,6 +58,12 @@ export const th = {
     rented: 'เช่าอยู่แล้ว',
     availableFrom: 'ว่างวันที่',
     leasePeriod: 'ระยะสัญญา',
+    minLease: 'สัญญาขั้นต่ำ',
+    months: 'เดือน',
+    quotaTH: 'โควต้าไทย',
+    quotaFQ: 'โควต้าต่างชาติ',
+    originalPrice: 'ราคาเดิม',
+    discount: 'ลด',
   },
   search: {
     title: 'ค้นหาทรัพย์',

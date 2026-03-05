@@ -58,6 +58,12 @@ export const ru = {
     rented: 'Сдано',
     availableFrom: 'Свободно с',
     leasePeriod: 'Срок аренды',
+    minLease: 'Мин. срок',
+    months: 'мес.',
+    quotaTH: 'Тайская квота',
+    quotaFQ: 'Иностр. квота',
+    originalPrice: 'Цена до скидки',
+    discount: 'скидка',
   },
   search: {
     title: 'Поиск',

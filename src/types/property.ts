@@ -53,7 +53,13 @@ export interface Property {
   roomNumber?: string
   /** บ้าน/วิลล่า: จำนวนชั้น (1 หรือ 2) */
   floors?: number
-  /** จำนวนครั้งที่有人เปิดหน้ารายละเอียด */
+  /** สัญญาเช่าขั้นต่ำ (เดือน) */
+  rentMinLease?: number
+  /** โควต้าคอนโด: TH = ไทย, FQ = ต่างชาติ */
+  quotaType?: 'TH' | 'FQ'
+  /** ราคาเดิมก่อนลด — ใช้คำนวณ % ลด */
+  originalPrice?: number
+  /** จำนวนครั้งที่เปิดหน้ารายละเอียด */
   viewCount?: number
   /** id สมาชิกที่ฝากขาย (เจ้าของรายการ) */
   userId?: string

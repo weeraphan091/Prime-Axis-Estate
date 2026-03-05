@@ -73,7 +73,10 @@ model Property {
   roomNumber     String?  // เลขห้อง (เช่น 301)
   // บ้าน/วิลล่า: จำนวนชั้นของอาคาร
   floors         Int?     // 1 หรือ 2 ชั้น
-  viewCount      Int      @default(0)  // จำนวนครั้งที่有人เปิดหน้ารายละเอียด
+  rentMinLease   Int?     // สัญญาเช่าขั้นต่ำ (เดือน) เช่น 6, 12
+  quotaType      String?  // TH = โควต้าไทย, FQ = โควต้าต่างชาติ (คอนโดขาย)
+  originalPrice  Int?     // ราคาเดิมก่อนลด (ถ้ามี) — ใช้คำนวณ % ลด
+  viewCount      Int      @default(0)  // จำนวนครั้งที่เปิดหน้ารายละเอียด
   userId         String?  // เจ้าของที่ฝากขาย (สมาชิกที่ลงรายการ)
   titleEn        String?  // ชื่อรายการภาษาอังกฤษ
   descriptionEn  String?  // รายละเอียดภาษาอังกฤษ

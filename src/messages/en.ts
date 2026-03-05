@@ -58,6 +58,12 @@ export const en = {
     rented: 'Currently rented',
     availableFrom: 'Available from',
     leasePeriod: 'Lease period',
+    minLease: 'Min. lease',
+    months: 'months',
+    quotaTH: 'Thai Quota',
+    quotaFQ: 'Foreign Quota',
+    originalPrice: 'Original price',
+    discount: 'off',
   },
   search: {
     title: 'Find property',

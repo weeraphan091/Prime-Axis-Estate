@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { notFound } from 'next/navigation'
 import { properties as staticProperties, propertyTypeLabels, listingTypeLabels } from '@/data/properties'
-import { Bed, Bath, Maximize2, MapPin, BadgeCheck, ChevronLeft, ChevronRight, MapPinned, Heart } from 'lucide-react'
+import { Bed, Bath, Maximize2, MapPin, BadgeCheck, ChevronLeft, ChevronRight, MapPinned, Heart, Tag } from 'lucide-react'
 import { AgentContact } from '@/components/AgentContact'
 import { InterestForm } from '@/components/InterestForm'
 import type { Property } from '@/types/property'
@@ -104,6 +104,11 @@ export default function PropertyDetailPage() {
           <span className="px-2.5 py-1 bg-accent-coral/90 text-white text-sm font-medium rounded-md flex items-center gap-1 w-fit">
             <BadgeCheck className="w-4 h-4" />
             ฝากขาย/เช่ากับเรา
+          </span>
+        )}
+        {property.quotaType && (
+          <span className={`px-2.5 py-1 text-white text-sm font-semibold rounded-md ${property.quotaType === 'FQ' ? 'bg-blue-600' : 'bg-emerald-600'}`}>
+            {property.quotaType === 'FQ' ? 'โควต้าต่างชาติ (FQ)' : 'โควต้าไทย (TH)'}
           </span>
         )}
       </div>
@@ -217,9 +222,25 @@ export default function PropertyDetailPage() {
 
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
-          <p className="text-2xl font-bold text-primary-600">
-            {formatPrice(property.price, property.priceLabel)}
-          </p>
+          <div className="flex flex-wrap items-baseline gap-3">
+            <p className="text-2xl font-bold text-primary-600">
+              {formatPrice(property.price, property.priceLabel)}
+            </p>
+            {property.originalPrice && property.originalPrice > property.price && (
+              <>
+                <span className="text-lg text-stone-400 line-through">
+                  {new Intl.NumberFormat('th-TH').format(property.originalPrice)} ฿
+                </span>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-500 text-white text-sm font-bold rounded-md">
+                  <Tag className="w-3.5 h-3.5" />
+                  -{Math.round(((property.originalPrice - property.price) / property.originalPrice) * 100)}%
+                </span>
+              </>
+            )}
+          </div>
+          {property.listingType === 'rent' && property.rentMinLease && (
+            <p className="text-sm text-stone-500">สัญญาเช่าขั้นต่ำ {property.rentMinLease} เดือน</p>
+          )}
           <div className="flex flex-wrap gap-4 text-stone-600">
             {(property.propertyType === 'condo' || property.propertyType === 'apartment') && (property.floor != null || property.roomNumber) && (
               <span className="flex items-center gap-2">

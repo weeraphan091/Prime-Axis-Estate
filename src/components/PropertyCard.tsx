@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Bed, Bath, Maximize2, BadgeCheck, Heart, GitCompare, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Bed, Bath, Maximize2, BadgeCheck, Heart, GitCompare, ChevronLeft, ChevronRight, Tag } from 'lucide-react'
 import { useFavorites } from '@/context/FavoritesContext'
 import { useLocaleOptional } from '@/context/LocaleContext'
 import { FormattedPrice } from '@/components/FormattedPrice'
@@ -139,7 +139,20 @@ export function PropertyCard({ property, locale: localeProp }: { property: Prope
               {locale === 'th' ? 'ฝากกับเรา' : locale === 'en' ? 'Listed with us' : locale === 'zh' ? '委托挂牌' : 'У нас'}
             </span>
           )}
+          {property.quotaType && (
+            <span className={`px-2.5 py-1 text-white text-xs font-semibold rounded-md ${property.quotaType === 'FQ' ? 'bg-blue-600' : 'bg-emerald-600'}`}>
+              {property.quotaType === 'FQ' ? 'Foreign Quota' : 'Thai Quota'}
+            </span>
+          )}
         </div>
+        {property.originalPrice && property.originalPrice > property.price && (
+          <div className="absolute bottom-2 right-2 z-10">
+            <span className="px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-md flex items-center gap-1">
+              <Tag className="w-3 h-3" />
+              -{Math.round(((property.originalPrice - property.price) / property.originalPrice) * 100)}%
+            </span>
+          </div>
+        )}
         <div className="absolute top-3 right-3 flex gap-2">
           <button
             type="button"
@@ -178,9 +191,21 @@ export function PropertyCard({ property, locale: localeProp }: { property: Prope
         <h3 className="font-semibold text-stone-900 line-clamp-2 group-hover:text-primary-600 transition">
           {property.title}
         </h3>
-        <p className="mt-2 text-lg font-bold text-primary-600">
-          {localeContext ? <FormattedPrice amountThb={property.price} priceLabel={property.priceLabel ?? undefined} /> : new Intl.NumberFormat('th-TH').format(property.price) + ' ฿' + (property.priceLabel ? ` ${property.priceLabel}` : '')}
-        </p>
+        <div className="mt-2 flex items-baseline gap-2 flex-wrap">
+          <span className="text-lg font-bold text-primary-600">
+            {localeContext ? <FormattedPrice amountThb={property.price} priceLabel={property.priceLabel ?? undefined} /> : new Intl.NumberFormat('th-TH').format(property.price) + ' ฿' + (property.priceLabel ? ` ${property.priceLabel}` : '')}
+          </span>
+          {property.originalPrice && property.originalPrice > property.price && (
+            <span className="text-sm text-stone-400 line-through">
+              {new Intl.NumberFormat('th-TH').format(property.originalPrice)} ฿
+            </span>
+          )}
+        </div>
+        {property.listingType === 'rent' && property.rentMinLease && (
+          <p className="mt-1 text-xs text-stone-500">
+            {locale === 'th' ? `สัญญาขั้นต่ำ ${property.rentMinLease} เดือน` : locale === 'en' ? `Min. lease ${property.rentMinLease} mo.` : locale === 'zh' ? `最短租期 ${property.rentMinLease} 个月` : `Мин. срок ${property.rentMinLease} мес.`}
+          </p>
+        )}
         {property.listingType === 'rent' && property.rentOccupied && (property.rentLeaseEnd || property.rentLeaseStart) && (
           <p className="mt-1 text-xs text-amber-700">
             {t('listing.rented')}

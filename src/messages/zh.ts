@@ -58,6 +58,12 @@ export const zh = {
     rented: '已出租',
     availableFrom: '可入住日',
     leasePeriod: '租期',
+    minLease: '最短租期',
+    months: '个月',
+    quotaTH: '泰籍配额',
+    quotaFQ: '外籍配额',
+    originalPrice: '原价',
+    discount: '折扣',
   },
   search: {
     title: '找房',
