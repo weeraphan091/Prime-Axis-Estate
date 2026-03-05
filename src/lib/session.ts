@@ -1,15 +1,16 @@
 import { cookies } from 'next/headers'
 import { SignJWT, jwtVerify } from 'jose'
 
-const rawSecret = process.env.SESSION_SECRET
-if (process.env.NODE_ENV === 'production' && !rawSecret) {
-  throw new Error('[session] SESSION_SECRET is required in production — set it in .env or Vercel env vars')
-}
-const SECRET = new TextEncoder().encode(
-  rawSecret || 'dev-only-secret-do-not-use-in-production'
-)
 const COOKIE_NAME = 'pattaya_session'
 const MAX_AGE = 60 * 60 * 24 * 7 // 7 days
+
+function getSecret(): Uint8Array {
+  const raw = process.env.SESSION_SECRET
+  if (!raw && process.env.NODE_ENV === 'production') {
+    throw new Error('[session] SESSION_SECRET is required in production — set it in Vercel env vars')
+  }
+  return new TextEncoder().encode(raw || 'dev-only-secret-do-not-use-in-production')
+}
 
 export type SessionPayload = { userId: string; email: string }
 
@@ -19,7 +20,7 @@ export async function createSession(payload: SessionPayload): Promise<void> {
     .setProtectedHeader({ alg: 'HS256' })
     .setExpirationTime(`${MAX_AGE}s`)
     .setIssuedAt()
-    .sign(SECRET)
+    .sign(getSecret())
   cookieStore.set(COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
@@ -34,7 +35,7 @@ export async function getSession(): Promise<SessionPayload | null> {
   const token = cookieStore.get(COOKIE_NAME)?.value
   if (!token) return null
   try {
-    const { payload } = await jwtVerify(token, SECRET)
+    const { payload } = await jwtVerify(token, getSecret())
     const userId = payload.userId as string
     const email = payload.email as string
     return userId && email ? { userId, email } : null
