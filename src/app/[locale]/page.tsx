@@ -14,7 +14,7 @@ import { FilePlus, Shield, Home, Zap, MapPin, Users } from 'lucide-react'
 import { buildAlternates } from '@/lib/seo'
 import { SITE_NAME } from '@/config/site'
 import { StatsBar } from '@/components/StatsBar'
-import { getLineUrl } from '@/config/contact'
+import { HomeChatButton } from '@/components/HomeChatButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -183,14 +183,7 @@ export default async function HomePage({ params }: Props) {
               <FilePlus className="w-5 h-5" />
               {t('home.listProperty')}
             </Link>
-            <a
-              href={getLineUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3.5 bg-[#06C755] text-white rounded-xl font-semibold hover:bg-[#05b34d] transition shadow-lg"
-            >
-              {locale === 'th' ? 'แชทผ่าน LINE' : locale === 'en' ? 'Chat on LINE' : locale === 'zh' ? 'LINE聊天' : 'Чат LINE'}
-            </a>
+            <HomeChatButton label={locale === 'th' ? 'แชทผ่าน LINE' : locale === 'en' ? 'Chat on LINE' : locale === 'zh' ? 'LINE聊天' : 'Чат LINE'} />
           </div>
           <Link
             href={`${base}/why-list-with-us`}
