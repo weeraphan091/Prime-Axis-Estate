@@ -298,7 +298,7 @@ Foreign ownership is capped at 49% of the total area of a condominium project. A
 | Итого за 5 лет | 2,67 млн + стоимость | 720 000 бат |
 
 **Итог**: Если живёте 5+ лет — покупка выгоднее. Менее 3 лет — аренда разумнее. Не уверены? [Смотрите объявления](/ru/listings) или [проконсультируйтесь](/ru/contact).`,
-    coverImage: 'https://images.unsplash.com/photo-1582407947092-5fa0e1e0e987?w=1200&h=630&fit=crop&q=80',
+    coverImage: 'https://images.unsplash.com/photo-1560520031-3a4dc4e9de0c?w=1200&h=630&fit=crop&q=80',
     category: 'tips',
     tags: '["buying","renting","comparison","pattaya"]',
     status: 'published',
