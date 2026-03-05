@@ -51,9 +51,10 @@ export async function POST(request: Request) {
     const ogImageAlt = html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i)
     if (ogImageAlt?.[1] && !images.includes(ogImageAlt[1])) images.push(ogImageAlt[1])
 
-    // og:image:url (รูปเพิ่ม)
-    const ogImageUrlMatches = html.matchAll(/<meta[^>]+property=["']og:image:url["'][^>]+content=["']([^"']+)["']/gi)
-    for (const m of ogImageUrlMatches) {
+    // og:image:url (รูปเพิ่ม) — ใช้ exec แทน matchAll เพื่อไม่ต้องใช้ downlevelIteration
+    const ogImageUrlRe = /<meta[^>]+property=["']og:image:url["'][^>]+content=["']([^"']+)["']/gi
+    let m: RegExpExecArray | null
+    while ((m = ogImageUrlRe.exec(html)) !== null) {
       if (m[1] && !images.includes(m[1])) images.push(m[1])
     }
 
