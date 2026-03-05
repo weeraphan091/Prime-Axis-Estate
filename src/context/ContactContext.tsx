@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, useMemo } from 'react'
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react'
 
 export type ContactData = {
   name: string
@@ -55,8 +55,8 @@ export function ContactProvider({ children }: { children: React.ReactNode }) {
   const [contact, setContact] = useState<ContactData>(defaultContact)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetch('/api/settings/contact')
+  const fetchContact = useCallback(() => {
+    fetch('/api/settings/contact', { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (data && typeof data.name === 'string') {
@@ -75,6 +75,19 @@ export function ContactProvider({ children }: { children: React.ReactNode }) {
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
+
+  useEffect(() => {
+    fetchContact()
+  }, [fetchContact])
+
+  // เมื่อกลับมาเปิดแท็บเว็บ (เช่น หลังแก้ตั้งค่าในหลังบ้าน) ให้ดึงข้อมูลติดต่อใหม่
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') fetchContact()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  }, [fetchContact])
 
   const value = useMemo(
     () => ({

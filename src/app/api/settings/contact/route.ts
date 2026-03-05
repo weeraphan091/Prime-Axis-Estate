@@ -3,6 +3,9 @@ import { prisma } from '@/lib/prisma'
 import { canAccessSettings } from '@/lib/admin-auth'
 import { agentContact } from '@/config/contact'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 const DEFAULT_ID = 'default'
 
 export type ContactData = {
