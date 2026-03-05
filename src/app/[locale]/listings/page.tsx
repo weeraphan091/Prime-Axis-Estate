@@ -7,15 +7,35 @@ import { properties as staticProperties } from '@/data/properties'
 import { getT } from '@/messages'
 import { isValidLocale, type Locale } from '@/config/i18n'
 import { redirect } from 'next/navigation'
+import { buildAlternates } from '@/lib/seo'
+import { SITE_NAME } from '@/config/site'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
 
 export const dynamic = 'force-dynamic'
 
 type Props = { params: Promise<{ locale: string }> }
 
+const titles: Record<string, string> = {
+  th: 'ค้นหาทรัพย์ คอนโด บ้าน วิลล่า ที่ดินพัทยา',
+  en: 'Find Property — Condos, Houses, Villas, Land in Pattaya',
+  zh: '搜索房产 — 芭堤雅公寓·别墅·土地',
+  ru: 'Поиск недвижимости — Кондо, дома, виллы в Паттайе',
+}
+const descs: Record<string, string> = {
+  th: 'ค้นหาคอนโด บ้าน วิลล่า ที่ดิน อพาร์ตเมนต์ในพัทยา เลือกขาย-เช่า ทำเล ราคา ได้เลย',
+  en: 'Search condos, houses, villas, land in Pattaya. Filter by type, price, area.',
+  zh: '搜索芭堤雅公寓、别墅、土地。按类型、价格、区域筛选。',
+  ru: 'Поиск кондо, домов, вилл, участков в Паттайе. Фильтр по типу, цене, району.',
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
   if (!isValidLocale(locale)) return {}
-  return {}
+  return {
+    title: titles[locale] ?? titles.th,
+    description: descs[locale] ?? descs.th,
+    alternates: buildAlternates(locale, '/listings'),
+  }
 }
 
 export default async function ListingsPage({ params }: Props) {
@@ -25,8 +45,12 @@ export default async function ListingsPage({ params }: Props) {
   const dbList = await getPropertiesFromDb(true, locale as Locale)
   const serverProperties = dbList.length > 0 ? dbList : staticProperties
 
+  const homeLabel = locale === 'th' ? 'หน้าแรก' : locale === 'en' ? 'Home' : locale === 'zh' ? '首页' : 'Главная'
+  const listLabel = locale === 'th' ? 'ค้นหาทรัพย์' : locale === 'en' ? 'Listings' : locale === 'zh' ? '房源列表' : 'Объекты'
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <Breadcrumbs locale={locale} items={[{ label: homeLabel, href: `/${locale}` }, { label: listLabel }]} />
       <div className="mb-8">
         <h1 className="font-display text-3xl text-stone-900">{t('search.title')}</h1>
         <p className="mt-1 text-stone-600">

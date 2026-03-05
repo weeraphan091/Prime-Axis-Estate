@@ -66,6 +66,8 @@ export function PropertyCard({ property, locale: localeProp }: { property: Prope
   }
 
   const listingHref = locale ? `/${locale}/listings/${property.id}` : `/listings/${property.id}`
+  const imgLabel = locale === 'en' ? 'Photo' : locale === 'zh' ? '照片' : locale === 'ru' ? 'Фото' : 'รูป'
+  const imgAlt = `${property.title} - ${imgLabel} ${slideIndex + 1}`
 
   return (
     <Link
@@ -76,14 +78,14 @@ export function PropertyCard({ property, locale: localeProp }: { property: Prope
         {useImgTag ? (
           <img
             src={effectiveSrc}
-            alt={`${property.title} - รูป ${slideIndex + 1}`}
+            alt={imgAlt}
             className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-300"
             onError={() => setImgError(true)}
           />
         ) : (
           <Image
             src={effectiveSrc}
-            alt={`${property.title} - รูป ${slideIndex + 1}`}
+            alt={imgAlt}
             fill
             className="object-cover group-hover:scale-105 transition duration-300"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

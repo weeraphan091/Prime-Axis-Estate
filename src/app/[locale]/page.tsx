@@ -11,15 +11,34 @@ import { getT } from '@/messages'
 import { isValidLocale, type Locale } from '@/config/i18n'
 import { redirect } from 'next/navigation'
 import { FilePlus, Shield, Home, Zap, MapPin } from 'lucide-react'
+import { buildAlternates } from '@/lib/seo'
+import { SITE_NAME } from '@/config/site'
 
 export const dynamic = 'force-dynamic'
 
 type Props = { params: Promise<{ locale: string }> }
 
+const pageTitles: Record<string, string> = {
+  th: `${SITE_NAME} | นายหน้าอสังหา พัทยา ขาย-เช่า คอนโด บ้าน วิลล่า ที่ดิน`,
+  en: `${SITE_NAME} | Pattaya Real Estate Agent — Buy, Rent, List Property`,
+  zh: `${SITE_NAME} | 芭堤雅房产中介 — 公寓·别墅·土地 买卖·租赁`,
+  ru: `${SITE_NAME} | Недвижимость Паттайи — Покупка, аренда, размещение`,
+}
+const pageDescs: Record<string, string> = {
+  th: 'ค้นหาคอนโด บ้าน วิลล่า ที่ดิน อพาร์ตเมนต์ในพัทยา ขาย-เช่า ฝากขายฝากเช่ากับเรา Pattaya Estate Hub',
+  en: 'Find condos, houses, villas, land in Pattaya. Buy, rent, or list your property with Pattaya Estate Hub.',
+  zh: '在芭堤雅搜索公寓、别墅、土地、公寓。买卖、租赁或委托挂牌 Pattaya Estate Hub。',
+  ru: 'Ищите кондо, дома, виллы, землю в Паттайе. Покупка, аренда или размещение с Pattaya Estate Hub.',
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
   if (!isValidLocale(locale)) return {}
-  return {}
+  return {
+    title: pageTitles[locale] ?? pageTitles.th,
+    description: pageDescs[locale] ?? pageDescs.th,
+    alternates: buildAlternates(locale),
+  }
 }
 
 export default async function HomePage({ params }: Props) {

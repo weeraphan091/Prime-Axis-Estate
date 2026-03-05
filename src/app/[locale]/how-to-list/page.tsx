@@ -1,14 +1,45 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { FilePlus, Phone } from 'lucide-react'
 import { getT } from '@/messages'
+import { buildAlternates } from '@/lib/seo'
+import { isValidLocale } from '@/config/i18n'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
 
-export default async function HowToListPage({ params }: { params: Promise<{ locale: string }> }) {
+type Props = { params: Promise<{ locale: string }> }
+
+const titles: Record<string, string> = {
+  th: 'วิธีฝากขาย-ฝากเช่ากับเรา',
+  en: 'How to List Your Property With Us',
+  zh: '如何委托挂牌',
+  ru: 'Как разместить недвижимость',
+}
+const descs: Record<string, string> = {
+  th: 'ขั้นตอนง่ายๆ ฝากขาย-ฝากเช่าทรัพย์สินในพัทยากับ Pattaya Estate Hub',
+  en: 'Simple steps to list your Pattaya property for sale or rent with Pattaya Estate Hub.',
+  zh: '简单几步即可在 Pattaya Estate Hub 挂牌出售或出租您的芭堤雅房产。',
+  ru: 'Простые шаги для размещения вашей недвижимости в Паттайе на Pattaya Estate Hub.',
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params
+  if (!isValidLocale(locale)) return {}
+  return {
+    title: titles[locale] ?? titles.th,
+    description: descs[locale] ?? descs.th,
+    alternates: buildAlternates(locale, '/how-to-list'),
+  }
+}
+
+export default async function HowToListPage({ params }: Props) {
   const { locale } = await params
   const t = getT(locale as 'th' | 'en' | 'zh' | 'ru')
   const base = `/${locale}`
 
+  const homeLabel = locale === 'th' ? 'หน้าแรก' : locale === 'en' ? 'Home' : locale === 'zh' ? '首页' : 'Главная'
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <Breadcrumbs locale={locale} items={[{ label: homeLabel, href: base }, { label: t('howToList.title') }]} />
       <h1 className="font-display text-3xl text-stone-900">{t('howToList.title')}</h1>
       <p className="mt-2 text-stone-600">{t('howToList.intro')}</p>
       <div className="mt-8 space-y-6">

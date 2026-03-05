@@ -1,17 +1,20 @@
-'use client'
-
-import { useState, useEffect } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
 import { notFound } from 'next/navigation'
+import { Bed, Bath, Maximize2, MapPin, BadgeCheck, MapPinned } from 'lucide-react'
+import { prisma } from '@/lib/prisma'
+import { prismaToProperty, propertyForLocale } from '@/lib/property-db'
 import { properties as staticProperties } from '@/data/properties'
-import { Bed, Bath, Maximize2, MapPin, BadgeCheck, ChevronLeft, ChevronRight, MapPinned, Heart } from 'lucide-react'
+import { getT } from '@/messages'
+import { isValidLocale, type Locale } from '@/config/i18n'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { AgentContact } from '@/components/AgentContact'
-import { InterestForm } from '@/components/InterestForm'
-import { useLocale } from '@/context/LocaleContext'
 import { FormattedPrice } from '@/components/FormattedPrice'
+import { PropertyImageCarousel } from './PropertyImageCarousel'
+import { InterestButton } from './InterestButton'
+import { ViewCounter } from './ViewCounter'
 import type { Property } from '@/types/property'
+
+type Props = { params: Promise<{ locale: string; id: string }> }
 
 const TH_MONTHS = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.']
 function formatLeaseDate(ymd: string): string {
@@ -20,74 +23,43 @@ function formatLeaseDate(ymd: string): string {
   return `${d} ${TH_MONTHS[(m - 1) % 12] ?? ymd} ${y + 543}`
 }
 
-const PLACEHOLDER = 'https://placehold.co/800x600/f4f1de/1c1917?text=No+Image'
+export const dynamic = 'force-dynamic'
 
-export default function PropertyDetailPage() {
-  const params = useParams()
-  const locale = (params?.locale as string) || 'th'
-  const id = params?.id as string
-  const { t } = useLocale()
-  const [property, setProperty] = useState<Property | null | 'loading'>('loading')
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [showInterest, setShowInterest] = useState(false)
-  const [imgError, setImgError] = useState(false)
+export default async function PropertyDetailPage({ params }: Props) {
+  const { locale, id } = await params
+  if (!isValidLocale(locale)) notFound()
+  const t = getT(locale as Locale)
 
-  useEffect(() => {
-    setImgError(false)
-  }, [currentIndex])
-
-  useEffect(() => {
-    if (!id) {
-      setProperty(null)
-      return
+  let property: Property | null = null
+  try {
+    const row = await prisma.property.findUnique({ where: { id } })
+    if (row) {
+      const mapped = prismaToProperty(row)
+      property = propertyForLocale(mapped, locale as Locale)
     }
-    let cancelled = false
-    fetch(`/api/properties/${id}?locale=${locale}`)
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (cancelled) return
-        if (data) {
-          setProperty(data)
-          fetch(`/api/properties/${id}/view`, { method: 'POST' }).catch(() => {})
-          return
-        }
-        const fromStatic = staticProperties.find((p) => p.id === id)
-        setProperty(fromStatic ?? null)
-      })
-      .catch(() => {
-        if (!cancelled) setProperty(staticProperties.find((p) => p.id === id) ?? null)
-      })
-    return () => { cancelled = true }
-  }, [id, locale])
+  } catch { /* DB unavailable */ }
 
-  if (property === 'loading') {
-    return (
-      <div className="max-w-5xl mx-auto px-4 py-16 text-center text-stone-500">
-        {t('common.loading')}
-      </div>
-    )
+  if (!property) {
+    const fromStatic = staticProperties.find((p) => p.id === id)
+    if (!fromStatic) notFound()
+    property = fromStatic
   }
-  if (!property) notFound()
 
-  const images = property.images?.length ? property.images : [PLACEHOLDER]
-  const currentImg = images[currentIndex] || images[0]
-  const isDataUrl = currentImg.startsWith('data:')
-  const isExternalUrl = (currentImg.startsWith('http') && !currentImg.includes('placehold.co')) || imgError
-  const displayImg = (isExternalUrl && imgError) ? PLACEHOLDER : currentImg
-  const hasMultiple = images.length > 1
   const base = `/${locale}`
-
-  const goPrev = () => setCurrentIndex((i) => (i === 0 ? images.length - 1 : i - 1))
-  const goNext = () => setCurrentIndex((i) => (i === images.length - 1 ? 0 : i + 1))
+  const homeLabel = locale === 'th' ? 'หน้าแรก' : locale === 'en' ? 'Home' : locale === 'zh' ? '首页' : 'Главная'
+  const listLabel = locale === 'th' ? 'ค้นหาทรัพย์' : locale === 'en' ? 'Listings' : locale === 'zh' ? '房源列表' : 'Объекты'
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <Link
-        href={`${base}/listings`}
-        className="text-primary-600 hover:text-primary-700 text-sm font-medium mb-6 inline-block"
-      >
-        ← {t('listing.backToList')}
-      </Link>
+      <ViewCounter id={id} />
+      <Breadcrumbs
+        locale={locale}
+        items={[
+          { label: homeLabel, href: base },
+          { label: listLabel, href: `${base}/listings` },
+          { label: property.title },
+        ]}
+      />
 
       <div className="flex flex-wrap gap-2 mb-4">
         <span className="px-2.5 py-1 bg-primary-600 text-white text-sm font-semibold rounded-md">
@@ -115,6 +87,7 @@ export default function PropertyDetailPage() {
       <h1 className="font-display text-2xl lg:text-3xl text-stone-900 mb-2">
         {property.title}
       </h1>
+
       {property.listingType === 'rent' && property.rentOccupied && (property.rentLeaseStart || property.rentLeaseEnd) && (
         <div className="mb-4 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900">
           <p className="font-medium">{t('listing.rented')}</p>
@@ -129,6 +102,7 @@ export default function PropertyDetailPage() {
           </p>
         </div>
       )}
+
       <div className="flex flex-wrap items-center gap-2">
         <p className="text-stone-500 flex items-center gap-1">
           <MapPin className="w-4 h-4" />
@@ -147,60 +121,7 @@ export default function PropertyDetailPage() {
         )}
       </div>
 
-      <div className="mt-6">
-        <div className="relative aspect-video rounded-xl overflow-hidden bg-stone-100">
-          {(isDataUrl || isExternalUrl) ? (
-            <img
-              src={displayImg}
-              alt={`${property.title} - ${currentIndex + 1}`}
-              className="w-full h-full object-cover"
-              onError={() => setImgError(true)}
-            />
-          ) : (
-            <Image
-              src={displayImg}
-              alt={`${property.title} - ${currentIndex + 1}`}
-              fill
-              className="object-cover"
-              priority={currentIndex === 0}
-              sizes="(max-width: 1024px) 100vw, 1024px"
-            />
-          )}
-          {hasMultiple && (
-            <>
-              <button type="button" onClick={goPrev} className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-stone-700 hover:bg-white transition" aria-label={t('common.prev')}>
-                <ChevronLeft className="w-6 h-6" />
-              </button>
-              <button type="button" onClick={goNext} className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-stone-700 hover:bg-white transition" aria-label={t('common.next')}>
-                <ChevronRight className="w-6 h-6" />
-              </button>
-              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full bg-black/50 text-white text-sm">
-                {currentIndex + 1} / {images.length}
-              </div>
-            </>
-          )}
-        </div>
-        {hasMultiple && (
-          <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
-            {images.map((src, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => setCurrentIndex(i)}
-                className={`shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition ${
-                  i === currentIndex ? 'border-primary-600 ring-2 ring-primary-200' : 'border-stone-200 hover:border-stone-300'
-                }`}
-              >
-                {(src.startsWith('data:') || (src.startsWith('http') && !src.includes('placehold.co'))) ? (
-                  <img src={src} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  <Image src={src} alt="" width={64} height={64} className="w-full h-full object-cover" />
-                )}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+      <PropertyImageCarousel images={property.images} title={property.title} locale={locale} />
 
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
@@ -217,7 +138,7 @@ export default function PropertyDetailPage() {
             )}
             {(property.propertyType === 'house' || property.propertyType === 'villa') && property.floors != null && (
               <span className="flex items-center gap-2">
-                {t('listing.house')} {property.floors} {t('listing.floors')}
+                {property.floors} {t('listing.floors')}
               </span>
             )}
             {property.bedrooms != null && (
@@ -253,21 +174,10 @@ export default function PropertyDetailPage() {
         </div>
 
         <div className="lg:col-span-1 space-y-4">
-          <button
-            type="button"
-            onClick={() => setShowInterest(true)}
-            className="w-full py-3.5 px-4 bg-primary-600 text-white rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-primary-700 transition shadow-md"
-          >
-            <Heart className="w-5 h-5" />
-            {t('listing.interestedInProperty')}
-          </button>
+          <InterestButton property={property} label={t('listing.interestedInProperty')} />
           <AgentContact variant="card" />
         </div>
       </div>
-
-      {showInterest && property && (
-        <InterestForm property={property} onClose={() => setShowInterest(false)} />
-      )}
     </div>
   )
 }
