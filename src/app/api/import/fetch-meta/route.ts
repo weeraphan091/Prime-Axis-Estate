@@ -1,9 +1,79 @@
 import { NextResponse } from 'next/server'
 import { hasAdminSession } from '@/lib/admin-auth'
 
+const HTTPS_ONLY = /^https:\/\//i
+
+function addImage(images: string[], url: string): void {
+  if (!url || !HTTPS_ONLY.test(url)) return
+  if (images.indexOf(url) === -1) images.push(url)
+}
+
+/** ลองดึงรูปจาก Facebook oEmbed (ได้บ้างในบางประเภทโพส) */
+async function tryFacebookOEmbed(url: string): Promise<string[]> {
+  const images: string[] = []
+  try {
+    const oembedUrl = `https://www.facebook.com/plugins/post/oembed.json?url=${encodeURIComponent(url)}`
+    const res = await fetch(oembedUrl, {
+      method: 'GET',
+      headers: { Accept: 'application/json', 'User-Agent': 'Mozilla/5.0 (compatible; bot)' },
+      signal: AbortSignal.timeout(8_000),
+    })
+    if (!res.ok) return []
+    const data = (await res.json()) as Record<string, unknown>
+    const thumb = data?.thumbnail_url ?? data?.image
+    if (typeof thumb === 'string') addImage(images, thumb)
+  } catch {
+    // ignore
+  }
+  return images
+}
+
+/** รวบรวม URL รูปจาก HTML: og:image, twitter:image, และ meta ที่เกี่ยวกับ image ทั้งหมด */
+function collectImagesFromHtml(html: string): string[] {
+  const images: string[] = []
+
+  // og:image
+  const ogImage = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)
+  if (ogImage?.[1]) addImage(images, ogImage[1])
+  const ogImageAlt = html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i)
+  if (ogImageAlt?.[1]) addImage(images, ogImageAlt[1])
+
+  // og:image:url, og:image:secure_url
+  const ogImageUrlRe = /<meta[^>]+property=["']og:image(?::url|:secure_url)?["'][^>]+content=["']([^"']+)["']/gi
+  let m: RegExpExecArray | null
+  while ((m = ogImageUrlRe.exec(html)) !== null) {
+    if (m[1]) addImage(images, m[1])
+  }
+  const ogSecure = html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image:secure_url["']/i)
+  if (ogSecure?.[1]) addImage(images, ogSecure[1])
+
+  // twitter:image (บางไซต์มีหลายรูป)
+  const twRe = /<meta[^>]+(?:name|property)=["']twitter:image(?::src)?["'][^>]+content=["']([^"']+)["']/gi
+  while ((m = twRe.exec(html)) !== null) {
+    if (m[1]) addImage(images, m[1])
+  }
+  const twAltRe = /<meta[^>]+content=["']([^"']+)["'][^>]+(?:name|property)=["']twitter:image/gi
+  while ((m = twAltRe.exec(html)) !== null) {
+    if (m[1]) addImage(images, m[1])
+  }
+
+  // meta ใดก็ได้ที่ property/name มี "image" และ content เป็น URL
+  const anyImageRe = /<meta[^>]+(?:property|name)=["'][^"']*image[^"']*["'][^>]+content=["'](https:[^"']+)["']/gi
+  while ((m = anyImageRe.exec(html)) !== null) {
+    if (m[1]) addImage(images, m[1])
+  }
+  const anyImageAltRe = /<meta[^>]+content=["'](https:[^"']+)["'][^>]+(?:property|name)=["'][^"']*image[^"']*["']/gi
+  while ((m = anyImageAltRe.exec(html)) !== null) {
+    if (m[1]) addImage(images, m[1])
+  }
+
+  return images
+}
+
 /**
  * ดึง Open Graph image(s) จาก URL (เช่น ลิงก์โพส Facebook)
- * Facebook มักใส่รูปหลักใน og:image — ได้อย่างน้อย 1 รูป
+ * เว็บทั่วไป: ดึงได้หลายรูปจาก og:image, twitter:image และ meta ที่เกี่ยวกับ image
+ * Facebook: ลอง oEmbed ก่อน; ถ้าไม่ได้ต้องเซฟรูปจากโพสเอง (Facebook จำกัดการเข้าถึงจากเซิร์ฟเวอร์)
  */
 export async function POST(request: Request) {
   const ok = await hasAdminSession()
@@ -21,6 +91,15 @@ export async function POST(request: Request) {
     }
 
     const isFacebook = /^https?:\/\/(www\.)?(facebook|fb\.com|fb\.me|m\.facebook)/i.test(url)
+    let images: string[] = []
+
+    if (isFacebook) {
+      images = await tryFacebookOEmbed(url)
+      if (images.length > 0) {
+        return NextResponse.json({ images })
+      }
+    }
+
     const headers: Record<string, string> = {
       Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
       'Accept-Language': 'th-TH,th;q=0.9,en-US;q=0.8,en;q=0.7',
@@ -56,7 +135,7 @@ export async function POST(request: Request) {
     if (!res.ok) {
       const hint =
         res.status === 400 && isFacebook
-          ? ' — Facebook อาจจำกัดการเข้าถึงจากเซิร์ฟเวอร์ ลองเซฟรูปจากโพสมาอัปโหลดในหน้าลิสต์'
+          ? ' — Facebook จำกัดการเข้าถึงจากเซิร์ฟเวอร์ กรุณาเซฟรูปจากโพสมาอัปโหลดในหน้าลิสต์'
           : ''
       return NextResponse.json(
         { error: `ดึงหน้าไม่สำเร็จ (${res.status})${hint}`, images: [] },
@@ -65,26 +144,7 @@ export async function POST(request: Request) {
     }
 
     const html = await res.text()
-    const images: string[] = []
-
-    // og:image (อาจมีหลายอันแบบ og:image:url, og:image:secure_url)
-    const ogImage = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)
-    if (ogImage?.[1]) images.push(ogImage[1])
-
-    // บางไซต์ใช้ content ก่อน property
-    const ogImageAlt = html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i)
-    if (ogImageAlt?.[1] && !images.includes(ogImageAlt[1])) images.push(ogImageAlt[1])
-
-    // og:image:url (รูปเพิ่ม) — ใช้ exec แทน matchAll เพื่อไม่ต้องใช้ downlevelIteration
-    const ogImageUrlRe = /<meta[^>]+property=["']og:image:url["'][^>]+content=["']([^"']+)["']/gi
-    let m: RegExpExecArray | null
-    while ((m = ogImageUrlRe.exec(html)) !== null) {
-      if (m[1] && !images.includes(m[1])) images.push(m[1])
-    }
-
-    // Facebook บางทีมีหลายรูปใน JSON-LD หรือ meta
-    const ogImageSecure = html.match(/<meta[^>]+property=["']og:image:secure_url["'][^>]+content=["']([^"']+)["']/i)
-    if (ogImageSecure?.[1] && !images.includes(ogImageSecure[1])) images.push(ogImageSecure[1])
+    images = collectImagesFromHtml(html)
 
     return NextResponse.json({ images: Array.from(new Set(images)) })
   } catch (e) {
