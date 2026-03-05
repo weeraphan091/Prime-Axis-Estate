@@ -16,33 +16,45 @@ export default async function AdminHomePage() {
   let totalMembers = 0
   let topByViews: { id: string; title: string; viewCount: number }[] = []
   let topByLeads: { id: string; title: string; leadCount: number }[] = []
+  let dbSchemaError = false
+
+  // query แต่ละส่วนแยกกัน — ถ้าตัวใดล้ม ตัวอื่นยังแสดงได้
   try {
-    const [listings, leads, agents, memberCount, allProps, leadCounts] = await Promise.all([
-      prisma.property.findMany({ select: { id: true, status: true, createdAt: true } }),
-      prisma.lead.findMany({ select: { id: true, createdAt: true, propertyId: true } }),
-      prisma.agent.count(),
-      prisma.user.count(),
-      prisma.property.findMany({
-        where: { status: 'published' },
-        select: { id: true, title: true, viewCount: true },
-        orderBy: { viewCount: 'desc' },
-        take: 5,
-      }),
-      prisma.lead.groupBy({
-        by: ['propertyId'],
-        _count: { id: true },
-      }),
-    ])
+    const listings = await prisma.property.findMany({ select: { id: true, status: true, createdAt: true } })
     totalListings = listings.length
     publishedListings = listings.filter((p) => p.status === 'published').length
+  } catch (e) {
+    const msg = (e as Error)?.message ?? ''
+    if (msg.includes('does not exist') || msg.includes('column')) dbSchemaError = true
+  }
+
+  try {
+    const leads = await prisma.lead.findMany({ select: { id: true, createdAt: true, propertyId: true } })
     totalLeads = leads.length
     const oneWeekAgo = new Date()
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
     const weekAgoStr = oneWeekAgo.toISOString().slice(0, 19)
     newLeadsThisWeek = leads.filter((l) => l.createdAt >= weekAgoStr).length
-    totalAgents = agents
-    totalMembers = memberCount
+  } catch { /* Lead ตารางอาจยังไม่มี */ }
+
+  try { totalAgents = await prisma.agent.count() } catch { /* */ }
+  try { totalMembers = await prisma.user.count() } catch { /* */ }
+
+  try {
+    const allProps = await prisma.property.findMany({
+      where: { status: 'published' },
+      select: { id: true, title: true, viewCount: true },
+      orderBy: { viewCount: 'desc' },
+      take: 5,
+    })
     topByViews = allProps.map((p) => ({ id: p.id, title: p.title, viewCount: p.viewCount ?? 0 }))
+  } catch { /* */ }
+
+  try {
+    const leadCounts = await prisma.lead.groupBy({
+      by: ['propertyId'],
+      _count: { id: true },
+    })
     const sortedLeads = [...leadCounts].sort((a, b) => b._count.id - a._count.id).slice(0, 5)
     const topLeadIds = sortedLeads.map((l) => l.propertyId)
     if (topLeadIds.length > 0) {
@@ -57,14 +69,23 @@ export default async function AdminHomePage() {
         leadCount: l._count.id,
       }))
     }
-  } catch {
-    // DB error - show 0
-  }
+  } catch { /* */ }
 
   return (
     <div>
       <h1 className="font-display text-2xl text-stone-900">แดชบอร์ด</h1>
       <p className="mt-1 text-stone-600">ภาพรวมรายการ ลีด และพนักงานขาย</p>
+
+      {dbSchemaError && (
+        <div className="mt-4 bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-900 text-sm">
+          <p className="font-semibold mb-1">ฐานข้อมูลยังไม่ตรงกับโค้ดล่าสุด</p>
+          <p>
+            รันคำสั่ง <code className="bg-amber-100 px-1 rounded">npx prisma db push</code> ในเครื่อง
+            (ใช้ Direct connection พอร์ต 5432) หรือดับเบิลคลิก{' '}
+            <code className="bg-amber-100 px-1 rounded">รัน-prisma-db-push.bat</code> แล้ว Redeploy
+          </p>
+        </div>
+      )}
 
       <div className="mt-6 grid grid-cols-2 sm:grid-cols-5 gap-4">
         <div className="bg-white rounded-xl border border-stone-200 p-4">

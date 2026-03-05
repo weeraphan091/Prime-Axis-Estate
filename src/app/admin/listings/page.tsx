@@ -50,15 +50,46 @@ export default async function AdminListingsPage() {
       err?.code === 'P1001' ||
       msg.includes('connect') ||
       msg.includes('Connection')
-    dbError = isConnectionError ? 'connection' : msg
+    const isSchemaMismatch =
+      msg.includes('does not exist') ||
+      msg.includes('column') ||
+      msg.includes('relation') ||
+      msg.includes('Unknown arg') ||
+      err?.code === 'P2022' ||
+      err?.code === 'P2010'
+    dbError = isConnectionError ? 'connection' : isSchemaMismatch ? 'schema' : msg
   }
 
   if (dbError) {
     const isConnection = dbError === 'connection'
+    const isSchema = dbError === 'schema'
     return (
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 text-amber-900 max-w-2xl">
         <h2 className="font-semibold text-lg mb-2">โหลดฐานข้อมูลไม่ได้</h2>
-        {isConnection ? (
+        {isSchema ? (
+          <>
+            <p className="text-sm mb-3">
+              ฐานข้อมูลยังไม่ตรงกับโค้ดล่าสุด (มีคอลัมน์ใหม่ที่ยังไม่ได้สร้างในฐานข้อมูล)
+            </p>
+            <p className="text-sm mb-2 font-medium">วิธีแก้ — รันคำสั่งนี้ในเครื่อง:</p>
+            <ol className="text-sm list-decimal list-inside space-y-1.5 mb-4">
+              <li>
+                ใส่ <strong>DATABASE_URL</strong> ของ Supabase (ใช้ <strong>Direct connection</strong> พอร์ต <strong>5432</strong>) ลงในไฟล์{' '}
+                <code className="bg-amber-100 px-1 rounded">.env</code>
+              </li>
+              <li>
+                เปิด Terminal แล้วรัน: <code className="bg-amber-100 px-1 rounded">npx prisma db push</code>
+              </li>
+              <li>
+                หรือดับเบิลคลิกไฟล์ <code className="bg-amber-100 px-1 rounded">รัน-prisma-db-push.bat</code>
+              </li>
+              <li>Redeploy บน Vercel อีกครั้ง</li>
+            </ol>
+            <p className="text-xs text-amber-600">
+              หมายเหตุ: prisma db push ต้องใช้ Direct connection (5432) ไม่ใช่ Pooler (6543)
+            </p>
+          </>
+        ) : isConnection ? (
           <>
             <p className="text-sm mb-2">
               ตั้งค่า <strong>DATABASE_URL</strong> ใน Vercel (หรือในไฟล์ <code className="bg-amber-100 px-1 rounded">.env</code> เมื่อรันในเครื่อง)
@@ -82,9 +113,11 @@ export default async function AdminListingsPage() {
             ข้อผิดพลาด: <code className="bg-amber-100 px-1 rounded break-all">{dbError.slice(0, 200)}</code>
           </p>
         )}
-        <p className="text-sm text-amber-700">
-          รันในเครื่อง: ใส่ DATABASE_URL ใน <code className="bg-amber-100 px-1 rounded">.env</code> แล้วรัน <code className="bg-amber-100 px-1 rounded">npm run dev</code>
-        </p>
+        {!isSchema && (
+          <p className="text-sm text-amber-700">
+            รันในเครื่อง: ใส่ DATABASE_URL ใน <code className="bg-amber-100 px-1 rounded">.env</code> แล้วรัน <code className="bg-amber-100 px-1 rounded">npm run dev</code>
+          </p>
+        )}
       </div>
     )
   }
