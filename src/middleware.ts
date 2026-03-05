@@ -17,7 +17,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(`/${preferred}`, request.url))
   }
 
-  const frontPaths = ['listings', 'list-your-property', 'contact', 'login', 'register', 'terms', 'privacy', 'favorites', 'compare', 'how-to-list', 'my-listings']
+  const frontPaths = ['listings', 'list-your-property', 'contact', 'login', 'register', 'terms', 'privacy', 'favorites', 'compare', 'how-to-list', 'my-listings', 'blog']
   const firstSeg = pathname.slice(1).split('/')[0]
   if (frontPaths.includes(firstSeg)) {
     const locale = request.cookies.get(LOCALE_COOKIE)?.value
