@@ -20,22 +20,46 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'URL ต้องขึ้นต้นด้วย https:// หรือ http://' }, { status: 400 })
     }
 
+    const isFacebook = /^https?:\/\/(www\.)?(facebook|fb\.com|fb\.me|m\.facebook)/i.test(url)
+    const headers: Record<string, string> = {
+      Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+      'Accept-Language': 'th-TH,th;q=0.9,en-US;q=0.8,en;q=0.7',
+      'Cache-Control': 'no-cache',
+      Pragma: 'no-cache',
+      'Sec-Fetch-Dest': 'document',
+      'Sec-Fetch-Mode': 'navigate',
+      'Sec-Fetch-Site': 'none',
+      'Upgrade-Insecure-Requests': '1',
+    }
+    if (isFacebook) {
+      headers['User-Agent'] = 'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)'
+      headers['Referer'] = 'https://www.facebook.com/'
+    } else {
+      headers['User-Agent'] =
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      try {
+        const u = new URL(url)
+        headers['Referer'] = `${u.protocol}//${u.host}/`
+      } catch {
+        // ignore
+      }
+    }
+
     const res = await fetch(url, {
       method: 'GET',
-      headers: {
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        Accept:
-          'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Accept-Language': 'th-TH,th;q=0.9,en;q=0.8',
-      },
+      headers,
       redirect: 'follow',
+      cache: 'no-store',
       signal: AbortSignal.timeout(15_000),
     })
 
     if (!res.ok) {
+      const hint =
+        res.status === 400 && isFacebook
+          ? ' — Facebook อาจจำกัดการเข้าถึงจากเซิร์ฟเวอร์ ลองเซฟรูปจากโพสมาอัปโหลดในหน้าลิสต์'
+          : ''
       return NextResponse.json(
-        { error: `ดึงหน้าไม่สำเร็จ (${res.status})`, images: [] },
+        { error: `ดึงหน้าไม่สำเร็จ (${res.status})${hint}`, images: [] },
         { status: 200 }
       )
     }
