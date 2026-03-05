@@ -86,7 +86,11 @@ export async function PUT(request: Request) {
     })
     return NextResponse.json({ ok: true })
   } catch (e) {
-    console.error(e)
-    return NextResponse.json({ error: 'Failed to save' }, { status: 500 })
+    console.error('[settings/contact] PUT error:', e)
+    const message = e instanceof Error ? e.message : 'Failed to save'
+    return NextResponse.json(
+      { error: 'Failed to save', detail: process.env.NODE_ENV === 'development' ? message : undefined },
+      { status: 500 }
+    )
   }
 }

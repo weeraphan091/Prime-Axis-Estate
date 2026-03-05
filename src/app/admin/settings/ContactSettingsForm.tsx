@@ -33,13 +33,21 @@ export function ContactSettingsForm({ initial }: Props) {
       const res = await fetch('/api/settings/contact', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(form),
       })
+      const data = res.ok ? null : await res.json().catch(() => ({}))
       if (res.ok) {
         router.refresh()
         alert('บันทึกแล้ว — ข้อมูลติดต่อจะแสดงใหม่ทุกที่บนเว็บ')
       } else {
-        alert('บันทึกไม่สำเร็จ')
+        const msg =
+          data?.error === 'Unauthorized'
+            ? 'หมดอายุหรือไม่มีสิทธิ์ — กรุณาเข้าสู่ระบบใหม่'
+            : data?.detail
+              ? `${data.error}: ${data.detail}`
+              : data?.error || 'บันทึกไม่สำเร็จ'
+        alert(msg)
       }
     } catch {
       alert('เกิดข้อผิดพลาด')
