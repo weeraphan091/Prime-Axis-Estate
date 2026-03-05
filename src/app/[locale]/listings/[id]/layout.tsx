@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { prisma } from '@/lib/prisma'
+import { getPropertyById } from '@/lib/cached-queries'
 import { getSiteUrl, SITE_NAME } from '@/config/site'
 import { buildAlternates } from '@/lib/seo'
 import { locales, localeHreflang } from '@/config/i18n'
@@ -9,16 +9,7 @@ type Props = { children: React.ReactNode; params: Promise<{ locale: string; id: 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, id } = await params
   try {
-    const p = await prisma.property.findUnique({
-      where: { id },
-      select: {
-        title: true, description: true, listingType: true,
-        price: true, priceLabel: true, status: true, images: true,
-        titleEn: true, descriptionEn: true,
-        titleZh: true, descriptionZh: true,
-        titleRu: true, descriptionRu: true,
-      },
-    })
+    const p = await getPropertyById(id)
     if (!p || p.status !== 'published') return { title: 'Not found' }
 
     const title =
@@ -76,17 +67,7 @@ export default async function ListingDetailLayout({ children, params }: Props) {
 
   let jsonLd = null
   try {
-    const p = await prisma.property.findUnique({
-      where: { id },
-      select: {
-        id: true, title: true, description: true, listingType: true,
-        propertyType: true, price: true, priceLabel: true, location: true,
-        area: true, bedrooms: true, bathrooms: true, images: true, status: true,
-        titleEn: true, descriptionEn: true,
-        titleZh: true, descriptionZh: true,
-        titleRu: true, descriptionRu: true,
-      },
-    })
+    const p = await getPropertyById(id)
     if (p && p.status === 'published') {
       const title =
         (locale === 'en' && p.titleEn) || (locale === 'zh' && p.titleZh) || (locale === 'ru' && p.titleRu) || p.title

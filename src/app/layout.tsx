@@ -88,6 +88,14 @@ export default async function RootLayout({
   const lang = localeCookie && isValidLocale(localeCookie) ? localeToLang[localeCookie] : 'th'
   return (
     <html lang={lang} className={`${dmSans.variable} ${dmSerif.variable}`} suppressHydrationWarning>
+      <head>
+        {process.env.NEXT_PUBLIC_SUPABASE_URL && (
+          <>
+            <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_SUPABASE_URL} />
+            <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL} crossOrigin="anonymous" />
+          </>
+        )}
+      </head>
       <body className="min-h-screen flex flex-col antialiased">
         <GoogleAnalytics />
         <JsonLdOrganization />

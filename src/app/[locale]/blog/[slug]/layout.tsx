@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { prisma } from '@/lib/prisma'
+import { getBlogBySlug } from '@/lib/cached-queries'
 import { getSiteUrl, SITE_NAME } from '@/config/site'
 import { buildAlternates } from '@/lib/seo'
 import { isValidLocale } from '@/config/i18n'
@@ -16,7 +16,7 @@ function pick(row: Record<string, unknown>, field: string, locale: string): stri
 
 async function getPost(slug: string): Promise<Record<string, unknown> | null> {
   try {
-    const p = await prisma.blogPost.findUnique({ where: { slug } })
+    const p = await getBlogBySlug(slug)
     if (p && p.status === 'published') return p as unknown as Record<string, unknown>
   } catch { /* */ }
   const fromStatic = staticPosts.find((p) => p.slug === slug && p.status === 'published')

@@ -9,7 +9,7 @@ import { redirect } from 'next/navigation'
 import { blogPosts as staticPosts } from '@/data/blog-posts'
 import { BookOpen, Phone, FilePlus } from 'lucide-react'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 60
 
 type Props = { params: Promise<{ locale: string }> }
 

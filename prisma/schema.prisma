@@ -36,6 +36,10 @@ model Lead {
   createdAt   String
   updatedAt   String
   agent       Agent?   @relation(fields: [agentId], references: [id], onDelete: SetNull)
+
+  @@index([propertyId])
+  @@index([status])
+  @@index([createdAt])
 }
 
 model Property {
@@ -88,6 +92,12 @@ model Property {
   updatedAt      String
   agent          Agent?   @relation(fields: [agentId], references: [id], onDelete: SetNull)
   user           User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([status, updatedAt])
+  @@index([listingType])
+  @@index([userId])
+  @@index([agentId])
 }
 
 model ContactSettings {
@@ -135,6 +145,10 @@ model BlogPost {
   status      String   @default("published") // draft | published
   createdAt   String
   updatedAt   String
+
+  @@index([status])
+  @@index([status, createdAt])
+  @@index([category])
 }
 
 model NewsletterSubscriber {

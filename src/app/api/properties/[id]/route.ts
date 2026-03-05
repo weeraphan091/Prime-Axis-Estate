@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { prismaToProperty, propertyToPrisma, propertyForPublic, propertyForLocale } from '@/lib/property-db'
 import { hasAdminSession } from '@/lib/admin-auth'
@@ -24,7 +25,9 @@ export async function GET(
     if (p.status !== 'published') return NextResponse.json({ error: 'Not found' }, { status: 404 })
     let prop = propertyForPublic(prismaToProperty(p))
     if (locale) prop = propertyForLocale(prop, locale)
-    return NextResponse.json(prop)
+    const res = NextResponse.json(prop)
+    res.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300')
+    return res
   } catch (e) {
     console.error(e)
     return NextResponse.json({ error: 'Failed to fetch' }, { status: 500 })
@@ -62,6 +65,7 @@ export async function PUT(
         updatedAt: new Date().toISOString().slice(0, 10),
       },
     })
+    revalidatePath('/', 'layout')
     return NextResponse.json(prismaToProperty(updated))
   } catch (e) {
     console.error(e)
@@ -80,6 +84,7 @@ export async function DELETE(
   const { id } = await params
   try {
     await prisma.property.delete({ where: { id } })
+    revalidatePath('/', 'layout')
     return NextResponse.json({ ok: true })
   } catch (e) {
     console.error(e)

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Bed, Bath, Maximize2, MapPin, BadgeCheck, MapPinned, Tag } from 'lucide-react'
-import { prisma } from '@/lib/prisma'
+import { getPropertyById } from '@/lib/cached-queries'
 import { prismaToProperty, propertyForLocale } from '@/lib/property-db'
 import { properties as staticProperties } from '@/data/properties'
 import { getT } from '@/messages'
@@ -23,7 +23,7 @@ function formatLeaseDate(ymd: string): string {
   return `${d} ${TH_MONTHS[(m - 1) % 12] ?? ymd} ${y + 543}`
 }
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 60
 
 export default async function PropertyDetailPage({ params }: Props) {
   const { locale, id } = await params
@@ -32,7 +32,7 @@ export default async function PropertyDetailPage({ params }: Props) {
 
   let property: Property | null = null
   try {
-    const row = await prisma.property.findUnique({ where: { id } })
+    const row = await getPropertyById(id)
     if (row) {
       const mapped = prismaToProperty(row)
       property = propertyForLocale(mapped, locale as Locale)

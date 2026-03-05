@@ -7,8 +7,16 @@ export async function GET() {
     const posts = await prisma.blogPost.findMany({
       where: { status: 'published' },
       orderBy: { createdAt: 'desc' },
+      select: {
+        id: true, slug: true, title: true, titleEn: true, titleZh: true, titleRu: true,
+        excerpt: true, excerptEn: true, excerptZh: true, excerptRu: true,
+        coverImage: true, category: true, tags: true, status: true,
+        createdAt: true, updatedAt: true,
+      },
     })
-    return NextResponse.json(posts)
+    const res = NextResponse.json(posts)
+    res.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300')
+    return res
   } catch (e) {
     console.error('[blog GET]', e)
     return NextResponse.json([], { status: 200 })

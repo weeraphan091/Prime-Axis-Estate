@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { prismaToProperty, propertyToPrisma, propertyForPublic, propertyForLocale } from '@/lib/property-db'
 import { hasAdminSession } from '@/lib/admin-auth'
@@ -26,7 +27,7 @@ export async function GET(request: Request) {
       return propertyForPublic(prop)
     })
     const res = NextResponse.json(properties)
-    res.headers.set('Cache-Control', 'no-store, max-age=0')
+    res.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300')
     return res
   } catch (e) {
     console.error(e)
@@ -65,6 +66,7 @@ export async function POST(request: Request) {
     const created = await prisma.property.create({
       data: data as Parameters<typeof prisma.property.create>[0]['data'],
     })
+    revalidatePath('/', 'layout')
     return NextResponse.json(prismaToProperty(created))
   } catch (e) {
     console.error(e)

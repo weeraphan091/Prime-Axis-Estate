@@ -16,7 +16,7 @@ import { SITE_NAME } from '@/config/site'
 import { StatsBar } from '@/components/StatsBar'
 import { HomeChatButton } from '@/components/HomeChatButton'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 60
 
 type Props = { params: Promise<{ locale: string }> }
 

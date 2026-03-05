@@ -1,13 +1,13 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { prisma } from '@/lib/prisma'
+import { getBlogBySlug } from '@/lib/cached-queries'
 import { isValidLocale, type Locale } from '@/config/i18n'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { getT } from '@/messages'
 import { blogPosts as staticPosts } from '@/data/blog-posts'
 import { ArrowLeft, BookOpen, Phone, FilePlus } from 'lucide-react'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 60
 
 type Props = { params: Promise<{ locale: string; slug: string }> }
 
@@ -28,7 +28,7 @@ export default async function BlogDetailPage({ params }: Props) {
 
   let post: Record<string, unknown> | null = null
   try {
-    post = await prisma.blogPost.findUnique({ where: { slug } }) as Record<string, unknown> | null
+    post = await getBlogBySlug(slug) as Record<string, unknown> | null
   } catch { /* */ }
 
   if (!post || post.status !== 'published') {

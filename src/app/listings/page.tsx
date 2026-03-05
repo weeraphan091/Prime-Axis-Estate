@@ -6,8 +6,7 @@ import { getPropertiesFromDb } from '@/lib/property-db'
 import { properties as staticProperties } from '@/data/properties'
 import { getSiteUrl } from '@/config/site'
 
-// บังคับดึงข้อมูลใหม่ทุกครั้ง — แก้หลังบ้านแล้วหน้ารายการจะอัปเดต
-export const dynamic = 'force-dynamic'
+export const revalidate = 60
 
 export const metadata: Metadata = {
   title: 'ค้นหาทรัพย์ ขาย-เช่า คอนโด บ้าน วิลล่า พัทยา',
