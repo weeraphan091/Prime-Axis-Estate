@@ -1,6 +1,8 @@
 import type { Property } from '@/types/property'
 import type { Property as PrismaProperty } from '@prisma/client'
 import type { Locale } from '@/config/i18n'
+import { translateFeatures } from '@/config/features-i18n'
+import { translateLocation } from '@/config/zones'
 
 type PrismaPropertyRow = PrismaProperty & {
   titleEn?: string | null
@@ -119,7 +121,7 @@ export function propertyToPrisma(p: Omit<Property, 'id'> & { id?: string }) {
   }
 }
 
-/** คืน title/description ตาม locale (fallback เป็นภาษาไทย) */
+/** คืน title/description/features/location ตาม locale (fallback เป็นภาษาไทย) */
 export function propertyForLocale(p: Property, locale: Locale): Property {
   if (locale === 'th') return p
   const title =
@@ -132,7 +134,9 @@ export function propertyForLocale(p: Property, locale: Locale): Property {
     (locale === 'zh' && p.descriptionZh) ||
     (locale === 'ru' && p.descriptionRu) ||
     p.description
-  return { ...p, title, description }
+  const features = translateFeatures(p.features, locale)
+  const location = translateLocation(p.location, locale)
+  return { ...p, title, description, features, location }
 }
 
 /** สำหรับส่งกลับให้ลูกค้า/สาธารณะ — ไม่ส่งข้อมูลติดต่อเจ้าของทรัพย์ (ติดต่อผ่านนายหน้าเท่านั้น) */

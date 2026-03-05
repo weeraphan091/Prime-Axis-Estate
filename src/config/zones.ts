@@ -29,6 +29,23 @@ export function getZoneLabel(
   return zone.label
 }
 
+export function translateLocation(location: string, locale: Locale): string {
+  if (locale === 'th') return location
+  for (const zone of pattayaZones) {
+    if (
+      location === zone.label ||
+      location === zone.slug ||
+      location.includes(zone.label) ||
+      location.includes(zone.slug)
+    ) {
+      const translated = getZoneLabel(zone, locale)
+      if (location === zone.label || location === zone.slug) return translated
+      return location.replace(zone.label, translated).replace(zone.slug, translated)
+    }
+  }
+  return location
+}
+
 /** ช่วงราคาแบบ preset — ขาย (บาท) */
 export const priceRangesSale = [
   { label: 'น้อยกว่า 3 ล้าน', min: 0, max: 3_000_000 },
