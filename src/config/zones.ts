@@ -14,6 +14,9 @@ export const pattayaZones = [
   { id: 'siracha', label: 'ศรีราชา', labelEn: 'Si Racha', labelZh: '是拉差', labelRu: 'Си Рача', slug: 'ศรีราชา' },
   { id: 'nongprue', label: 'หนองปลาไหล', labelEn: 'Nong Prue', labelZh: '农普鲁', labelRu: 'Нонг Пруэ', slug: 'หนองปลาไหล' },
   { id: 'nakhonchon', label: 'นครชลบุรี', labelEn: 'Nakhon Chonburi', labelZh: '春武里府', labelRu: 'Накхон Чонбури', slug: 'นครชลบุรี' },
+  { id: 'mapprachan', label: 'มาบประชัน', labelEn: 'Mabprachan', labelZh: '玛巴拉占', labelRu: 'Мабпрачан', slug: 'มาบประชัน' },
+  { id: 'huayyai', label: 'ห้วยใหญ่', labelEn: 'Huay Yai', labelZh: '怀艾', labelRu: 'Хуай Яй', slug: 'ห้วยใหญ่' },
+  { id: 'khao-pratamnak', label: 'เขาพระตำหนัก', labelEn: 'Khao Pratamnak', labelZh: '帕塔纳克山', labelRu: 'Као Пратамнак', slug: 'เขาพระตำหนัก' },
 ] as const
 
 export function getZoneLabel(
