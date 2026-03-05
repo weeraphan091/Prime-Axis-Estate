@@ -63,8 +63,8 @@ export default async function BlogDetailPage({ params }: Props) {
       </span>
       <h1 className="font-display text-2xl lg:text-3xl text-stone-900 mt-3 mb-4">{title}</h1>
       <p className="text-sm text-stone-400 mb-6">{String(post.createdAt ?? '')}</p>
-      {post.coverImage && (
-        <img src={String(post.coverImage)} alt={title} className="w-full rounded-xl mb-8 max-h-96 object-cover" />
+      {typeof post.coverImage === 'string' && post.coverImage && (
+        <img src={post.coverImage} alt={title} className="w-full rounded-xl mb-8 max-h-96 object-cover" />
       )}
       <div className="prose prose-stone max-w-none text-stone-700 whitespace-pre-line leading-relaxed">
         {content}

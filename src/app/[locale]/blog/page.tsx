@@ -91,8 +91,8 @@ export default async function BlogIndexPage({ params }: Props) {
               href={`${base}/blog/${slug}`}
               className="group bg-white rounded-xl border border-stone-200 overflow-hidden hover:shadow-lg hover:border-primary-200 transition"
             >
-              {post.coverImage ? (
-                <img src={String(post.coverImage)} alt={title} className="w-full h-44 object-cover" />
+              {typeof post.coverImage === 'string' && post.coverImage ? (
+                <img src={post.coverImage} alt={title} className="w-full h-44 object-cover" />
               ) : (
                 <div className="w-full h-44 bg-gradient-to-br from-primary-100 to-primary-50 flex items-center justify-center">
                   <BookOpen className="w-12 h-12 text-primary-300" />
