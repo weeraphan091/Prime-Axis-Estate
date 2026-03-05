@@ -62,7 +62,7 @@ export async function POST(request: Request) {
     const ogImageSecure = html.match(/<meta[^>]+property=["']og:image:secure_url["'][^>]+content=["']([^"']+)["']/i)
     if (ogImageSecure?.[1] && !images.includes(ogImageSecure[1])) images.push(ogImageSecure[1])
 
-    return NextResponse.json({ images: [...new Set(images)] })
+    return NextResponse.json({ images: Array.from(new Set(images)) })
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Unknown error'
     if (msg.includes('timeout') || msg.includes('abort')) {
