@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: `${base}/${locale}/blog/${slug}`,
       type: 'article',
       locale: locale === 'zh' ? 'zh_CN' : locale === 'th' ? 'th_TH' : locale,
-      ...(post.coverImage && { images: [{ url: String(post.coverImage), width: 1200, height: 630, alt: title }] }),
+      ...(post.coverImage ? { images: [{ url: String(post.coverImage), width: 1200, height: 630, alt: title }] } : {}),
     },
     twitter: { card: 'summary_large_image', title, description: excerpt.slice(0, 160) },
   }
@@ -69,7 +69,7 @@ export default async function BlogDetailLayout({ children, params }: Props) {
       dateModified: String(post.updatedAt ?? post.createdAt ?? ''),
       author: { '@type': 'Organization', name: SITE_NAME, url: base },
       publisher: { '@type': 'Organization', name: SITE_NAME, url: base },
-      ...(post.coverImage && { image: String(post.coverImage) }),
+      ...(post.coverImage ? { image: String(post.coverImage) } : {}),
       mainEntityOfPage: { '@type': 'WebPage', '@id': `${base}/${locale}/blog/${slug}` },
     }
   }
