@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { hasAdminSession, canAccessSettings } from '@/lib/admin-auth'
 import { prisma } from '@/lib/prisma'
 import { ContactSettingsForm } from './ContactSettingsForm'
+import { saveContactSettings } from './actions'
 
 const defaultInitial = {
   name: 'Pattaya Estate Hub',
@@ -46,7 +47,7 @@ export default async function AdminSettingsPage() {
       <p className="text-stone-600 text-sm mb-8">
         แก้ไขข้อมูลช่องทางติดต่อ — เปลี่ยนจุดเดียว จะอัปเดตทุกที่บนเว็บ (Header, Footer, หน้ารายละเอียด, ฟอร์มสนใจทรัพย์)
       </p>
-      <ContactSettingsForm initial={initial} />
+      <ContactSettingsForm initial={initial} onSave={saveContactSettings} />
     </div>
   )
 }

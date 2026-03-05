@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import type { saveContactSettings } from './actions'
 
 type ContactData = {
   name: string
@@ -15,9 +16,12 @@ type ContactData = {
   telegram: string
 }
 
-type Props = { initial: ContactData }
+type Props = {
+  initial: ContactData
+  onSave: typeof saveContactSettings
+}
 
-export function ContactSettingsForm({ initial }: Props) {
+export function ContactSettingsForm({ initial, onSave }: Props) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState(initial)
@@ -30,23 +34,15 @@ export function ContactSettingsForm({ initial }: Props) {
     e.preventDefault()
     setLoading(true)
     try {
-      const res = await fetch('/api/settings/contact', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(form),
-      })
-      const data = res.ok ? null : await res.json().catch(() => ({}))
-      if (res.ok) {
+      const result = await onSave(form)
+      if (result.ok) {
         router.refresh()
         alert('บันทึกแล้ว — ข้อมูลติดต่อจะแสดงใหม่ทุกที่บนเว็บ')
       } else {
         const msg =
-          data?.error === 'Unauthorized'
+          result.error === 'Unauthorized'
             ? 'หมดอายุหรือไม่มีสิทธิ์ — กรุณาเข้าสู่ระบบใหม่'
-            : data?.detail
-              ? `${data.error}: ${data.detail}`
-              : data?.error || 'บันทึกไม่สำเร็จ'
+            : result.error || 'บันทึกไม่สำเร็จ'
         alert(msg)
       }
     } catch {
