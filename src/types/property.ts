@@ -35,6 +35,8 @@ export interface Property {
   contactWhatsapp?: string
   isFeatured?: boolean
   isOwnerListing?: boolean
+  /** ทรัพย์ติดเจ้าของโดยตรง (owner_direct) หรือ โคจากเอเจ้นอื่น (from_agent) */
+  listingSource?: 'owner_direct' | 'from_agent'
   /** draft | published | sold_rented */
   status?: string
   /** id ของพนักงานรับผิดชอบ */

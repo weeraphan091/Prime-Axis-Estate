@@ -9,6 +9,7 @@ type PrismaPropertyRow = PrismaProperty & {
   descriptionZh?: string | null
   titleRu?: string | null
   descriptionRu?: string | null
+  listingSource?: string | null
 }
 
 function parseJsonArray(raw: string): string[] {
@@ -45,6 +46,7 @@ export function prismaToProperty(p: PrismaPropertyRow): Property {
     contactWhatsapp: p.contactWhatsapp ?? undefined,
     isFeatured: p.isFeatured,
     isOwnerListing: p.isOwnerListing,
+    listingSource: (row.listingSource === 'owner_direct' || row.listingSource === 'from_agent') ? row.listingSource : undefined,
     status: p.status ?? 'published',
     agentId: p.agentId ?? undefined,
     rentOccupied: p.rentOccupied ?? false,
@@ -88,6 +90,7 @@ export function propertyToPrisma(p: Omit<Property, 'id'> & { id?: string }) {
     contactWhatsapp: p.contactWhatsapp ?? null,
     isFeatured: p.isFeatured ?? false,
     isOwnerListing: p.isOwnerListing ?? false,
+    listingSource: p.listingSource ?? null,
     status: p.status ?? 'published',
     agentId: p.agentId ?? null,
     rentOccupied: p.rentOccupied ?? false,

@@ -61,6 +61,7 @@ model Property {
   contactWhatsapp String?
   isFeatured     Boolean  @default(false)
   isOwnerListing Boolean  @default(false)
+  listingSource  String?  // owner_direct | from_agent
   status         String   @default("published") // draft | published | sold_rented
   agentId        String?
   // สำหรับรายการเช่า: เช่าอยู่แล้ว + ระยะสัญญา (ลูกค้าวางแผนหาห้องล่วงหน้า)

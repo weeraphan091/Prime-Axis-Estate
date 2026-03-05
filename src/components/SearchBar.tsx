@@ -4,7 +4,8 @@ import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Search, MapPin, Home, ChevronDown } from 'lucide-react'
 import { propertyTypeLabels } from '@/data/properties'
-import { pattayaZones, priceRangesSale, priceRangesRent } from '@/config/zones'
+import { pattayaZones, getZoneLabel, priceRangesSale, priceRangesRent } from '@/config/zones'
+import type { Locale } from '@/config/i18n'
 import type { ListingType, PropertyType } from '@/types/property'
 import { useLocaleOptional } from '@/context/LocaleContext'
 
@@ -82,10 +83,10 @@ export function SearchBar({ compact = false, locale: localeProp }: { compact?: b
               onChange={(e) => setLocation(e.target.value)}
               className="w-full pl-10 pr-8 py-2.5 border border-stone-300 rounded-lg appearance-none bg-white focus:ring-2 focus:ring-primary-500 outline-none"
             >
-              <option value="">{locale === 'th' ? 'ทุกโซน' : locale === 'en' ? 'All areas' : locale === 'zh' ? '全部区域' : 'Все районы'}</option>
+              <option value="">{t('search.allAreas')}</option>
               {pattayaZones.map((z) => (
                 <option key={z.id} value={z.slug}>
-                  {z.label}
+                  {getZoneLabel(z, locale as Locale)}
                 </option>
               ))}
             </select>
@@ -156,10 +157,10 @@ export function SearchBar({ compact = false, locale: localeProp }: { compact?: b
               onChange={(e) => setLocation(e.target.value)}
               className="w-full pl-10 pr-8 py-2.5 border border-stone-300 rounded-lg appearance-none bg-white focus:ring-2 focus:ring-primary-500 outline-none"
             >
-              <option value="">{locale === 'th' ? 'ทุกโซน' : locale === 'en' ? 'All areas' : locale === 'zh' ? '全部区域' : 'Все районы'}</option>
+              <option value="">{t('search.allAreas')}</option>
               {pattayaZones.map((z) => (
                 <option key={z.id} value={z.slug}>
-                  {z.label}
+                  {getZoneLabel(z, locale as Locale)}
                 </option>
               ))}
             </select>

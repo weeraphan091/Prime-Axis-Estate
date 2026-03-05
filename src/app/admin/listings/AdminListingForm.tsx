@@ -58,6 +58,7 @@ export function AdminListingForm({ initial }: Props) {
     contactWhatsapp: initial?.contactWhatsapp ?? '',
     isFeatured: initial?.isFeatured ?? false,
     isOwnerListing: initial?.isOwnerListing ?? false,
+    listingSource: (initial?.listingSource ?? 'owner_direct') as 'owner_direct' | 'from_agent',
     status: initial?.status ?? 'published',
     agentId: initial?.agentId ?? '',
     rentOccupied: initial?.rentOccupied ?? false,
@@ -128,6 +129,7 @@ export function AdminListingForm({ initial }: Props) {
         contactWhatsapp: form.contactWhatsapp || undefined,
         isFeatured: form.isFeatured,
         isOwnerListing: form.isOwnerListing,
+        listingSource: form.listingSource,
         status: form.status || 'published',
         agentId: form.agentId || undefined,
         rentOccupied: form.listingType === 'rent' ? form.rentOccupied : false,
@@ -449,6 +451,17 @@ export function AdminListingForm({ initial }: Props) {
           <p className="text-sm text-stone-500 mt-1">
             บันทึกข้อมูลติดต่อเจ้าของทรัพย์ไว้ใช้ติดต่อภายใน — ลูกค้าที่สนใจจะติดต่อผ่านช่องทางของเรา (ตั้งค่าใน ตั้งค่าเว็บ)
           </p>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-stone-700 mb-1">แหล่งที่มาทรัพย์</label>
+          <select
+            value={form.listingSource}
+            onChange={(e) => update('listingSource', e.target.value as 'owner_direct' | 'from_agent')}
+            className="w-full max-w-xs px-4 py-2.5 border border-stone-300 rounded-lg outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            <option value="owner_direct">ติดเจ้าของโดยตรง</option>
+            <option value="from_agent">โคจากเอเจ้นอื่นมา</option>
+          </select>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>

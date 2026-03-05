@@ -95,6 +95,11 @@ export default function PropertyDetailPage() {
             {locale === 'th' ? 'ฝากขาย/เช่ากับเรา' : locale === 'en' ? 'Listed with us' : locale === 'zh' ? '委托挂牌' : 'У нас'}
           </span>
         )}
+        {(property.listingSource === 'owner_direct' || property.listingSource === 'from_agent') && (
+          <span className="px-2.5 py-1 bg-stone-300 text-stone-800 text-sm rounded-md">
+            {property.listingSource === 'owner_direct' ? t('listing.ownerDirect') : t('listing.fromAgent')}
+          </span>
+        )}
       </div>
 
       {property.projectName && (

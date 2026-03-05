@@ -39,6 +39,7 @@ export async function POST(request: Request) {
       contactWhatsapp: body.contactWhatsapp?.trim() || undefined,
       isFeatured: false,
       isOwnerListing: true,
+      listingSource: 'owner_direct',
       status: 'published',
       rentOccupied: body.listingType === 'rent' ? !!body.rentOccupied : false,
       rentLeaseStart: body.listingType === 'rent' && body.rentLeaseStart ? String(body.rentLeaseStart).slice(0, 10) : undefined,
