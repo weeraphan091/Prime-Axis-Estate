@@ -122,6 +122,17 @@ export const zh = {
     section1Content: '当您提交咨询或挂牌时，我们会根据需要存储姓名、邮箱、电话。',
     backToHome: '返回首页',
   },
+  contactPage: {
+    title: '联系我们',
+    subtitle: '对房源感兴趣、想委托挂牌或有任何问题，请随时联系。',
+    agentChannels: '联系方式（经纪人）',
+    nameLabel: '姓名 *',
+    emailLabel: '邮箱 *',
+    phoneLabel: '电话',
+    messageLabel: '留言 *',
+    send: '发送消息',
+    thankYou: '感谢您的联系，我们会尽快回复。',
+  },
   agentContact: {
     inquireTitle: '咨询此房源 — 联系我们',
     callToInquire: '电话咨询',

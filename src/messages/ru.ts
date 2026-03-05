@@ -122,6 +122,17 @@ export const ru = {
     section1Content: 'При отправке запроса или размещении объявления мы сохраняем имя, email, телефон по необходимости.',
     backToHome: 'На главную',
   },
+  contactPage: {
+    title: 'Свяжитесь с нами',
+    subtitle: 'Интересует объект, хотите разместить недвижимость или есть вопросы? Напишите нам.',
+    agentChannels: 'Каналы связи (агент)',
+    nameLabel: 'Имя *',
+    emailLabel: 'Email *',
+    phoneLabel: 'Телефон',
+    messageLabel: 'Сообщение *',
+    send: 'Отправить',
+    thankYou: 'Спасибо за обращение. Мы ответим в ближайшее время.',
+  },
   agentContact: {
     inquireTitle: 'Узнать об объекте — Связаться с нами',
     callToInquire: 'Позвонить',

@@ -122,6 +122,17 @@ export const en = {
     section1Content: 'When you submit an inquiry or list a property we store name, email, phone as needed.',
     backToHome: 'Back to Home',
   },
+  contactPage: {
+    title: 'Contact Us',
+    subtitle: 'Interested in a listing, want to list your property, or have questions? Get in touch.',
+    agentChannels: 'Contact channels (Agent)',
+    nameLabel: 'Name *',
+    emailLabel: 'Email *',
+    phoneLabel: 'Phone',
+    messageLabel: 'Message *',
+    send: 'Send message',
+    thankYou: 'Thank you for contacting us. We will reply shortly.',
+  },
   agentContact: {
     inquireTitle: 'Inquire about this listing — Contact us',
     callToInquire: 'Call to inquire',
