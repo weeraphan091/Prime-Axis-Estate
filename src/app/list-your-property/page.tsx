@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
 import { FilePlus, CheckCircle, Home, MapPin, ImagePlus, X, BadgePercent, Info } from 'lucide-react'
+import { getLineUrl, getWhatsAppUrl } from '@/config/contact'
 import { useAuth } from '@/context/AuthContext'
 import { useLocale } from '@/context/LocaleContext'
 import { propertyTypeLabels } from '@/data/properties'
@@ -236,7 +237,7 @@ export default function ListYourPropertyPage() {
         </p>
         <div className="flex flex-wrap gap-3">
           <a
-            href="https://line.me/ti/p/@187umoiw"
+            href={getLineUrl()}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#06C755] text-white rounded-lg font-semibold hover:bg-[#05b34d] transition text-sm"
@@ -245,7 +246,7 @@ export default function ListYourPropertyPage() {
             LINE
           </a>
           <a
-            href="https://wa.me/66812345678"
+            href={getWhatsAppUrl()}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#25D366] text-white rounded-lg font-semibold hover:bg-[#20bd5a] transition text-sm"

@@ -6,6 +6,7 @@ import { buildAlternates } from '@/lib/seo'
 import { isValidLocale, type Locale } from '@/config/i18n'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { SITE_NAME } from '@/config/site'
+import { getLineUrl, getWhatsAppUrl } from '@/config/contact'
 import { QuickListingForm } from './QuickListingForm'
 import { StatsBar } from '@/components/StatsBar'
 
@@ -125,7 +126,7 @@ export default async function WhyListWithUsPage({ params }: Props) {
             <p className="text-sm text-stone-600 mb-4">{t('whyList.ctaDesc')}</p>
             <div className="space-y-3">
               <a
-                href={`https://line.me/ti/p/@187umoiw`}
+                href={getLineUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 px-5 py-3 bg-[#06C755] text-white rounded-xl font-semibold hover:bg-[#05b34d] transition w-full justify-center"
@@ -134,7 +135,7 @@ export default async function WhyListWithUsPage({ params }: Props) {
                 {t('whyList.chatLine')}
               </a>
               <a
-                href="https://wa.me/66812345678"
+                href={getWhatsAppUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 px-5 py-3 bg-[#25D366] text-white rounded-xl font-semibold hover:bg-[#20bd5a] transition w-full justify-center"

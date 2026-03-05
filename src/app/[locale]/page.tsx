@@ -14,6 +14,7 @@ import { FilePlus, Shield, Home, Zap, MapPin, Users } from 'lucide-react'
 import { buildAlternates } from '@/lib/seo'
 import { SITE_NAME } from '@/config/site'
 import { StatsBar } from '@/components/StatsBar'
+import { getLineUrl } from '@/config/contact'
 
 export const dynamic = 'force-dynamic'
 
@@ -183,7 +184,7 @@ export default async function HomePage({ params }: Props) {
               {t('home.listProperty')}
             </Link>
             <a
-              href="https://line.me/ti/p/@187umoiw"
+              href={getLineUrl()}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-6 py-3.5 bg-[#06C755] text-white rounded-xl font-semibold hover:bg-[#05b34d] transition shadow-lg"
