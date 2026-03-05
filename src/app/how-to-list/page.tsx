@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { FilePlus, Phone } from 'lucide-react'
+import { FilePlus, Phone, BadgePercent, Home as HomeIcon, CheckCircle } from 'lucide-react'
 
 export default function HowToListPage() {
   return (
@@ -45,6 +45,37 @@ export default function HowToListPage() {
           </div>
         </div>
       </div>
+      <section className="mt-12 bg-gradient-to-br from-stone-50 to-primary-50 rounded-2xl border border-stone-200 p-6 lg:p-8">
+        <h2 className="font-display text-xl text-stone-900 flex items-center gap-2 mb-2">
+          <BadgePercent className="w-6 h-6 text-primary-600" />
+          อัตราค่าบริการ
+        </h2>
+        <p className="text-sm text-stone-600 mb-6">ค่าบริการเก็บเฉพาะเมื่อปิดการขาย/เช่าสำเร็จเท่านั้น ไม่มีค่าใช้จ่ายล่วงหน้า</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="bg-white rounded-xl border border-stone-200 p-5">
+            <div className="flex items-center gap-2 mb-2">
+              <HomeIcon className="w-5 h-5 text-primary-600" />
+              <h3 className="font-semibold text-stone-900">ฝากเช่า</h3>
+            </div>
+            <p className="text-lg font-bold text-primary-700 mb-1">สัญญา 1 ปี คิดค่าคอมมิชชัน 1 เดือนจากค่าเช่า</p>
+            <p className="text-xs text-stone-500">สัญญาสั้นกว่า 1 ปีอาจปรับตามตกลง</p>
+          </div>
+          <div className="bg-white rounded-xl border border-stone-200 p-5">
+            <div className="flex items-center gap-2 mb-2">
+              <BadgePercent className="w-5 h-5 text-primary-600" />
+              <h3 className="font-semibold text-stone-900">ฝากขาย (เขตพัทยา)</h3>
+            </div>
+            <p className="text-lg font-bold text-primary-700 mb-1">ค่าคอมมิชชัน 5% จากราคาขาย</p>
+            <p className="text-xs text-stone-500">นอกเขตพัทยาสอบถามรายละเอียดเพิ่มเติม</p>
+          </div>
+        </div>
+        <div className="mt-4 flex items-center gap-2 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-2.5">
+          <CheckCircle className="w-4 h-4 shrink-0" />
+          ไม่เก็บค่าใช้จ่ายล่วงหน้า — จ่ายเมื่อปิดดีลสำเร็จ
+        </div>
+        <p className="mt-3 text-xs text-stone-400">อัตราค่าบริการอาจปรับเปลี่ยนตามเงื่อนไขทรัพย์ กรุณาสอบถามรายละเอียดเพิ่มเติม</p>
+      </section>
+
       <div className="mt-10 flex flex-wrap gap-4">
         <Link
           href="/list-your-property"

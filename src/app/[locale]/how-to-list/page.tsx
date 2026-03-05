@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { FilePlus, Phone } from 'lucide-react'
+import { FilePlus, Phone, BadgePercent, Home as HomeIcon, CheckCircle } from 'lucide-react'
 import { getT } from '@/messages'
 import { buildAlternates } from '@/lib/seo'
 import { isValidLocale } from '@/config/i18n'
@@ -71,6 +71,37 @@ export default async function HowToListPage({ params }: Props) {
           </div>
         </div>
       </div>
+      <section className="mt-12 bg-gradient-to-br from-stone-50 to-primary-50 rounded-2xl border border-stone-200 p-6 lg:p-8">
+        <h2 className="font-display text-xl text-stone-900 flex items-center gap-2 mb-2">
+          <BadgePercent className="w-6 h-6 text-primary-600" />
+          {t('howToList.feeTitle')}
+        </h2>
+        <p className="text-sm text-stone-600 mb-6">{t('howToList.feeIntro')}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="bg-white rounded-xl border border-stone-200 p-5">
+            <div className="flex items-center gap-2 mb-2">
+              <HomeIcon className="w-5 h-5 text-primary-600" />
+              <h3 className="font-semibold text-stone-900">{t('howToList.feeRentTitle')}</h3>
+            </div>
+            <p className="text-lg font-bold text-primary-700 mb-1">{t('howToList.feeRentDesc')}</p>
+            <p className="text-xs text-stone-500">{t('howToList.feeRentNote')}</p>
+          </div>
+          <div className="bg-white rounded-xl border border-stone-200 p-5">
+            <div className="flex items-center gap-2 mb-2">
+              <BadgePercent className="w-5 h-5 text-primary-600" />
+              <h3 className="font-semibold text-stone-900">{t('howToList.feeSaleTitle')}</h3>
+            </div>
+            <p className="text-lg font-bold text-primary-700 mb-1">{t('howToList.feeSaleDesc')}</p>
+            <p className="text-xs text-stone-500">{t('howToList.feeSaleNote')}</p>
+          </div>
+        </div>
+        <div className="mt-4 flex items-center gap-2 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-2.5">
+          <CheckCircle className="w-4 h-4 shrink-0" />
+          {t('howToList.feeNoUpfront')}
+        </div>
+        <p className="mt-3 text-xs text-stone-400">{t('howToList.feeDisclaimer')}</p>
+      </section>
+
       <Link href={`${base}/list-your-property`} className="inline-flex items-center gap-2 mt-8 px-6 py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700">
         <FilePlus className="w-5 h-5" />
         {t('nav.listProperty')}

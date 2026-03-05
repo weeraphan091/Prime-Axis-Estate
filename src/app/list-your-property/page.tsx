@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
-import { FilePlus, CheckCircle, Home, MapPin, ImagePlus, X } from 'lucide-react'
+import { FilePlus, CheckCircle, Home, MapPin, ImagePlus, X, BadgePercent, Info } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useLocale } from '@/context/LocaleContext'
 import { propertyTypeLabels } from '@/data/properties'
@@ -645,6 +645,30 @@ export default function ListYourPropertyPage() {
               />
             </div>
           </div>
+        </section>
+
+        <section className="bg-blue-50 border border-blue-200 rounded-xl p-5 lg:p-6">
+          <h3 className="font-semibold text-stone-900 flex items-center gap-2 mb-3">
+            <BadgePercent className="w-5 h-5 text-blue-600" />
+            {t('listYourProperty.feeNoticeTitle')}
+          </h3>
+          <ul className="space-y-1.5 text-sm text-stone-700">
+            <li className="flex items-start gap-2">
+              <Info className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
+              {t('listYourProperty.feeNoticeRent')}
+            </li>
+            <li className="flex items-start gap-2">
+              <Info className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
+              {t('listYourProperty.feeNoticeSale')}
+            </li>
+            <li className="flex items-start gap-2">
+              <CheckCircle className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
+              <span className="font-medium text-emerald-700">{t('listYourProperty.feeNoticeNoUpfront')}</span>
+            </li>
+          </ul>
+          <Link href={`${base}/how-to-list`} className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium mt-3">
+            {t('listYourProperty.feeNoticeLink')} →
+          </Link>
         </section>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-end">
