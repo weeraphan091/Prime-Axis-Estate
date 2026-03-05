@@ -84,7 +84,7 @@ Foreign ownership is capped at 49% of the total area of a condominium project. A
 - Фонд капремонта (единовременный взнос)
 
 **Совет**: Выбирайте проект, где ещё есть иностранная квота. Если квота исчерпана, придётся оформлять долгосрочную аренду. Нужна помощь? [Смотрите недвижимость](/ru/listings) или [свяжитесь с нами](/ru/contact).`,
-    coverImage: null,
+    coverImage: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&h=630&fit=crop&q=80',
     category: 'guide',
     tags: '["condo","foreigner","buying","pattaya"]',
     status: 'published',
@@ -187,7 +187,7 @@ Foreign ownership is capped at 49% of the total area of a condominium project. A
 - Минусы: Далеко от инфраструктуры, нужна машина
 
 **Итог**: Джомтьен — для ценителей удобства, Вонгамат — для любителей роскоши, На Джомтьен — для долгосрочных инвесторов. [Искать недвижимость по районам](/ru/listings).`,
-    coverImage: null,
+    coverImage: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1200&h=630&fit=crop&q=80',
     category: 'guide',
     tags: '["pattaya","location","jomtien","wongamat","najomtien"]',
     status: 'published',
@@ -298,7 +298,7 @@ Foreign ownership is capped at 49% of the total area of a condominium project. A
 | Итого за 5 лет | 2,67 млн + стоимость | 720 000 бат |
 
 **Итог**: Если живёте 5+ лет — покупка выгоднее. Менее 3 лет — аренда разумнее. Не уверены? [Смотрите объявления](/ru/listings) или [проконсультируйтесь](/ru/contact).`,
-    coverImage: null,
+    coverImage: 'https://images.unsplash.com/photo-1582407947092-5fa0e1e0e987?w=1200&h=630&fit=crop&q=80',
     category: 'tips',
     tags: '["buying","renting","comparison","pattaya"]',
     status: 'published',
@@ -421,7 +421,7 @@ Need more guidance? [Contact us](/en/contact) — we're happy to help.`,
 - Никогда не используйте номинала — это незаконно
 
 Нужна помощь? [Свяжитесь с нами](/ru/contact).`,
-    coverImage: null,
+    coverImage: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&h=630&fit=crop&q=80',
     category: 'legal',
     tags: '["law","foreigner","ownership","thailand"]',
     status: 'published',
@@ -520,7 +520,7 @@ Beaches, golf courses, shopping malls, international hospitals, international sc
 Пляжи, гольф, ТЦ, международные больницы и школы — всё есть.
 
 [Смотрите инвестиционную недвижимость](/ru/listings) или [разместите объявление](/ru/list-your-property).`,
-    coverImage: null,
+    coverImage: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=1200&h=630&fit=crop&q=80',
     category: 'market',
     tags: '["investment","pattaya","reasons","roi"]',
     status: 'published',
@@ -655,7 +655,7 @@ Ready to find your condo? [Search Pattaya properties](/en/listings).`,
 ☐ Оформите страховку
 
 Готовы? [Ищите квартиры в Паттайе](/ru/listings).`,
-    coverImage: null,
+    coverImage: 'https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=1200&h=630&fit=crop&q=80',
     category: 'tips',
     tags: '["checklist","first-time","condo","buying"]',
     status: 'published',
@@ -782,7 +782,7 @@ Since reopening, Chinese and Russian buyers have significantly increased their p
 - На Джомтьен всё ещё доступен, но цены растут
 
 [Ищите инвестиционные объекты](/ru/listings) или [разместите объявление](/ru/list-your-property).`,
-    coverImage: null,
+    coverImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&h=630&fit=crop&q=80',
     category: 'market',
     tags: '["market","trends","2025","2026","investment"]',
     status: 'published',
@@ -897,7 +897,7 @@ Pattaya Estate Hub 透明运营。[联系我们](/zh/contact) 或 [浏览房产]
 4. Можете порекомендовать юриста?
 
 Pattaya Estate Hub работает прозрачно. [Свяжитесь с нами](/ru/contact) или [ищите недвижимость](/ru/listings).`,
-    coverImage: null,
+    coverImage: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&h=630&fit=crop&q=80',
     category: 'tips',
     tags: '["agent","tips","choosing","trust"]',
     status: 'published',
@@ -1004,7 +1004,7 @@ Pattaya Estate Hub работает прозрачно. [Свяжитесь с �
 12. **Управление** (при сдаче) — 10-20% от аренды
 
 **Итог**: Закладывайте дополнительно 10-15% сверх цены. [Ищите квартиры](/ru/listings).`,
-    coverImage: null,
+    coverImage: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1200&h=630&fit=crop&q=80',
     category: 'legal',
     tags: '["costs","hidden","condo","fees","pattaya"]',
     status: 'published',
@@ -1151,7 +1151,7 @@ Ready to list? [Post your property](/en/list-your-property) or [contact our team
 - Текущие квитанции за обслуживание
 
 Готовы? [Разместите объявление](/ru/list-your-property) или [свяжитесь с нами](/ru/contact).`,
-    coverImage: null,
+    coverImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&h=630&fit=crop&q=80',
     category: 'tips',
     tags: '["selling","renting","tips","faster","listing"]',
     status: 'published',
