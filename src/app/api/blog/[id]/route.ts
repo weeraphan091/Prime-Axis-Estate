@@ -6,9 +6,13 @@ type Ctx = { params: Promise<{ id: string }> }
 
 export async function GET(_req: Request, ctx: Ctx) {
   const { id } = await ctx.params
+  const isAdmin = await hasAdminSession()
   try {
     const post = await prisma.blogPost.findUnique({ where: { id } })
     if (!post) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    if (post.status !== 'published' && !isAdmin) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
     return NextResponse.json(post)
   } catch (e) {
     console.error('[blog GET id]', e)

@@ -1,8 +1,12 @@
 import { cookies } from 'next/headers'
 import { SignJWT, jwtVerify } from 'jose'
 
+const rawSecret = process.env.SESSION_SECRET
+if (process.env.NODE_ENV === 'production' && !rawSecret) {
+  throw new Error('[session] SESSION_SECRET is required in production — set it in .env or Vercel env vars')
+}
 const SECRET = new TextEncoder().encode(
-  process.env.SESSION_SECRET || 'pattaya-property-secret-change-in-production'
+  rawSecret || 'dev-only-secret-do-not-use-in-production'
 )
 const COOKIE_NAME = 'pattaya_session'
 const MAX_AGE = 60 * 60 * 24 * 7 // 7 days
