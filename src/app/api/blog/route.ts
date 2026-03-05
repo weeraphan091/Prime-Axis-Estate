@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { hasAdminSession } from '@/lib/admin-auth'
+import { translateBlogContent, type ContentLang } from '@/lib/translate'
 
 export async function GET() {
   try {
@@ -33,21 +34,48 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'กรุณากรอก title, slug, content' }, { status: 400 })
     }
     const now = new Date().toISOString().slice(0, 10)
+    const title = body.title.trim()
+    const excerpt = body.excerpt?.trim() || body.content.slice(0, 200)
+    const content = body.content.trim()
+    const sourceLang: ContentLang = body.contentLanguage || 'th'
+
+    let titleEn = body.titleEn?.trim() || null
+    let titleZh = body.titleZh?.trim() || null
+    let titleRu = body.titleRu?.trim() || null
+    let excerptEn = body.excerptEn?.trim() || null
+    let excerptZh = body.excerptZh?.trim() || null
+    let excerptRu = body.excerptRu?.trim() || null
+    let contentEn = body.contentEn?.trim() || null
+    let contentZh = body.contentZh?.trim() || null
+    let contentRu = body.contentRu?.trim() || null
+
+    const needsTranslation = !titleEn || !titleZh || !titleRu
+    if (needsTranslation) {
+      try {
+        const translated = await translateBlogContent(title, excerpt, content, sourceLang)
+        titleEn = titleEn || translated.titleEn || null
+        titleZh = titleZh || translated.titleZh || null
+        titleRu = titleRu || translated.titleRu || null
+        excerptEn = excerptEn || translated.excerptEn || null
+        excerptZh = excerptZh || translated.excerptZh || null
+        excerptRu = excerptRu || translated.excerptRu || null
+        contentEn = contentEn || translated.contentEn || null
+        contentZh = contentZh || translated.contentZh || null
+        contentRu = contentRu || translated.contentRu || null
+      } catch (e) {
+        console.warn('[blog POST] auto-translate failed:', e)
+      }
+    }
+
     const post = await prisma.blogPost.create({
       data: {
         slug: body.slug.trim(),
-        title: body.title.trim(),
-        titleEn: body.titleEn?.trim() || null,
-        titleZh: body.titleZh?.trim() || null,
-        titleRu: body.titleRu?.trim() || null,
-        excerpt: body.excerpt?.trim() || body.content.slice(0, 200),
-        excerptEn: body.excerptEn?.trim() || null,
-        excerptZh: body.excerptZh?.trim() || null,
-        excerptRu: body.excerptRu?.trim() || null,
-        content: body.content.trim(),
-        contentEn: body.contentEn?.trim() || null,
-        contentZh: body.contentZh?.trim() || null,
-        contentRu: body.contentRu?.trim() || null,
+        title,
+        titleEn, titleZh, titleRu,
+        excerpt,
+        excerptEn, excerptZh, excerptRu,
+        content,
+        contentEn, contentZh, contentRu,
         coverImage: body.coverImage?.trim() || null,
         category: body.category || 'tips',
         tags: typeof body.tags === 'string' ? body.tags : JSON.stringify(body.tags ?? []),

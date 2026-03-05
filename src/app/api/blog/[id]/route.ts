@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { hasAdminSession } from '@/lib/admin-auth'
+import { translateBlogContent, type ContentLang } from '@/lib/translate'
 
 type Ctx = { params: Promise<{ id: string }> }
 
@@ -28,22 +29,50 @@ export async function PUT(request: Request, ctx: Ctx) {
   try {
     const body = await request.json()
     const now = new Date().toISOString().slice(0, 10)
+
+    const sourceLang: ContentLang = body.contentLanguage || 'th'
+    const title = body.title?.trim() || ''
+    const excerpt = body.excerpt?.trim() || ''
+    const content = body.content?.trim() || ''
+
+    let titleEn = body.titleEn?.trim() || null
+    let titleZh = body.titleZh?.trim() || null
+    let titleRu = body.titleRu?.trim() || null
+    let excerptEn = body.excerptEn?.trim() || null
+    let excerptZh = body.excerptZh?.trim() || null
+    let excerptRu = body.excerptRu?.trim() || null
+    let contentEn = body.contentEn?.trim() || null
+    let contentZh = body.contentZh?.trim() || null
+    let contentRu = body.contentRu?.trim() || null
+
+    const needsTranslation = title && (!titleEn || !titleZh || !titleRu)
+    if (needsTranslation) {
+      try {
+        const translated = await translateBlogContent(title, excerpt, content, sourceLang)
+        titleEn = titleEn || translated.titleEn || null
+        titleZh = titleZh || translated.titleZh || null
+        titleRu = titleRu || translated.titleRu || null
+        excerptEn = excerptEn || translated.excerptEn || null
+        excerptZh = excerptZh || translated.excerptZh || null
+        excerptRu = excerptRu || translated.excerptRu || null
+        contentEn = contentEn || translated.contentEn || null
+        contentZh = contentZh || translated.contentZh || null
+        contentRu = contentRu || translated.contentRu || null
+      } catch (e) {
+        console.warn('[blog PUT] auto-translate failed:', e)
+      }
+    }
+
     const post = await prisma.blogPost.update({
       where: { id },
       data: {
         ...(body.slug != null && { slug: body.slug.trim() }),
-        ...(body.title != null && { title: body.title.trim() }),
-        ...(body.titleEn !== undefined && { titleEn: body.titleEn?.trim() || null }),
-        ...(body.titleZh !== undefined && { titleZh: body.titleZh?.trim() || null }),
-        ...(body.titleRu !== undefined && { titleRu: body.titleRu?.trim() || null }),
-        ...(body.excerpt != null && { excerpt: body.excerpt.trim() }),
-        ...(body.excerptEn !== undefined && { excerptEn: body.excerptEn?.trim() || null }),
-        ...(body.excerptZh !== undefined && { excerptZh: body.excerptZh?.trim() || null }),
-        ...(body.excerptRu !== undefined && { excerptRu: body.excerptRu?.trim() || null }),
-        ...(body.content != null && { content: body.content.trim() }),
-        ...(body.contentEn !== undefined && { contentEn: body.contentEn?.trim() || null }),
-        ...(body.contentZh !== undefined && { contentZh: body.contentZh?.trim() || null }),
-        ...(body.contentRu !== undefined && { contentRu: body.contentRu?.trim() || null }),
+        ...(body.title != null && { title }),
+        titleEn, titleZh, titleRu,
+        ...(body.excerpt != null && { excerpt }),
+        excerptEn, excerptZh, excerptRu,
+        ...(body.content != null && { content }),
+        contentEn, contentZh, contentRu,
         ...(body.coverImage !== undefined && { coverImage: body.coverImage?.trim() || null }),
         ...(body.category != null && { category: body.category }),
         ...(body.tags != null && { tags: typeof body.tags === 'string' ? body.tags : JSON.stringify(body.tags) }),

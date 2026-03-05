@@ -22,6 +22,7 @@ export function BlogForm({ initial }: Props) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState({
+    contentLanguage: 'th' as 'th' | 'en' | 'zh' | 'ru',
     slug: initial?.slug ?? '',
     title: initial?.title ?? '',
     titleEn: initial?.titleEn ?? '',
@@ -85,7 +86,7 @@ export function BlogForm({ initial }: Props) {
     <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl">
       <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
         <h2 className="font-semibold text-stone-900">ข้อมูลบทความ</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className={labelCls}>Slug (URL) *</label>
             <input value={form.slug} onChange={(e) => update('slug', e.target.value)} className={`${inputCls} font-mono`} required placeholder="buying-condo-pattaya-guide" />
@@ -99,7 +100,19 @@ export function BlogForm({ initial }: Props) {
               <option value="tips">เคล็ดลับ (Tips)</option>
             </select>
           </div>
+          <div>
+            <label className={labelCls}>ภาษาที่เขียนหลัก</label>
+            <select value={form.contentLanguage} onChange={(e) => update('contentLanguage', e.target.value)} className={inputCls}>
+              <option value="th">ไทย</option>
+              <option value="en">English</option>
+              <option value="zh">中文</option>
+              <option value="ru">Русский</option>
+            </select>
+          </div>
         </div>
+        <p className="text-xs text-amber-600 bg-amber-50 px-3 py-2 rounded-lg">
+          💡 ภาษาอื่นที่ไม่ได้กรอกจะถูกแปลอัตโนมัติ — ชื่อสถานที่ (พัทยา, จอมเทียน ฯลฯ) จะถูกทับศัพท์ถูกต้อง ไม่แปลมั่ว
+        </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className={labelCls}>รูปปก (URL)</label>

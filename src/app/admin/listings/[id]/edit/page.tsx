@@ -1,4 +1,5 @@
 import { redirect, notFound } from 'next/navigation'
+import { Suspense } from 'react'
 import { hasAdminSession } from '@/lib/admin-auth'
 import { prisma } from '@/lib/prisma'
 import { prismaToProperty } from '@/lib/property-db'
@@ -24,7 +25,9 @@ export default async function AdminEditListingPage({
   return (
     <div>
       <h1 className="font-display text-2xl text-stone-900 mb-6">แก้ไขรายการ</h1>
-      <AdminListingForm initial={initial} />
+      <Suspense fallback={<div className="animate-pulse bg-stone-200 h-40 rounded-xl" />}>
+        <AdminListingForm initial={initial} />
+      </Suspense>
     </div>
   )
 }

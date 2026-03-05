@@ -1,6 +1,7 @@
 import type { Property } from '@/types/property'
 import type { Property as PrismaProperty } from '@prisma/client'
 import type { Locale } from '@/config/i18n'
+import { translateLocation } from '@/config/zones'
 
 type PrismaPropertyRow = PrismaProperty & {
   titleEn?: string | null
@@ -161,7 +162,7 @@ export function propertyForLocale(p: Property, locale: Locale): Property {
     (locale === 'en' && p.locationEn) ||
     (locale === 'zh' && p.locationZh) ||
     (locale === 'ru' && p.locationRu) ||
-    p.location
+    translateLocation(p.location, locale)
   const RENT_LABEL: Record<string, string> = { th: '/เดือน', en: '/month', zh: '/月', ru: '/мес.' }
   const priceLabel =
     p.listingType === 'rent' ? (RENT_LABEL[locale] ?? RENT_LABEL.en) : p.priceLabel

@@ -27,6 +27,9 @@ export function AdminNav({ currentAdmin }: Props) {
       <Link href="/admin/listings/new" className="text-primary-600 font-medium">
         + ลงลิสใหม่
       </Link>
+      <Link href="/admin/import" className="text-blue-600 hover:text-blue-700 font-medium">
+        นำเข้า FB
+      </Link>
       <Link href="/admin/leads" className="text-stone-600 hover:text-primary-600">
         ลีด
       </Link>

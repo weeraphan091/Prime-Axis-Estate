@@ -3,6 +3,8 @@
  * ใช้ตอนบันทึกทรัพย์ — รองรับเจ้าของกรอกเป็นภาษาใดก็ได้ แล้วแปลไปทุกภาษาที่เว็บใช้
  */
 
+import { pattayaZones, getZoneLabel } from '@/config/zones'
+
 const MYMEMORY_BASE = 'https://api.mymemory.translated.net/get'
 const MAX_BYTES = 500
 
@@ -124,7 +126,163 @@ async function translateToAll(
 }
 
 /**
+ * แปลชื่อสถานที่โดยใช้ dictionary (zones) ก่อน
+ * ถ้าตรงกับโซนที่รู้จัก → ใช้ชื่อที่ถูกต้อง ไม่ส่งไปแปลผ่าน API
+ * ถ้าโลเคชั่นมีส่วนที่ไม่รู้จักก็คงไว้เป็นทับศัพท์เดิม (ไม่แปลมั่ว)
+ */
+function translateLocationByDict(
+  location: string,
+  targetLang: ContentLang
+): string {
+  if (!location.trim()) return ''
+  let result = location
+  for (const zone of pattayaZones) {
+    if (result.includes(zone.label) || result.includes(zone.slug)) {
+      const translated = getZoneLabel(zone, targetLang)
+      result = result.replace(zone.label, translated)
+      if (zone.slug !== zone.label) {
+        result = result.replace(zone.slug, translated)
+      }
+    }
+  }
+  return result
+}
+
+/**
+ * สร้าง dictionary ชื่อสถานที่ทั้งภาษาไทยและภาษาอื่น
+ * เพื่อให้สามารถ protect ชื่อเหล่านี้ไม่ให้ถูกแปลมั่ว
+ */
+function buildPlaceNameDict(): { pattern: string; translations: Record<ContentLang, string> }[] {
+  const entries: { pattern: string; translations: Record<ContentLang, string> }[] = []
+  for (const z of pattayaZones) {
+    entries.push({
+      pattern: z.label,
+      translations: { th: z.label, en: z.labelEn, zh: z.labelZh, ru: z.labelRu },
+    })
+  }
+  const extras: Record<string, Record<ContentLang, string>> = {
+    'พัทยา': { th: 'พัทยา', en: 'Pattaya', zh: '芭堤雅', ru: 'Паттайя' },
+    'ชลบุรี': { th: 'ชลบุรี', en: 'Chonburi', zh: '春武里', ru: 'Чонбури' },
+    'กรุงเทพฯ': { th: 'กรุงเทพฯ', en: 'Bangkok', zh: '曼谷', ru: 'Бангкок' },
+    'กรุงเทพ': { th: 'กรุงเทพ', en: 'Bangkok', zh: '曼谷', ru: 'Бангкок' },
+    'ภูเก็ต': { th: 'ภูเก็ต', en: 'Phuket', zh: '普吉岛', ru: 'Пхукет' },
+    'อู่ตะเภา': { th: 'อู่ตะเภา', en: 'U-Tapao', zh: '乌塔堡', ru: 'У-Тапао' },
+    'วงศ์อมาตย์': { th: 'วงศ์อมาตย์', en: 'Wongamat', zh: '黄艾玛', ru: 'Вонгамат' },
+    'นาจอมเทียน': { th: 'นาจอมเทียน', en: 'Na Jomtien', zh: '纳中天', ru: 'На Джомтьен' },
+    'Pattaya Estate Hub': { th: 'Pattaya Estate Hub', en: 'Pattaya Estate Hub', zh: 'Pattaya Estate Hub', ru: 'Pattaya Estate Hub' },
+  }
+  for (const [pattern, translations] of Object.entries(extras)) {
+    if (!entries.some((e) => e.pattern === pattern)) {
+      entries.push({ pattern, translations })
+    }
+  }
+  entries.sort((a, b) => b.pattern.length - a.pattern.length)
+  return entries
+}
+
+const PLACE_DICT = buildPlaceNameDict()
+
+/**
+ * แปลข้อความยาว (เช่น บล็อก) พร้อมป้องกันชื่อสถานที่ไม่ให้ถูกแปลมั่ว
+ * 1. แทนที่ชื่อสถานที่ด้วย placeholder
+ * 2. แปลข้อความ
+ * 3. ใส่ชื่อที่ถูกต้องในภาษาเป้าหมายกลับคืน
+ */
+async function translateWithPlaceProtection(
+  text: string,
+  fromLang: ContentLang,
+  toLang: ContentLang
+): Promise<string> {
+  if (!text.trim() || fromLang === toLang) return text
+
+  const found: { placeholder: string; targetName: string; sourceName: string }[] = []
+  let masked = text
+  let idx = 0
+
+  for (const entry of PLACE_DICT) {
+    const { pattern, translations } = entry
+    const sourceName = translations[fromLang] || pattern
+    const targetName = translations[toLang] || pattern
+
+    const names = [sourceName, pattern].filter(Boolean)
+    for (const name of names) {
+      if (masked.includes(name)) {
+        const ph = `__PN${idx}__`
+        found.push({ placeholder: ph, targetName, sourceName: name })
+        masked = masked.split(name).join(ph)
+        idx++
+        break
+      }
+    }
+  }
+
+  const translated = await translateText(masked, fromLang, toLang)
+
+  let result = translated
+  for (const { placeholder, targetName } of found) {
+    result = result.split(placeholder).join(targetName)
+  }
+  return result
+}
+
+/**
+ * แปลเนื้อหาบล็อก (title, excerpt, content) จากภาษาต้นทาง → ทุกภาษา
+ * ป้องกันชื่อสถานที่ไม่ให้ถูกแปลมั่ว
+ */
+export type TranslatedBlogContent = {
+  titleEn: string
+  titleZh: string
+  titleRu: string
+  excerptEn: string
+  excerptZh: string
+  excerptRu: string
+  contentEn: string
+  contentZh: string
+  contentRu: string
+}
+
+export async function translateBlogContent(
+  title: string,
+  excerpt: string,
+  content: string,
+  sourceLang: ContentLang = 'th'
+): Promise<TranslatedBlogContent> {
+  const targets: ContentLang[] = ALL_LANGS.filter((l) => l !== sourceLang) as ContentLang[]
+
+  const results = await Promise.all(
+    targets.map(async (lang) => {
+      const [t, e, c] = await Promise.all([
+        title.trim() ? translateWithPlaceProtection(title.trim(), sourceLang, lang) : '',
+        excerpt.trim() ? translateWithPlaceProtection(excerpt.trim(), sourceLang, lang) : '',
+        content.trim() ? translateWithPlaceProtection(content.trim(), sourceLang, lang) : '',
+      ])
+      return { lang, title: t, excerpt: e, content: c }
+    })
+  )
+
+  const get = (lang: ContentLang, field: 'title' | 'excerpt' | 'content') =>
+    results.find((r) => r.lang === lang)?.[field] || ''
+
+  const langMap: Record<string, ContentLang> = { En: 'en', Zh: 'zh', Ru: 'ru' }
+  const out: Record<string, string> = {}
+  for (const [suffix, lang] of Object.entries(langMap)) {
+    if (lang === sourceLang) {
+      out[`title${suffix}`] = title.trim()
+      out[`excerpt${suffix}`] = excerpt.trim()
+      out[`content${suffix}`] = content.trim()
+    } else {
+      out[`title${suffix}`] = get(lang, 'title')
+      out[`excerpt${suffix}`] = get(lang, 'excerpt')
+      out[`content${suffix}`] = get(lang, 'content')
+    }
+  }
+  return out as unknown as TranslatedBlogContent
+}
+
+/**
  * แปลชื่อ, รายละเอียด, จุดเด่น, ทำเล จากภาษาที่กรอก → th, en, zh, ru
+ * - ชื่อ/รายละเอียด/จุดเด่น → แปลด้วย MyMemory API
+ * - ทำเล → ใช้ dictionary ชื่อสถานที่ที่ถูกต้อง (ไม่ส่งไปแปลผ่าน API)
  */
 export async function translatePropertyContent(
   title: string,
@@ -140,11 +298,10 @@ export async function translatePropertyContent(
 
   const emptyLangs = { th: '', en: '', zh: '', ru: '' }
 
-  const [titleLangs, descLangs, featLangs, locLangs] = await Promise.all([
+  const [titleLangs, descLangs, featLangs] = await Promise.all([
     t ? translateToAll(t, sourceLang) : Promise.resolve(emptyLangs),
     d ? translateToAll(d, sourceLang) : Promise.resolve(emptyLangs),
     featuresStr ? translateToAll(featuresStr, sourceLang) : Promise.resolve(emptyLangs),
-    loc ? translateToAll(loc, sourceLang) : Promise.resolve(emptyLangs),
   ])
 
   const toArray = (csv: string): string[] =>
@@ -162,8 +319,8 @@ export async function translatePropertyContent(
     featuresEn: featLangs.en ? toArray(featLangs.en) : [],
     featuresZh: featLangs.zh ? toArray(featLangs.zh) : [],
     featuresRu: featLangs.ru ? toArray(featLangs.ru) : [],
-    locationEn: locLangs.en || loc,
-    locationZh: locLangs.zh || loc,
-    locationRu: locLangs.ru || loc,
+    locationEn: translateLocationByDict(loc, 'en') || loc,
+    locationZh: translateLocationByDict(loc, 'zh') || loc,
+    locationRu: translateLocationByDict(loc, 'ru') || loc,
   }
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { ImagePlus, X } from 'lucide-react'
 import { propertyTypeLabels } from '@/data/properties'
@@ -33,24 +33,34 @@ type Props = {
 
 export function AdminListingForm({ initial }: Props) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(false)
   const [imagePreview, setImagePreview] = useState<string[]>(initial?.images ?? [])
+
+  const q = (key: string) => (!initial ? searchParams.get(key) : null) ?? ''
+  const qFeatures = (): string => {
+    if (initial) return (initial.features ?? []).join(', ')
+    const raw = searchParams.get('features')
+    if (raw) { try { return (JSON.parse(raw) as string[]).join(', ') } catch { return raw } }
+    return ''
+  }
+
   const [form, setForm] = useState({
     contentLanguage: 'th' as 'th' | 'en' | 'zh' | 'ru',
-    title: initial?.title ?? '',
-    projectName: initial?.projectName ?? '',
-    listingType: (initial?.listingType ?? 'sale') as 'sale' | 'rent',
-    propertyType: (initial?.propertyType ?? 'condo') as Property['propertyType'],
-    price: initial?.price ?? 0,
+    title: initial?.title ?? q('title'),
+    projectName: initial?.projectName ?? q('projectName'),
+    listingType: (initial?.listingType ?? (q('listingType') || 'sale')) as 'sale' | 'rent',
+    propertyType: (initial?.propertyType ?? (q('propertyType') || 'condo')) as Property['propertyType'],
+    price: initial?.price ?? (q('price') ? Number(q('price')) : 0),
     priceLabel: initial?.priceLabel ?? '',
-    location: initial?.location ?? '',
+    location: initial?.location ?? q('location'),
     mapUrl: initial?.mapUrl ?? '',
-    area: initial?.area ?? 0,
-    bedrooms: initial?.bedrooms ?? '',
-    bathrooms: initial?.bathrooms ?? '',
-    description: initial?.description ?? '',
-    features: (initial?.features ?? []).join(', '),
+    area: initial?.area ?? (q('area') ? Number(q('area')) : 0),
+    bedrooms: initial?.bedrooms ?? (q('bedrooms') || ''),
+    bathrooms: initial?.bathrooms ?? (q('bathrooms') || ''),
+    description: initial?.description ?? q('description'),
+    features: initial ? (initial.features ?? []).join(', ') : qFeatures(),
     contactName: initial?.contactName ?? '',
     contactPhone: initial?.contactPhone ?? '',
     contactEmail: initial?.contactEmail ?? '',
@@ -67,7 +77,7 @@ export function AdminListingForm({ initial }: Props) {
     rentLeaseEnd: initial?.rentLeaseEnd ?? '',
     originalPrice: initial?.originalPrice ?? '',
     quotaType: initial?.quotaType ?? '',
-    floor: initial?.floor ?? '',
+    floor: initial?.floor ?? (q('floor') || ''),
     roomNumber: initial?.roomNumber ?? '',
     floors: initial?.floors ?? '',
   })
@@ -79,6 +89,22 @@ export function AdminListingForm({ initial }: Props) {
       .then(setAgents)
       .catch(() => setAgents([]))
   }, [])
+
+  useEffect(() => {
+    if (initial) return
+    try {
+      const raw = typeof window !== 'undefined' ? sessionStorage.getItem('importImageUrls') : null
+      if (raw) {
+        const urls = JSON.parse(raw) as string[]
+        if (Array.isArray(urls) && urls.length > 0) {
+          setImagePreview(urls.slice(0, MAX_IMAGES))
+          sessionStorage.removeItem('importImageUrls')
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, [initial])
 
   const update = (key: string, value: string | number | boolean) => {
     setForm((prev) => ({ ...prev, [key]: value }))
