@@ -40,7 +40,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
   try {
-    const body = (await request.json()) as Omit<Property, 'id' | 'createdAt'> & { createdAt?: string }
+    const body = (await request.json()) as Omit<Property, 'id' | 'createdAt'> & { createdAt?: string; contentLanguage?: string }
     if (!body.title?.trim()) {
       return NextResponse.json({ error: 'กรุณากรอกหัวข้อ' }, { status: 400 })
     }
