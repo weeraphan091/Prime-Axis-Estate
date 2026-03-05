@@ -102,46 +102,53 @@ export type TranslatedContent = {
   descriptionEn: string
   descriptionZh: string
   descriptionRu: string
+  featuresEn: string[]
+  featuresZh: string[]
+  featuresRu: string[]
+  locationEn: string
+  locationZh: string
+  locationRu: string
+}
+
+async function translateToAll(
+  original: string,
+  sourceLang: ContentLang
+): Promise<Record<ContentLang, string>> {
+  if (!original.trim()) return { th: '', en: '', zh: '', ru: '' }
+  return {
+    th: sourceLang === 'th' ? original : await translateText(original, sourceLang, 'th'),
+    en: sourceLang === 'en' ? original : await translateText(original, sourceLang, 'en'),
+    zh: sourceLang === 'zh' ? original : await translateText(original, sourceLang, 'zh'),
+    ru: sourceLang === 'ru' ? original : await translateText(original, sourceLang, 'ru'),
+  }
 }
 
 /**
- * แปลชื่อและรายละเอียดจากภาษาที่กรอก (sourceLang) เป็น th, en, zh, ru ทั้งหมด
- * - title/description ใน DB ใช้สำหรับ locale ไทย
- * - titleEn/descriptionEn สำหรับอังกฤษ ฯลฯ
+ * แปลชื่อ, รายละเอียด, จุดเด่น, ทำเล จากภาษาที่กรอก → th, en, zh, ru
  */
 export async function translatePropertyContent(
   title: string,
   description: string,
-  sourceLang: ContentLang = 'th'
+  sourceLang: ContentLang = 'th',
+  features?: string[],
+  location?: string
 ): Promise<TranslatedContent> {
   const t = (title ?? '').trim()
   const d = (description ?? '').trim()
-  const empty = {
-    title: '',
-    titleEn: '',
-    titleZh: '',
-    titleRu: '',
-    description: '',
-    descriptionEn: '',
-    descriptionZh: '',
-    descriptionRu: '',
-  }
-  if (!t && !d) return empty
+  const featuresStr = (features ?? []).filter(Boolean).join(', ')
+  const loc = (location ?? '').trim()
 
-  const getTranslations = async (original: string, isTitle: boolean) => {
-    const results: Record<ContentLang, string> = {
-      th: sourceLang === 'th' ? original : await translateText(original, sourceLang, 'th'),
-      en: sourceLang === 'en' ? original : await translateText(original, sourceLang, 'en'),
-      zh: sourceLang === 'zh' ? original : await translateText(original, sourceLang, 'zh'),
-      ru: sourceLang === 'ru' ? original : await translateText(original, sourceLang, 'ru'),
-    }
-    return results
-  }
+  const emptyLangs = { th: '', en: '', zh: '', ru: '' }
 
-  const [titleLangs, descLangs] = await Promise.all([
-    t ? getTranslations(t, true) : Promise.resolve({ th: '', en: '', zh: '', ru: '' as ContentLang }),
-    d ? getTranslations(d, false) : Promise.resolve({ th: '', en: '', zh: '', ru: '' as ContentLang }),
+  const [titleLangs, descLangs, featLangs, locLangs] = await Promise.all([
+    t ? translateToAll(t, sourceLang) : Promise.resolve(emptyLangs),
+    d ? translateToAll(d, sourceLang) : Promise.resolve(emptyLangs),
+    featuresStr ? translateToAll(featuresStr, sourceLang) : Promise.resolve(emptyLangs),
+    loc ? translateToAll(loc, sourceLang) : Promise.resolve(emptyLangs),
   ])
+
+  const toArray = (csv: string): string[] =>
+    csv.split(',').map((s) => s.trim()).filter(Boolean)
 
   return {
     title: titleLangs.th || t,
@@ -152,5 +159,11 @@ export async function translatePropertyContent(
     descriptionEn: descLangs.en || d,
     descriptionZh: descLangs.zh || d,
     descriptionRu: descLangs.ru || d,
+    featuresEn: featLangs.en ? toArray(featLangs.en) : [],
+    featuresZh: featLangs.zh ? toArray(featLangs.zh) : [],
+    featuresRu: featLangs.ru ? toArray(featLangs.ru) : [],
+    locationEn: locLangs.en || loc,
+    locationZh: locLangs.zh || loc,
+    locationRu: locLangs.ru || loc,
   }
 }

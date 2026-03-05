@@ -53,10 +53,14 @@ export async function POST(request: Request) {
     }
     const now = new Date().toISOString().slice(0, 10)
     const contentLang = toContentLang(body.contentLanguage ?? 'th')
+    const rawFeat = body.features as unknown
+    const features: string[] = Array.isArray(rawFeat) ? rawFeat : (typeof rawFeat === 'string' ? rawFeat.split(',').map((s: string) => s.trim()).filter(Boolean) : [])
     const translated = await translatePropertyContent(
       body.title ?? '',
       body.description ?? '',
-      contentLang
+      contentLang,
+      features,
+      body.location ?? ''
     )
     const data = propertyToPrisma({
       ...body,

@@ -70,6 +70,12 @@ export interface Property {
   descriptionZh?: string
   titleRu?: string
   descriptionRu?: string
+  featuresEn?: string[]
+  featuresZh?: string[]
+  featuresRu?: string[]
+  locationEn?: string
+  locationZh?: string
+  locationRu?: string
   createdAt: string
 }
 

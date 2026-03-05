@@ -57,7 +57,9 @@ export async function POST(request: Request) {
     const translated = await translatePropertyContent(
       payload.title ?? '',
       payload.description ?? '',
-      contentLang
+      contentLang,
+      payload.features ?? [],
+      payload.location ?? ''
     )
     const merged = { ...payload, ...translated, listingSource: 'owner_direct' as const }
     const data = { ...propertyToPrisma(merged as Omit<Property, 'id'> & { id?: string }), userId: session.userId }

@@ -82,12 +82,18 @@ model Property {
   originalPrice  Int?     // ราคาเดิมก่อนลด (ถ้ามี) — ใช้คำนวณ % ลด
   viewCount      Int      @default(0)  // จำนวนครั้งที่เปิดหน้ารายละเอียด
   userId         String?  // เจ้าของที่ฝากขาย (สมาชิกที่ลงรายการ)
-  titleEn        String?  // ชื่อรายการภาษาอังกฤษ
-  descriptionEn  String?  // รายละเอียดภาษาอังกฤษ
-  titleZh        String?  // ชื่อรายการภาษาจีน
-  descriptionZh  String?  // รายละเอียดภาษาจีน
-  titleRu        String?  // ชื่อรายการภาษารัสเซีย
-  descriptionRu  String?  // รายละเอียดภาษารัสเซีย
+  titleEn        String?
+  descriptionEn  String?
+  titleZh        String?
+  descriptionZh  String?
+  titleRu        String?
+  descriptionRu  String?
+  featuresEn     String?  // JSON array แปลอังกฤษ
+  featuresZh     String?  // JSON array แปลจีน
+  featuresRu     String?  // JSON array แปลรัสเซีย
+  locationEn     String?
+  locationZh     String?
+  locationRu     String?
   createdAt      String
   updatedAt      String
   agent          Agent?   @relation(fields: [agentId], references: [id], onDelete: SetNull)

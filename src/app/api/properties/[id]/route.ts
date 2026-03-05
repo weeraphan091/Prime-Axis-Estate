@@ -52,10 +52,14 @@ export async function PUT(
       return NextResponse.json({ error: 'กรุณากรอกข้อมูลช่องทางติดต่อเจ้าของทรัพย์ (ชื่อ, เบอร์โทร, อีเมล)' }, { status: 400 })
     }
     const contentLang = toContentLang(body.contentLanguage ?? 'th')
+    const rawFeat = body.features as unknown
+    const features: string[] = Array.isArray(rawFeat) ? rawFeat : (typeof rawFeat === 'string' ? rawFeat.split(',').map((s: string) => s.trim()).filter(Boolean) : [])
     const translated = await translatePropertyContent(
       body.title ?? '',
       body.description ?? '',
-      contentLang
+      contentLang,
+      features,
+      body.location ?? ''
     )
     const data = propertyToPrisma({ ...body, ...translated })
     const updated = await prisma.property.update({
