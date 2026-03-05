@@ -30,6 +30,11 @@ export default function PropertyDetailPage() {
   const [property, setProperty] = useState<Property | null | 'loading'>('loading')
   const [currentIndex, setCurrentIndex] = useState(0)
   const [showInterest, setShowInterest] = useState(false)
+  const [imgError, setImgError] = useState(false)
+
+  useEffect(() => {
+    setImgError(false)
+  }, [currentIndex])
 
   useEffect(() => {
     if (!id) {
@@ -67,6 +72,8 @@ export default function PropertyDetailPage() {
   const images = property.images?.length ? property.images : [PLACEHOLDER]
   const currentImg = images[currentIndex] || images[0]
   const isDataUrl = currentImg.startsWith('data:')
+  const isExternalUrl = currentImg.includes('supabase.co') || imgError
+  const displayImg = (isExternalUrl && imgError) ? PLACEHOLDER : currentImg
   const hasMultiple = images.length > 1
   const base = `/${locale}`
 
@@ -142,15 +149,16 @@ export default function PropertyDetailPage() {
 
       <div className="mt-6">
         <div className="relative aspect-video rounded-xl overflow-hidden bg-stone-100">
-          {isDataUrl ? (
+          {(isDataUrl || isExternalUrl) ? (
             <img
-              src={currentImg}
+              src={displayImg}
               alt={`${property.title} - ${currentIndex + 1}`}
               className="w-full h-full object-cover"
+              onError={() => setImgError(true)}
             />
           ) : (
             <Image
-              src={currentImg}
+              src={displayImg}
               alt={`${property.title} - ${currentIndex + 1}`}
               fill
               className="object-cover"
@@ -183,7 +191,7 @@ export default function PropertyDetailPage() {
                   i === currentIndex ? 'border-primary-600 ring-2 ring-primary-200' : 'border-stone-200 hover:border-stone-300'
                 }`}
               >
-                {src.startsWith('data:') ? (
+                {(src.startsWith('data:') || src.includes('supabase.co')) ? (
                   <img src={src} alt="" className="w-full h-full object-cover" />
                 ) : (
                   <Image src={src} alt="" width={64} height={64} className="w-full h-full object-cover" />

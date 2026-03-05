@@ -43,12 +43,20 @@ export default async function AdminListingsPage() {
 
   if (dbError) {
     return (
-      <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 text-amber-900">
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 text-amber-900 max-w-2xl">
         <h2 className="font-semibold text-lg mb-2">โหลดฐานข้อมูลไม่ได้</h2>
-        <p className="text-sm mb-4">
-          บน Vercel ใช้ SQLite ไม่ได้ ต้องใช้ PostgreSQL แทน — ไปที่ Vercel Postgres หรือ Supabase สร้างฐานข้อมูล แล้วตั้งค่า <strong>DATABASE_URL</strong> ใน Environment Variables แล้วเปลี่ยน prisma/schema.prisma เป็น provider = &quot;postgresql&quot;
+        <p className="text-sm mb-3">
+          โปรเจกต์ใช้ PostgreSQL อยู่แล้ว — ปัญหามักมาจาก <strong>DATABASE_URL</strong> ไม่ได้ตั้งหรือตั้งผิดบน Vercel
         </p>
-        <p className="text-sm text-amber-700">หรือรันเว็บในเครื่อง (npm run dev) จะใช้ SQLite ได้ตามปกติ</p>
+        <ul className="text-sm list-disc list-inside space-y-1 mb-4">
+          <li>ไปที่ Vercel → โปรเจกต์ → Settings → Environment Variables</li>
+          <li>เพิ่มตัวแปร <strong>DATABASE_URL</strong> (ค่าเป็น connection string ของ PostgreSQL)</li>
+          <li>ถ้าใช้ Supabase: ใช้ URL จาก Project Settings → Database (แนะนำ Connection pooling เช่น Session mode)</li>
+          <li>จากนั้น Redeploy โปรเจกต์</li>
+        </ul>
+        <p className="text-sm text-amber-700">
+          รันในเครื่อง: ใส่ DATABASE_URL ในไฟล์ <code className="bg-amber-100 px-1 rounded">.env</code> แล้วรัน <code className="bg-amber-100 px-1 rounded">npm run dev</code>
+        </p>
       </div>
     )
   }

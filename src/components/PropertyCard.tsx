@@ -30,7 +30,12 @@ export function PropertyCard({ property, locale: localeProp }: { property: Prope
   const [slideIndex, setSlideIndex] = useState(0)
   const [imgError, setImgError] = useState(false)
   const currentSrc = images[slideIndex] || images[0] || PLACEHOLDER_IMG
-  const useImgTag = currentSrc.startsWith('data:') || currentSrc.startsWith('/')
+  // ใช้ <img> สำหรับ data URL, path ลูก หรือ Supabase/URL ภายนอก (ไม่พึ่ง next/image allowlist)
+  const useImgTag =
+    currentSrc.startsWith('data:') ||
+    currentSrc.startsWith('/') ||
+    currentSrc.includes('supabase.co') ||
+    imgError
   const effectiveSrc = useImgTag && imgError ? PLACEHOLDER_IMG : currentSrc
   const fav = isFavorite(property.id)
   const comp = isCompare(property.id)
