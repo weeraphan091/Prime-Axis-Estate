@@ -3,7 +3,13 @@ import { prisma } from '@/lib/prisma'
 import { prismaToProperty, propertyToPrisma, propertyForPublic, propertyForLocale } from '@/lib/property-db'
 import { hasAdminSession } from '@/lib/admin-auth'
 import { isValidLocale, type Locale } from '@/config/i18n'
+import { translatePropertyContent, type ContentLang } from '@/lib/translate'
 import type { Property } from '@/types/property'
+
+const CONTENT_LANGS: ContentLang[] = ['th', 'en', 'zh', 'ru']
+function toContentLang(v: unknown): ContentLang {
+  return CONTENT_LANGS.includes(v as ContentLang) ? (v as ContentLang) : 'th'
+}
 
 export async function GET(request: Request) {
   try {
@@ -45,8 +51,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'ราคาและพื้นที่ต้องไม่ต่ำกว่า 0' }, { status: 400 })
     }
     const now = new Date().toISOString().slice(0, 10)
+    const contentLang = toContentLang(body.contentLanguage ?? 'th')
+    const translated = await translatePropertyContent(
+      body.title ?? '',
+      body.description ?? '',
+      contentLang
+    )
     const data = propertyToPrisma({
       ...body,
+      ...translated,
       createdAt: body.createdAt || now,
     })
     const created = await prisma.property.create({

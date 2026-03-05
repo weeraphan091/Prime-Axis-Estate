@@ -4,7 +4,7 @@ import { Suspense } from 'react'
 import { SearchBar } from '@/components/SearchBar'
 import { PropertyCard } from '@/components/PropertyCard'
 import { properties as staticProperties } from '@/data/properties'
-import { pattayaZones } from '@/config/zones'
+import { pattayaZones, getZoneLabel } from '@/config/zones'
 import { LatestListings } from '@/components/LatestListings'
 import { getPropertiesFromDb } from '@/lib/property-db'
 import { getT } from '@/messages'
@@ -80,7 +80,7 @@ export default async function HomePage({ params }: Props) {
               className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-white border border-stone-200 rounded-lg text-stone-700 text-sm font-medium hover:border-primary-300 hover:text-primary-700 hover:bg-primary-50 transition"
             >
               <MapPin className="w-4 h-4 text-stone-400" />
-              {z.label}
+              {getZoneLabel(z, locale)}
             </Link>
           ))}
         </div>

@@ -2,6 +2,12 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/session'
 import { propertyToPrisma, prismaToProperty } from '@/lib/property-db'
+import { translatePropertyContent, type ContentLang } from '@/lib/translate'
+
+const CONTENT_LANGS: ContentLang[] = ['th', 'en', 'zh', 'ru']
+function toContentLang(v: unknown): ContentLang {
+  return CONTENT_LANGS.includes(v as ContentLang) ? (v as ContentLang) : 'th'
+}
 
 export async function POST(request: Request) {
   const session = await getSession()
@@ -42,7 +48,13 @@ export async function POST(request: Request) {
       floors: (body.propertyType === 'house' || body.propertyType === 'villa') && body.floors != null && body.floors !== '' ? Number(body.floors) : undefined,
       createdAt: now,
     }
-    const data = { ...propertyToPrisma(payload), userId: session.userId }
+    const contentLang = toContentLang(body.contentLanguage ?? 'th')
+    const translated = await translatePropertyContent(
+      payload.title ?? '',
+      payload.description ?? '',
+      contentLang
+    )
+    const data = { ...propertyToPrisma({ ...payload, ...translated }), userId: session.userId }
     const created = await prisma.property.create({
       data: data as Parameters<typeof prisma.property.create>[0]['data'],
     })

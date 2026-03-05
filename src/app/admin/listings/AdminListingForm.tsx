@@ -37,6 +37,7 @@ export function AdminListingForm({ initial }: Props) {
   const [loading, setLoading] = useState(false)
   const [imagePreview, setImagePreview] = useState<string[]>(initial?.images ?? [])
   const [form, setForm] = useState({
+    contentLanguage: 'th' as 'th' | 'en' | 'zh' | 'ru',
     title: initial?.title ?? '',
     projectName: initial?.projectName ?? '',
     listingType: (initial?.listingType ?? 'sale') as 'sale' | 'rent',
@@ -105,6 +106,7 @@ export function AdminListingForm({ initial }: Props) {
         ? imagePreview
         : ['https://placehold.co/800x600/f4f1de/1c1917?text=ไม่มีรูป']
       const payload = {
+        contentLanguage: form.contentLanguage,
         title: form.title,
         projectName: form.projectName?.trim() || undefined,
         listingType: form.listingType,
@@ -161,6 +163,20 @@ export function AdminListingForm({ initial }: Props) {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
         <h2 className="font-semibold text-stone-900">ข้อมูลประกาศ</h2>
+        <div>
+          <label className="block text-sm font-medium text-stone-700 mb-1">ภาษาที่ใช้กรอกชื่อและรายละเอียด</label>
+          <p className="text-xs text-stone-500 mb-1">เลือกภาษาที่คุณใช้กรอกหัวข้อและรายละเอียดด้านล่าง — ระบบจะแปลไปภาษาอื่นให้อัตโนมัติ</p>
+          <select
+            value={form.contentLanguage}
+            onChange={(e) => update('contentLanguage', e.target.value as 'th' | 'en' | 'zh' | 'ru')}
+            className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+          >
+            <option value="th">ไทย</option>
+            <option value="en">English</option>
+            <option value="zh">中文</option>
+            <option value="ru">Русский</option>
+          </select>
+        </div>
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">หัวข้อ *</label>
           <input
