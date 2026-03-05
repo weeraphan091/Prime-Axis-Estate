@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { X, Send, MessageCircle } from 'lucide-react'
 import { useContact } from '@/context/ContactContext'
+import { useLocale } from '@/context/LocaleContext'
 import type { Property } from '@/types/property'
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
 
 export function InterestForm({ property, onClose }: Props) {
   const { getLineUrl, getWhatsAppUrl, getTelegramUrl, contact } = useContact()
+  const { t } = useLocale()
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState<'idle' | 'ok' | 'chat'>('idle')
   const [sentVia, setSentVia] = useState<'telegram' | 'line' | null>(null)
@@ -75,7 +77,7 @@ export function InterestForm({ property, onClose }: Props) {
 
   const copyMessage = () => {
     navigator.clipboard.writeText(buildMessage())
-    alert('คัดลอกข้อความแล้ว ไปวางใน Line ได้เลย')
+    alert(t('interestForm.copyDone'))
   }
 
   const openLineWithMessage = () => {
@@ -91,7 +93,7 @@ export function InterestForm({ property, onClose }: Props) {
 
   const openTelegramWithMessage = () => {
     navigator.clipboard.writeText(buildMessage())
-    alert('คัดลอกข้อความแล้ว เปิด Telegram ไปวางในแชทบอทแล้วกดส่ง')
+    alert(t('interestForm.copyDoneTelegram'))
     window.open(getTelegramUrl(), '_blank', 'noopener')
   }
 
@@ -104,20 +106,20 @@ export function InterestForm({ property, onClose }: Props) {
           </div>
           <h3 className="font-display text-xl text-stone-900">
             {sentVia === 'telegram'
-              ? 'ส่งเข้า Telegram แล้ว'
+              ? t('interestForm.successTelegram')
               : sentVia === 'line'
-                ? 'ส่งเข้า Line แล้ว'
-                : 'ส่งข้อมูลแล้ว'}
+                ? t('interestForm.successLine')
+                : t('interestForm.successDefault')}
           </h3>
           <p className="mt-2 text-stone-600 text-sm">
-            เราได้รับแจ้งเตือนแล้ว จะติดต่อกลับตามเวลาที่คุณระบุ
+            {t('interestForm.successMessage')}
           </p>
           <button
             type="button"
             onClick={onClose}
             className="mt-6 w-full py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700"
           >
-            ปิด
+            {t('interestForm.close')}
           </button>
         </div>
       </div>
@@ -128,13 +130,9 @@ export function InterestForm({ property, onClose }: Props) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
         <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-8">
-          <h3 className="font-display text-xl text-stone-900 text-center">ส่งผ่าน Line / WhatsApp / Telegram</h3>
+          <h3 className="font-display text-xl text-stone-900 text-center">{t('interestForm.fallbackTitle')}</h3>
           <p className="mt-2 text-stone-600 text-sm text-center">
-            กดปุ่มด้านล่างเพื่อเปิดแชท ข้อความจะถูกคัดลอกไว้แล้ว ไปวางแล้วกดส่ง
-            <br />
-            <span className="text-stone-500 text-xs mt-1 block">
-              ถ้าตั้งค่า Telegram ใน .env (TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID) แล้วแต่ยังไม่ส่งอัตโนมัติ → บันทึก .env แล้วรีสตาร์ทเซิร์ฟเวอร์ (Ctrl+C แล้ว npm run dev ใหม่)
-            </span>
+            {t('interestForm.fallbackMessage')}
           </p>
           <div className="mt-6 space-y-3">
             <button
@@ -143,7 +141,7 @@ export function InterestForm({ property, onClose }: Props) {
               className="w-full py-3 px-4 bg-[#0088cc] text-white rounded-xl font-semibold flex items-center justify-center gap-2"
             >
               <MessageCircle className="w-5 h-5" />
-              คัดลอกข้อความแล้วเปิด Telegram
+              {t('interestForm.copyAndTelegram')}
             </button>
             <button
               type="button"
@@ -151,7 +149,7 @@ export function InterestForm({ property, onClose }: Props) {
               className="w-full py-3 px-4 bg-[#06C755] text-white rounded-xl font-semibold flex items-center justify-center gap-2"
             >
               <MessageCircle className="w-5 h-5" />
-              คัดลอกข้อความแล้วเปิด Line
+              {t('interestForm.copyAndLine')}
             </button>
             <button
               type="button"
@@ -159,11 +157,11 @@ export function InterestForm({ property, onClose }: Props) {
               className="w-full py-3 px-4 bg-[#25D366] text-white rounded-xl font-semibold flex items-center justify-center gap-2"
             >
               <MessageCircle className="w-5 h-5" />
-              เปิด WhatsApp ส่งให้เรา
+              {t('interestForm.openWhatsApp')}
             </button>
           </div>
           <button type="button" onClick={onClose} className="mt-4 w-full py-2 text-stone-500 text-sm hover:text-stone-700">
-            ยกเลิก
+            {t('interestForm.cancel')}
           </button>
         </div>
       </div>
@@ -174,91 +172,91 @@ export function InterestForm({ property, onClose }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-y-auto">
       <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full my-8">
         <div className="flex items-center justify-between p-6 border-b border-stone-200">
-          <h2 className="font-display text-xl text-stone-900">สนใจทรัพย์นี้</h2>
+          <h2 className="font-display text-xl text-stone-900">{t('interestForm.title')}</h2>
           <button
             type="button"
             onClick={onClose}
             className="p-2 rounded-lg text-stone-400 hover:bg-stone-100 hover:text-stone-600"
-            aria-label="ปิด"
+            aria-label={t('interestForm.closeAria')}
           >
             <X className="w-5 h-5" />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <p className="text-sm text-stone-600">
-            กรอกรายละเอียดด้านล่าง เราจะติดต่อกลับตามเวลาที่คุณสะดวก
+            {t('interestForm.intro')}
           </p>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">ชื่อ-นามสกุล *</label>
+            <label className="block text-sm font-medium text-stone-700 mb-1">{t('interestForm.nameLabel')}</label>
             <input
               type="text"
               required
               value={form.name}
               onChange={(e) => update('name', e.target.value)}
               className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
-              placeholder="ชื่อของคุณ"
+              placeholder={t('interestForm.namePlaceholder')}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">เบอร์โทร *</label>
+            <label className="block text-sm font-medium text-stone-700 mb-1">{t('interestForm.phoneLabel')}</label>
             <input
               type="tel"
               required
               value={form.phone}
               onChange={(e) => update('phone', e.target.value)}
               className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
-              placeholder="08x-xxx-xxxx"
+              placeholder={t('interestForm.phonePlaceholder')}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">อีเมล</label>
+            <label className="block text-sm font-medium text-stone-700 mb-1">{t('interestForm.emailLabel')}</label>
             <input
               type="email"
               value={form.email}
               onChange={(e) => update('email', e.target.value)}
               className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
-              placeholder="your@email.com"
+              placeholder={t('interestForm.emailPlaceholder')}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">สนใจในเรื่อง *</label>
+            <label className="block text-sm font-medium text-stone-700 mb-1">{t('interestForm.interestTypeLabel')}</label>
             <select
               value={form.interestType}
               onChange={(e) => update('interestType', e.target.value)}
               className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
             >
-              <option value="view">นัดชมทรัพย์</option>
-              <option value="inquiry">สอบถามเพิ่มเติม</option>
+              <option value="view">{t('interestForm.optionView')}</option>
+              <option value="inquiry">{t('interestForm.optionInquiry')}</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">เวลาที่สะดวกให้ติดต่อ</label>
+            <label className="block text-sm font-medium text-stone-700 mb-1">{t('interestForm.contactWhenLabel')}</label>
             <input
               type="text"
               value={form.contactWhen}
               onChange={(e) => update('contactWhen', e.target.value)}
               className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
-              placeholder="เช่น 9:00-18:00 จันทร์-ศุกร์, หรือช่วงบ่าย"
+              placeholder={t('interestForm.contactWhenPlaceholder')}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">อยากนัดชมเมื่อไหร่</label>
+            <label className="block text-sm font-medium text-stone-700 mb-1">{t('interestForm.viewWhenLabel')}</label>
             <input
               type="text"
               value={form.viewWhen}
               onChange={(e) => update('viewWhen', e.target.value)}
               className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
-              placeholder="เช่น พรุ่งนี้ 10:00, เสาร์-อาทิตย์"
+              placeholder={t('interestForm.viewWhenPlaceholder')}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">หมายเหตุ</label>
+            <label className="block text-sm font-medium text-stone-700 mb-1">{t('interestForm.messageLabel')}</label>
             <textarea
               value={form.message}
               onChange={(e) => update('message', e.target.value)}
               rows={2}
               className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none resize-none"
-              placeholder="ข้อความเพิ่มเติม (ถ้ามี)"
+              placeholder={t('interestForm.messagePlaceholder')}
             />
           </div>
           <div className="flex gap-3 pt-2">
@@ -267,14 +265,14 @@ export function InterestForm({ property, onClose }: Props) {
               disabled={loading}
               className="flex-1 py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 disabled:opacity-60"
             >
-              {loading ? 'กำลังส่ง...' : 'ส่งข้อมูล'}
+              {loading ? t('interestForm.sending') : t('interestForm.submit')}
             </button>
             <button
               type="button"
               onClick={onClose}
               className="px-4 py-3 border border-stone-300 rounded-xl font-medium text-stone-700 hover:bg-stone-50"
             >
-              ยกเลิก
+              {t('interestForm.cancel')}
             </button>
           </div>
         </form>

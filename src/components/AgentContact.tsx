@@ -2,6 +2,7 @@
 
 import { Phone, Mail, MapPin } from 'lucide-react'
 import { useContact } from '@/context/ContactContext'
+import { useLocale } from '@/context/LocaleContext'
 
 const lineSvg = (
   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
@@ -28,6 +29,7 @@ type Variant = 'card' | 'inline' | 'footer'
 
 export function AgentContact({ variant = 'card', title }: { variant?: Variant; title?: string }) {
   const { contact, getLineUrl, getWhatsAppUrl, getTelegramUrl } = useContact()
+  const { t } = useLocale()
   const isCard = variant === 'card'
   const isFooter = variant === 'footer'
 
@@ -99,13 +101,13 @@ export function AgentContact({ variant = 'card', title }: { variant?: Variant; t
   if (isCard) {
     return (
       <div className="sticky top-24 p-6 bg-white rounded-xl border border-stone-200 shadow-sm">
-        <h3 className="font-semibold text-stone-900 mb-4">สอบถามรายการนี้ — ติดต่อเรา</h3>
+        <h3 className="font-semibold text-stone-900 mb-4">{t('agentContact.inquireTitle')}</h3>
         {content}
         <a
           href={`tel:${contact.phone}`}
           className="mt-6 block w-full text-center py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition"
         >
-          โทรสอบถาม
+          {t('agentContact.callToInquire')}
         </a>
       </div>
     )
@@ -114,7 +116,7 @@ export function AgentContact({ variant = 'card', title }: { variant?: Variant; t
   if (isFooter) {
     return (
       <div>
-        <h3 className="font-semibold text-white mb-4">ติดต่อเรา</h3>
+        <h3 className="font-semibold text-white mb-4">{t('agentContact.contactUs')}</h3>
         <ul className="space-y-2 text-sm">
           <li className="flex items-center gap-2 text-stone-300">
             <MapPin className="w-4 h-4 shrink-0" />
