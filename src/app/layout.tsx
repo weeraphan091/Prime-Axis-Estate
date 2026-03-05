@@ -7,6 +7,7 @@ import { ContactProvider } from '@/context/ContactContext'
 import { AuthProvider } from '@/context/AuthContext'
 import { JsonLdOrganization } from '@/components/JsonLdOrganization'
 import { NavigationProgress } from '@/components/NavigationProgress'
+import { GoogleAnalytics } from '@/components/GoogleAnalytics'
 import { getSiteUrl, SITE_NAME, DEFAULT_DESCRIPTION } from '@/config/site'
 import { isValidLocale } from '@/config/i18n'
 
@@ -49,11 +50,20 @@ export const metadata: Metadata = {
     title: `${SITE_NAME} | นายหน้าอสังหา พัทยา ขาย-เช่า ฝากขายฝากเช่า`,
     description: DEFAULT_DESCRIPTION,
     url: siteUrl,
+    images: [
+      {
+        url: `${siteUrl}/og-default.jpg`,
+        width: 1200,
+        height: 630,
+        alt: `${SITE_NAME} — Pattaya Real Estate`,
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: `${SITE_NAME} | นายหน้าอสังหา พัทยา`,
     description: DEFAULT_DESCRIPTION,
+    images: [`${siteUrl}/og-default.jpg`],
   },
   robots: {
     index: true,
@@ -79,6 +89,7 @@ export default async function RootLayout({
   return (
     <html lang={lang} className={`${dmSans.variable} ${dmSerif.variable}`} suppressHydrationWarning>
       <body className="min-h-screen flex flex-col antialiased">
+        <GoogleAnalytics />
         <JsonLdOrganization />
         <AuthProvider>
           <ContactProvider>

@@ -1,17 +1,27 @@
 'use client'
 
 import { useState } from 'react'
-import { Send } from 'lucide-react'
+import { Send, Loader2 } from 'lucide-react'
 import { AgentContact } from '@/components/AgentContact'
 import { useLocale } from '@/context/LocaleContext'
 
 export default function ContactPage() {
   const { t } = useLocale()
   const [sent, setSent] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setLoading(true)
+    try {
+      await fetch('/api/contact/inquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+    } catch { /* still show thank-you */ }
+    setLoading(false)
     setSent(true)
   }
 
@@ -49,9 +59,9 @@ export default function ContactPage() {
                 <label className="block text-sm font-medium text-stone-700 mb-1.5">{t('contactPage.messageLabel')}</label>
                 <textarea required rows={4} value={form.message} onChange={(e) => update('message', e.target.value)} className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none resize-y" />
               </div>
-              <button type="submit" className="flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition">
-                <Send className="w-4 h-4" />
-                {t('contactPage.send')}
+              <button type="submit" disabled={loading} className="flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 disabled:opacity-60 transition">
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                {loading ? t('common.loading') : t('contactPage.send')}
               </button>
             </form>
           )}

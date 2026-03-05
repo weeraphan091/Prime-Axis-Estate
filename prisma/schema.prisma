@@ -134,6 +134,12 @@ model BlogPost {
   updatedAt   String
 }
 
+model NewsletterSubscriber {
+  id        String  @id @default(cuid())
+  email     String  @unique
+  createdAt String
+}
+
 // บัญชีผู้ใช้หลังบ้าน (แอดมิน/พนักงาน) — ล็อกอินด้วยอีเมล+รหัสผ่าน
 model AdminUser {
   id           String   @id @default(cuid())
