@@ -162,7 +162,10 @@ export function propertyForLocale(p: Property, locale: Locale): Property {
     (locale === 'zh' && p.locationZh) ||
     (locale === 'ru' && p.locationRu) ||
     p.location
-  return { ...p, title, description, features: pickFeatures(), location }
+  const RENT_LABEL: Record<string, string> = { th: '/เดือน', en: '/month', zh: '/月', ru: '/мес.' }
+  const priceLabel =
+    p.listingType === 'rent' ? (RENT_LABEL[locale] ?? RENT_LABEL.en) : p.priceLabel
+  return { ...p, title, description, features: pickFeatures(), location, priceLabel }
 }
 
 /** สำหรับส่งกลับให้ลูกค้า/สาธารณะ — ไม่ส่งข้อมูลติดต่อเจ้าของทรัพย์ (ติดต่อผ่านนายหน้าเท่านั้น) */

@@ -175,6 +175,7 @@ export const ru = {
     descriptionLabel: 'Описание *',
     descriptionPlaceholder: 'Опишите плюсы, состояние, удобства...',
     priceLabel: 'Цена (бат) *',
+    rentPriceLabel: 'Аренда в месяц (бат) *',
     pricePlaceholder: 'напр. 8500000',
     priceUnitLabel: 'Единица цены (если есть)',
     priceUnitPlaceholder: 'напр. в месяц, в год',

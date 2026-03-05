@@ -16,11 +16,19 @@ import type { Property } from '@/types/property'
 
 type Props = { params: Promise<{ locale: string; id: string }> }
 
-const TH_MONTHS = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.']
-function formatLeaseDate(ymd: string): string {
+const MONTHS: Record<string, string[]> = {
+  th: ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'],
+  en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+  zh: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+  ru: ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'],
+}
+function formatLeaseDate(ymd: string, locale: string): string {
   const [y, m, d] = ymd.split('-').map(Number)
   if (!d || !m || !y) return ymd
-  return `${d} ${TH_MONTHS[(m - 1) % 12] ?? ymd} ${y + 543}`
+  const months = MONTHS[locale] ?? MONTHS.en
+  const monthStr = months[(m - 1) % 12] ?? ''
+  if (locale === 'th') return `${d} ${monthStr} ${y + 543}`
+  return `${d} ${monthStr} ${y}`
 }
 
 export const revalidate = 60
@@ -100,11 +108,11 @@ export default async function PropertyDetailPage({ params }: Props) {
           <p className="font-medium">{t('listing.rented')}</p>
           <p className="text-sm mt-0.5">
             {property.rentLeaseStart && property.rentLeaseEnd
-              ? `${t('listing.leasePeriod')} ${formatLeaseDate(property.rentLeaseStart)} – ${formatLeaseDate(property.rentLeaseEnd)}`
+              ? `${t('listing.leasePeriod')} ${formatLeaseDate(property.rentLeaseStart, locale)} – ${formatLeaseDate(property.rentLeaseEnd, locale)}`
               : property.rentLeaseEnd
-                ? `${t('listing.availableFrom')} ${formatLeaseDate(property.rentLeaseEnd)}`
+                ? `${t('listing.availableFrom')} ${formatLeaseDate(property.rentLeaseEnd, locale)}`
                 : property.rentLeaseStart
-                  ? formatLeaseDate(property.rentLeaseStart)
+                  ? formatLeaseDate(property.rentLeaseStart, locale)
                   : ''}
           </p>
         </div>

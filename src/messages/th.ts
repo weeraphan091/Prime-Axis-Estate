@@ -175,6 +175,7 @@ export const th = {
     descriptionLabel: 'รายละเอียด *',
     descriptionPlaceholder: 'อธิบายจุดเด่น สภาพพื้นที่ สิ่งอำนวยความสะดวก...',
     priceLabel: 'ราคา (บาท) *',
+    rentPriceLabel: 'ค่าเช่าต่อเดือน (บาท) *',
     pricePlaceholder: 'เช่น 8500000',
     priceUnitLabel: 'หน่วยราคา (ถ้ามี)',
     priceUnitPlaceholder: 'เช่น ต่อเดือน, ต่อปี',

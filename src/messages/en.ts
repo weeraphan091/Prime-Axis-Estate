@@ -175,6 +175,7 @@ export const en = {
     descriptionLabel: 'Description *',
     descriptionPlaceholder: 'Describe highlights, condition, amenities...',
     priceLabel: 'Price (THB) *',
+    rentPriceLabel: 'Monthly rent (THB) *',
     pricePlaceholder: 'e.g. 8500000',
     priceUnitLabel: 'Price unit (if any)',
     priceUnitPlaceholder: 'e.g. per month, per year',

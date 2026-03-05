@@ -144,7 +144,7 @@ export default function ListYourPropertyPage() {
         listingType: form.listingType,
         propertyType: form.propertyType,
         price: Number(form.price),
-        priceLabel: form.priceLabel || (form.listingType === 'rent' ? 'ต่อเดือน' : undefined),
+        priceLabel: form.listingType === 'rent' ? '/เดือน' : undefined,
         location: form.location,
         mapUrl: form.mapUrl?.trim() || undefined,
         area: Number(form.area),
@@ -389,35 +389,19 @@ export default function ListYourPropertyPage() {
                 className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none resize-y"
               />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1.5">
-                  {t('listYourProperty.priceLabel')}
-                </label>
-                <input
-                  type="number"
-                  required
-                  min="0"
-                  placeholder={t('listYourProperty.pricePlaceholder')}
-                  value={form.price}
-                  onChange={(e) => update('price', e.target.value)}
-                  className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
-                />
-              </div>
-              {form.listingType === 'rent' && (
-                <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-1.5">
-                    {t('listYourProperty.priceUnitLabel')}
-                  </label>
-                  <input
-                    type="text"
-                    placeholder={t('listYourProperty.priceUnitPlaceholder')}
-                    value={form.priceLabel}
-                    onChange={(e) => update('priceLabel', e.target.value)}
-                    className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
-                  />
-                </div>
-              )}
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-1.5">
+                {form.listingType === 'rent' ? t('listYourProperty.rentPriceLabel') : t('listYourProperty.priceLabel')}
+              </label>
+              <input
+                type="number"
+                required
+                min="0"
+                placeholder={t('listYourProperty.pricePlaceholder')}
+                value={form.price}
+                onChange={(e) => update('price', e.target.value)}
+                className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+              />
             </div>
             {form.listingType === 'rent' && (
               <div className="border-t border-stone-200 pt-4 mt-4 space-y-4">

@@ -116,7 +116,7 @@ export function AdminListingForm({ initial }: Props) {
         listingType: form.listingType,
         propertyType: form.propertyType,
         price: Number(form.price),
-        priceLabel: form.priceLabel || (form.listingType === 'rent' ? 'ต่อเดือน' : undefined),
+        priceLabel: form.listingType === 'rent' ? '/เดือน' : undefined,
         location: form.location,
         mapUrl: form.mapUrl || undefined,
         area: Number(form.area),
@@ -231,27 +231,19 @@ export function AdminListingForm({ initial }: Props) {
             </select>
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">ราคาขาย/เช่าจริง *</label>
-            <input
-              type="number"
-              required
-              min="0"
-              value={form.price || ''}
-              onChange={(e) => update('price', e.target.value)}
-              className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">หน่วยราคา (เช่น ต่อเดือน)</label>
-            <input
-              type="text"
-              value={form.priceLabel}
-              onChange={(e) => update('priceLabel', e.target.value)}
-              className="w-full px-4 py-2.5 border border-stone-300 rounded-lg outline-none"
-            />
-          </div>
+        <div>
+          <label className="block text-sm font-medium text-stone-700 mb-1">
+            {form.listingType === 'rent' ? 'ค่าเช่าต่อเดือน (฿) *' : 'ราคาขาย (฿) *'}
+          </label>
+          <input
+            type="number"
+            required
+            min="0"
+            value={form.price || ''}
+            onChange={(e) => update('price', e.target.value)}
+            placeholder={form.listingType === 'rent' ? 'เช่น 15000' : 'เช่น 3500000'}
+            className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+          />
         </div>
         {form.listingType === 'sale' && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

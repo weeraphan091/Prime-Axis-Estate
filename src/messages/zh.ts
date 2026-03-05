@@ -175,6 +175,7 @@ export const zh = {
     descriptionLabel: '描述 *',
     descriptionPlaceholder: '描述亮点、状况、配套...',
     priceLabel: '价格（泰铢）*',
+    rentPriceLabel: '月租金（泰铢）*',
     pricePlaceholder: '如：8500000',
     priceUnitLabel: '价格单位（如有）',
     priceUnitPlaceholder: '如：每月、每年',
