@@ -10,6 +10,7 @@ export const th = {
     logout: 'ออกจากระบบ',
     favorites: 'รายการโปรด',
     compare: 'เปรียบเทียบ',
+    blog: 'บล็อก',
   },
   home: {
     heroTitle: 'ขาย-เช่า ค้นหาบ้านที่ใช่ ฝากขายฝากเช่ากับเรา',

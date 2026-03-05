@@ -10,6 +10,7 @@ export const en = {
     logout: 'Log out',
     favorites: 'Favorites',
     compare: 'Compare',
+    blog: 'Blog',
   },
   home: {
     heroTitle: 'Buy & Rent — Find your place, list with us',

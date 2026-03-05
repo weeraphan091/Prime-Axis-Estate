@@ -111,6 +111,29 @@ model User {
   properties   Property[]
 }
 
+model BlogPost {
+  id          String  @id @default(cuid())
+  slug        String  @unique
+  title       String
+  titleEn     String?
+  titleZh     String?
+  titleRu     String?
+  excerpt     String
+  excerptEn   String?
+  excerptZh   String?
+  excerptRu   String?
+  content     String
+  contentEn   String?
+  contentZh   String?
+  contentRu   String?
+  coverImage  String?
+  category    String   // guide | market | legal | tips
+  tags        String   // JSON array
+  status      String   @default("published") // draft | published
+  createdAt   String
+  updatedAt   String
+}
+
 // บัญชีผู้ใช้หลังบ้าน (แอดมิน/พนักงาน) — ล็อกอินด้วยอีเมล+รหัสผ่าน
 model AdminUser {
   id           String   @id @default(cuid())

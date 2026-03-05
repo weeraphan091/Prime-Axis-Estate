@@ -10,6 +10,7 @@ export const zh = {
     logout: '退出',
     favorites: '收藏',
     compare: '对比',
+    blog: '博客',
   },
   home: {
     heroTitle: '买卖·租赁 — 找房·挂牌找我们',

@@ -36,6 +36,9 @@ export function AdminNav({ currentAdmin }: Props) {
       <Link href="/admin/members" className="text-stone-600 hover:text-primary-600">
         สมาชิก
       </Link>
+      <Link href="/admin/blog" className="text-stone-600 hover:text-primary-600">
+        บล็อก
+      </Link>
       {isAdmin && (
         <Link href="/admin/settings" className="text-stone-600 hover:text-primary-600">
           ข้อมูลติดต่อ

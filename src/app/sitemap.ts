@@ -1,9 +1,10 @@
 import { MetadataRoute } from 'next'
 import { getSiteUrl } from '@/config/site'
 import { getPropertiesFromDb } from '@/lib/property-db'
+import { prisma } from '@/lib/prisma'
 import { locales } from '@/config/i18n'
 
-const STATIC_PATHS = ['', 'listings', 'list-your-property', 'contact', 'login', 'register', 'how-to-list', 'terms', 'privacy', 'favorites', 'compare', 'my-listings']
+const STATIC_PATHS = ['', 'listings', 'list-your-property', 'contact', 'how-to-list', 'blog', 'terms', 'privacy']
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = getSiteUrl()
@@ -14,30 +15,43 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entries.push({ url: prefix, lastModified: new Date(), changeFrequency: 'daily', priority: 1 })
     for (const path of STATIC_PATHS) {
       if (path === '') continue
-      entries.push({
-        url: `${prefix}/${path}`,
-        lastModified: new Date(),
-        changeFrequency: path === 'listings' ? 'daily' : 'monthly',
-        priority: path === 'listings' ? 0.9 : path === 'list-your-property' ? 0.7 : 0.5,
-      })
+      const priority = path === 'listings' ? 0.9 : path === 'blog' ? 0.8 : path === 'list-your-property' ? 0.7 : 0.5
+      const freq = (path === 'listings' || path === 'blog') ? 'daily' : 'monthly'
+      entries.push({ url: `${prefix}/${path}`, lastModified: new Date(), changeFrequency: freq, priority })
     }
   }
 
   let properties: Awaited<ReturnType<typeof getPropertiesFromDb>> = []
   try {
     properties = await getPropertiesFromDb(true)
-  } catch {
-    // DB not available at build or edge
-  }
+  } catch { /* */ }
 
   for (const locale of locales) {
-    const prefix = `${base}/${locale}/listings`
     for (const p of properties) {
       entries.push({
-        url: `${prefix}/${p.id}`,
+        url: `${base}/${locale}/listings/${p.id}`,
         lastModified: new Date(p.createdAt),
         changeFrequency: 'weekly' as const,
         priority: 0.8,
+      })
+    }
+  }
+
+  let blogSlugs: { slug: string; createdAt: string }[] = []
+  try {
+    blogSlugs = await prisma.blogPost.findMany({
+      where: { status: 'published' },
+      select: { slug: true, createdAt: true },
+    })
+  } catch { /* */ }
+
+  for (const locale of locales) {
+    for (const b of blogSlugs) {
+      entries.push({
+        url: `${base}/${locale}/blog/${b.slug}`,
+        lastModified: new Date(b.createdAt),
+        changeFrequency: 'monthly' as const,
+        priority: 0.7,
       })
     }
   }

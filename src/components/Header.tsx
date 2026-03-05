@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { Menu, X, Home, Search, FilePlus, Phone, Heart, GitCompare } from 'lucide-react'
+import { Menu, X, Home, Search, FilePlus, Phone, Heart, GitCompare, BookOpen } from 'lucide-react'
 import { useFavorites } from '@/context/FavoritesContext'
 import { useAuth } from '@/context/AuthContext'
 import { useLocale } from '@/context/LocaleContext'
@@ -13,6 +13,7 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 const navKeys = [
   { path: '', key: 'nav.home', icon: Home },
   { path: 'listings', key: 'nav.search', icon: Search },
+  { path: 'blog', key: 'nav.blog', icon: BookOpen },
   { path: 'list-your-property', key: 'nav.listProperty', icon: FilePlus },
   { path: 'contact', key: 'nav.contact', icon: Phone },
 ] as const

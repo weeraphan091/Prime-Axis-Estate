@@ -10,6 +10,7 @@ export const ru = {
     logout: 'Выйти',
     favorites: 'Избранное',
     compare: 'Сравнить',
+    blog: 'Блог',
   },
   home: {
     heroTitle: 'Покупка и аренда — найдите жильё, разместите у нас',
