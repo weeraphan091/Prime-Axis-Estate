@@ -1,6 +1,7 @@
 'use client'
 
-import { Phone, Mail, MapPin } from 'lucide-react'
+import { useState, useCallback } from 'react'
+import { Phone, Mail, MapPin, Copy, Check } from 'lucide-react'
 import { useContact } from '@/context/ContactContext'
 import { useLocale } from '@/context/LocaleContext'
 
@@ -30,12 +31,26 @@ type Variant = 'card' | 'inline' | 'footer'
 export function AgentContact({ variant = 'card', title }: { variant?: Variant; title?: string }) {
   const { contact, getLineUrl, getWhatsAppUrl, getTelegramUrl } = useContact()
   const { t } = useLocale()
+  const [wechatCopied, setWechatCopied] = useState(false)
   const isCard = variant === 'card'
   const isFooter = variant === 'footer'
+
+  const copyWechat = useCallback(() => {
+    navigator.clipboard.writeText(contact.wechat).then(() => {
+      setWechatCopied(true)
+      setTimeout(() => setWechatCopied(false), 2000)
+    }).catch(() => {
+      window.prompt('Copy WeChat ID:', contact.wechat)
+    })
+  }, [contact.wechat])
 
   const linkClass = isFooter
     ? 'flex items-center gap-2 text-stone-300 hover:text-white transition text-sm'
     : 'flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium'
+
+  const wechatBtnClass = isFooter
+    ? 'inline-flex items-center gap-1.5 text-stone-300 hover:text-white transition text-sm cursor-pointer'
+    : 'inline-flex items-center gap-1.5 text-primary-600 hover:text-primary-700 font-medium cursor-pointer'
 
   const content = (
     <>
@@ -76,14 +91,25 @@ export function AgentContact({ variant = 'card', title }: { variant?: Variant; t
           {whatsappSvg}
           <span>WhatsApp</span>
         </a>
-        <a
-          href={`weixin://dl/chat?${contact.wechat}`}
-          className={`inline-flex items-center gap-1.5 ${linkClass}`}
-          title="WeChat"
+        <button
+          type="button"
+          onClick={copyWechat}
+          className={`${wechatBtnClass} relative`}
+          title={`WeChat: ${contact.wechat}`}
         >
           {wechatSvg}
           <span>WeChat</span>
-        </a>
+          {wechatCopied ? (
+            <Check className="w-3.5 h-3.5 text-emerald-500" />
+          ) : (
+            <Copy className="w-3.5 h-3.5 opacity-50" />
+          )}
+          {wechatCopied && (
+            <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-stone-800 text-white text-xs rounded whitespace-nowrap">
+              Copied! ID: {contact.wechat}
+            </span>
+          )}
+        </button>
         <a
           href={getTelegramUrl()}
           target="_blank"
@@ -141,9 +167,19 @@ export function AgentContact({ variant = 'card', title }: { variant?: Variant; t
             <a href={getWhatsAppUrl()} target="_blank" rel="noopener noreferrer" className={linkClass} title="WhatsApp">
               {whatsappSvg}
             </a>
-            <a href={`weixin://dl/chat?${contact.wechat}`} className={linkClass} title="WeChat">
+            <button
+              type="button"
+              onClick={copyWechat}
+              className={`${wechatBtnClass} relative`}
+              title={`WeChat: ${contact.wechat}`}
+            >
               {wechatSvg}
-            </a>
+              {wechatCopied && (
+                <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-stone-800 text-white text-xs rounded whitespace-nowrap">
+                  Copied! {contact.wechat}
+                </span>
+              )}
+            </button>
             <a href={getTelegramUrl()} target="_blank" rel="noopener noreferrer" className={linkClass} title="Telegram">
               {telegramSvg}
             </a>
