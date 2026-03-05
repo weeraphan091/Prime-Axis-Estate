@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/session'
 import { propertyToPrisma, prismaToProperty } from '@/lib/property-db'
 import { translatePropertyContent, type ContentLang } from '@/lib/translate'
+import type { Property } from '@/types/property'
 
 const CONTENT_LANGS: ContentLang[] = ['th', 'en', 'zh', 'ru']
 function toContentLang(v: unknown): ContentLang {
@@ -55,7 +56,8 @@ export async function POST(request: Request) {
       payload.description ?? '',
       contentLang
     )
-    const data = { ...propertyToPrisma({ ...payload, ...translated }), userId: session.userId }
+    const merged = { ...payload, ...translated, listingSource: 'owner_direct' as const }
+    const data = { ...propertyToPrisma(merged as Omit<Property, 'id'> & { id?: string }), userId: session.userId }
     const created = await prisma.property.create({
       data: data as Parameters<typeof prisma.property.create>[0]['data'],
     })
