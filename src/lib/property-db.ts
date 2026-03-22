@@ -342,7 +342,7 @@ export async function getLatestPropertiesFromDb(limit: number, locale?: Locale):
 }
 
 export async function getPublishedPropertiesByIds(ids: string[], locale?: Locale): Promise<Property[]> {
-  const unique = [...new Set(ids.filter(Boolean))].slice(0, 50)
+  const unique = Array.from(new Set(ids.filter(Boolean))).slice(0, 50)
   if (unique.length === 0) return []
   try {
     const { prisma } = await import('@/lib/prisma')
