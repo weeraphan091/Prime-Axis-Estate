@@ -1,6 +1,9 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react'
+import { createContext, useContext, useState, useEffect, useMemo, useCallback, useRef } from 'react'
+
+/** ไม่ refetch บ่อยเกินไปเมื่อสลับแท็บ */
+const MIN_REFETCH_MS = 60_000
 
 export type ContactData = {
   name: string
@@ -54,9 +57,15 @@ function getTelegramUrlFrom(contact: ContactData): string {
 export function ContactProvider({ children }: { children: React.ReactNode }) {
   const [contact, setContact] = useState<ContactData>(defaultContact)
   const [loading, setLoading] = useState(true)
+  const lastFetchRef = useRef(0)
 
-  const fetchContact = useCallback(() => {
-    fetch('/api/settings/contact', { cache: 'no-store' })
+  const fetchContact = useCallback((force = false) => {
+    const now = Date.now()
+    if (!force && lastFetchRef.current > 0 && now - lastFetchRef.current < MIN_REFETCH_MS) {
+      return
+    }
+    lastFetchRef.current = now
+    fetch('/api/settings/contact')
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (data && typeof data.name === 'string') {
@@ -77,13 +86,13 @@ export function ContactProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   useEffect(() => {
-    fetchContact()
+    fetchContact(true)
   }, [fetchContact])
 
   // เมื่อกลับมาเปิดแท็บเว็บ (เช่น หลังแก้ตั้งค่าในหลังบ้าน) ให้ดึงข้อมูลติดต่อใหม่
   useEffect(() => {
     const onVisible = () => {
-      if (document.visibilityState === 'visible') fetchContact()
+      if (document.visibilityState === 'visible') fetchContact(false)
     }
     document.addEventListener('visibilitychange', onVisible)
     return () => document.removeEventListener('visibilitychange', onVisible)

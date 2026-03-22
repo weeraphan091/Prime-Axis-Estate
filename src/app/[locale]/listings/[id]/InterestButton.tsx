@@ -1,9 +1,14 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { useState } from 'react'
 import { Heart } from 'lucide-react'
-import { InterestForm } from '@/components/InterestForm'
 import type { Property } from '@/types/property'
+
+const InterestFormLazy = dynamic(
+  () => import('@/components/InterestForm').then((m) => ({ default: m.InterestForm })),
+  { ssr: false }
+)
 
 export function InterestButton({ property, label }: { property: Property; label: string }) {
   const [show, setShow] = useState(false)
@@ -17,7 +22,7 @@ export function InterestButton({ property, label }: { property: Property; label:
         <Heart className="w-5 h-5" />
         {label}
       </button>
-      {show && <InterestForm property={property} onClose={() => setShow(false)} />}
+      {show && <InterestFormLazy property={property} onClose={() => setShow(false)} />}
     </>
   )
 }

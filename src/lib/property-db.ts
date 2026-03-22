@@ -1,7 +1,13 @@
 import type { Property } from '@/types/property'
+import type { ListingType, PropertyType } from '@/types/property'
 import type { Property as PrismaProperty } from '@prisma/client'
+import type { Prisma } from '@prisma/client'
 import type { Locale } from '@/config/i18n'
 import { translateLocation } from '@/config/zones'
+
+/** จำกัดจำนวนแถวสูงสุดต่อครั้งเพื่อกัน query โหลดทั้งตาราง */
+export const MAX_LISTINGS_TAKE = 2000
+export const DEFAULT_API_LISTINGS_TAKE = 400
 
 type PrismaPropertyRow = PrismaProperty & {
   titleEn?: string | null
@@ -183,17 +189,206 @@ export function propertyForPublic(p: Property): Property {
   }
 }
 
+/** Select เฉพาะฟิลด์ที่ใช้บนการ์ด/ลิสต์สาธารณะ — ไม่ดึง description หลัก (ข้อความยาว) */
+export const PROPERTY_PUBLIC_LIST_SELECT = {
+  id: true,
+  title: true,
+  projectName: true,
+  listingType: true,
+  propertyType: true,
+  price: true,
+  priceLabel: true,
+  location: true,
+  mapUrl: true,
+  area: true,
+  bedrooms: true,
+  bathrooms: true,
+  images: true,
+  features: true,
+  contactName: true,
+  contactPhone: true,
+  contactEmail: true,
+  contactLine: true,
+  contactWhatsapp: true,
+  isFeatured: true,
+  isOwnerListing: true,
+  listingSource: true,
+  status: true,
+  agentId: true,
+  rentOccupied: true,
+  rentMinLease: true,
+  rentLeaseStart: true,
+  rentLeaseEnd: true,
+  originalPrice: true,
+  quotaType: true,
+  floor: true,
+  roomNumber: true,
+  floors: true,
+  viewCount: true,
+  userId: true,
+  titleEn: true,
+  titleZh: true,
+  titleRu: true,
+  descriptionEn: true,
+  descriptionZh: true,
+  descriptionRu: true,
+  featuresEn: true,
+  featuresZh: true,
+  featuresRu: true,
+  locationEn: true,
+  locationZh: true,
+  locationRu: true,
+  createdAt: true,
+  updatedAt: true,
+} satisfies Prisma.PropertySelect
+
+type PropertyListRow = Prisma.PropertyGetPayload<{ select: typeof PROPERTY_PUBLIC_LIST_SELECT }>
+
+/** แมปแถวจาก list-query (ไม่มี description หลัก) → Property */
+export function prismaToPropertyFromListRow(row: PropertyListRow): Property {
+  return prismaToProperty({
+    ...row,
+    description: '',
+  } as unknown as PrismaPropertyRow)
+}
+
+export type PropertyListFilters = {
+  listingType?: ListingType | null
+  propertyType?: PropertyType | null
+  location?: string | null
+  minPrice?: number | null
+  maxPrice?: number | null
+}
+
+const VALID_PROPERTY_TYPES: PropertyType[] = ['condo', 'house', 'villa', 'apartment', 'land', 'commercial']
+
+export function buildPublishedPropertyWhere(filters: PropertyListFilters): Prisma.PropertyWhereInput {
+  const and: Prisma.PropertyWhereInput[] = [{ status: 'published' }]
+  if (filters.listingType === 'sale' || filters.listingType === 'rent') {
+    and.push({ listingType: filters.listingType })
+  }
+  if (filters.propertyType && VALID_PROPERTY_TYPES.includes(filters.propertyType)) {
+    and.push({ propertyType: filters.propertyType })
+  }
+  if (filters.minPrice != null && Number.isFinite(filters.minPrice)) {
+    and.push({ price: { gte: filters.minPrice } })
+  }
+  if (filters.maxPrice != null && Number.isFinite(filters.maxPrice)) {
+    and.push({ price: { lte: filters.maxPrice } })
+  }
+  const loc = filters.location?.trim()
+  if (loc) {
+    and.push({ location: { contains: loc, mode: 'insensitive' } })
+  }
+  return { AND: and }
+}
+
+export async function getPublishedPropertiesForPublicList(
+  filters: PropertyListFilters,
+  locale: Locale | undefined,
+  opts: { take?: number; skip?: number }
+): Promise<Property[]> {
+  try {
+    const { prisma } = await import('@/lib/prisma')
+    const take = Math.min(Math.max(opts.take ?? DEFAULT_API_LISTINGS_TAKE, 1), MAX_LISTINGS_TAKE)
+    const skip = Math.max(opts.skip ?? 0, 0)
+    const rows = await prisma.property.findMany({
+      where: buildPublishedPropertyWhere(filters),
+      orderBy: { updatedAt: 'desc' },
+      take,
+      skip,
+      select: PROPERTY_PUBLIC_LIST_SELECT,
+    })
+    const mapped = rows.map((r) => prismaToPropertyFromListRow(r))
+    if (locale) return mapped.map((p) => propertyForLocale(p, locale))
+    return mapped
+  } catch {
+    return []
+  }
+}
+
+export async function getFeaturedPropertiesFromDb(limit: number, locale?: Locale): Promise<Property[]> {
+  try {
+    const { prisma } = await import('@/lib/prisma')
+    const rows = await prisma.property.findMany({
+      where: { status: 'published', isFeatured: true },
+      orderBy: { updatedAt: 'desc' },
+      take: limit,
+      select: PROPERTY_PUBLIC_LIST_SELECT,
+    })
+    const mapped = rows.map((r) => prismaToPropertyFromListRow(r))
+    if (locale) return mapped.map((p) => propertyForLocale(p, locale))
+    return mapped
+  } catch {
+    return []
+  }
+}
+
+export async function getLatestPropertiesFromDb(limit: number, locale?: Locale): Promise<Property[]> {
+  try {
+    const { prisma } = await import('@/lib/prisma')
+    const rows = await prisma.property.findMany({
+      where: { status: 'published' },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      select: PROPERTY_PUBLIC_LIST_SELECT,
+    })
+    const mapped = rows.map((r) => prismaToPropertyFromListRow(r))
+    if (locale) return mapped.map((p) => propertyForLocale(p, locale))
+    return mapped
+  } catch {
+    return []
+  }
+}
+
+export async function getPublishedPropertiesByIds(ids: string[], locale?: Locale): Promise<Property[]> {
+  const unique = [...new Set(ids.filter(Boolean))].slice(0, 50)
+  if (unique.length === 0) return []
+  try {
+    const { prisma } = await import('@/lib/prisma')
+    const rows = await prisma.property.findMany({
+      where: { id: { in: unique }, status: 'published' },
+      orderBy: { updatedAt: 'desc' },
+      select: PROPERTY_PUBLIC_LIST_SELECT,
+    })
+    let mapped = rows.map((r) => prismaToPropertyFromListRow(r))
+    if (locale) mapped = mapped.map((p) => propertyForLocale(p, locale))
+    const byId = new Map(mapped.map((p) => [p.id, p]))
+    return unique.map((id) => byId.get(id)).filter((p): p is Property => p != null)
+  } catch {
+    return []
+  }
+}
+
+export type SitemapPropertyRef = { id: string; createdAt: string }
+
+export async function getPublishedPropertyRefsForSitemap(): Promise<SitemapPropertyRef[]> {
+  try {
+    const { prisma } = await import('@/lib/prisma')
+    return await prisma.property.findMany({
+      where: { status: 'published' },
+      select: { id: true, createdAt: true },
+      orderBy: { updatedAt: 'desc' },
+      take: MAX_LISTINGS_TAKE,
+    })
+  } catch {
+    return []
+  }
+}
+
 /** onlyPublished: true = หน้าเว็บทั่วไป (เฉพาะ published), false = หลังบ้าน (ทุกสถานะ). locale = แปล title/description ตามภาษาที่เลือก */
 export async function getPropertiesFromDb(onlyPublished = true, locale?: Locale): Promise<Property[]> {
   try {
     const { prisma } = await import('@/lib/prisma')
-    const list = await prisma.property.findMany({
-      where: onlyPublished ? { status: 'published' } : undefined,
-      orderBy: { updatedAt: 'desc' },
-    })
-    const mapped = list.map(prismaToProperty)
-    if (locale) return mapped.map((p) => propertyForLocale(p, locale))
-    return mapped
+    if (!onlyPublished) {
+      const list = await prisma.property.findMany({
+        orderBy: { updatedAt: 'desc' },
+      })
+      const mapped = list.map(prismaToProperty)
+      if (locale) return mapped.map((p) => propertyForLocale(p, locale))
+      return mapped
+    }
+    return getPublishedPropertiesForPublicList({}, locale, { take: MAX_LISTINGS_TAKE })
   } catch {
     return []
   }

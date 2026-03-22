@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import { SearchBar } from '@/components/SearchBar'
 import { ListingsResults } from '@/components/ListingsResults'
-import { getPropertiesFromDb } from '@/lib/property-db'
+import { getPublishedPropertiesForPublicList, type PropertyListFilters } from '@/lib/property-db'
 import { properties as staticProperties } from '@/data/properties'
 import { getT } from '@/messages'
 import { isValidLocale, type Locale } from '@/config/i18n'
@@ -13,7 +13,39 @@ import { Breadcrumbs } from '@/components/Breadcrumbs'
 
 export const revalidate = 60
 
-type Props = { params: Promise<{ locale: string }> }
+type Props = {
+  params: Promise<{ locale: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}
+
+function parseListingFilters(sp: Record<string, string | string[] | undefined>): PropertyListFilters {
+  const g = (k: string) => {
+    const v = sp[k]
+    return Array.isArray(v) ? v[0] : v
+  }
+  const type = g('type')
+  const property = g('property')
+  const location = g('location')
+  const minP = g('minPrice')
+  const maxP = g('maxPrice')
+  const minPrice = minP != null && minP !== '' ? Number(minP) : null
+  const maxPrice = maxP != null && maxP !== '' ? Number(maxP) : null
+  return {
+    listingType: type === 'sale' || type === 'rent' ? type : null,
+    propertyType:
+      property === 'condo' ||
+      property === 'house' ||
+      property === 'villa' ||
+      property === 'apartment' ||
+      property === 'land' ||
+      property === 'commercial'
+        ? property
+        : null,
+    location: location?.trim() || null,
+    minPrice: minPrice != null && Number.isFinite(minPrice) ? minPrice : null,
+    maxPrice: maxPrice != null && Number.isFinite(maxPrice) ? maxPrice : null,
+  }
+}
 
 const titles: Record<string, string> = {
   th: 'ค้นหาทรัพย์ คอนโด บ้าน วิลล่า ที่ดินพัทยา',
@@ -38,11 +70,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default async function ListingsPage({ params }: Props) {
+export default async function ListingsPage({ params, searchParams }: Props) {
   const { locale } = await params
   if (!isValidLocale(locale)) redirect('/th')
   const t = getT(locale as Locale)
-  const dbList = await getPropertiesFromDb(true, locale as Locale)
+  const sp = await searchParams
+  const filters = parseListingFilters(sp)
+  const dbList = await getPublishedPropertiesForPublicList(filters, locale as Locale, {})
   const serverProperties = dbList.length > 0 ? dbList : staticProperties
 
   const homeLabel = locale === 'th' ? 'หน้าแรก' : locale === 'en' ? 'Home' : locale === 'zh' ? '首页' : 'Главная'

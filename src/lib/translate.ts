@@ -8,6 +8,14 @@ import { pattayaZones, getZoneLabel } from '@/config/zones'
 const MYMEMORY_BASE = 'https://api.mymemory.translated.net/get'
 const MAX_BYTES = 500
 
+/** cache ข้อความสั้น ๆ ระหว่างรัน request เดียวกัน / หลาย field */
+const translationCache = new Map<string, string>()
+const MAX_CACHE_ENTRIES = 600
+
+function cacheKey(fromLang: ContentLang, toLang: ContentLang, chunk: string): string {
+  return `${fromLang}>${toLang}::${chunk}`
+}
+
 /** ภาษาที่ใช้กรอกชื่อ/รายละเอียด (และภาษาที่เว็บแสดง) */
 export type ContentLang = 'th' | 'en' | 'zh' | 'ru'
 
@@ -64,6 +72,10 @@ async function translateChunk(
   toLang: ContentLang
 ): Promise<string> {
   if (!chunk.trim() || fromLang === toLang) return chunk
+  const key = cacheKey(fromLang, toLang, chunk)
+  const hit = translationCache.get(key)
+  if (hit !== undefined) return hit
+
   const fromCode = MYMEMORY_CODE[fromLang]
   const toCode = MYMEMORY_CODE[toLang]
   const langpair = `${fromCode}|${toCode}`
@@ -72,7 +84,15 @@ async function translateChunk(
     const res = await fetch(url, { cache: 'no-store' })
     const data = await res.json()
     const translated = data?.responseData?.translatedText
-    if (typeof translated === 'string' && translated.trim()) return translated.trim()
+    if (typeof translated === 'string' && translated.trim()) {
+      const out = translated.trim()
+      if (translationCache.size >= MAX_CACHE_ENTRIES) {
+        const firstKey = translationCache.keys().next().value
+        if (firstKey !== undefined) translationCache.delete(firstKey)
+      }
+      translationCache.set(key, out)
+      return out
+    }
   } catch {
     // ignore
   }

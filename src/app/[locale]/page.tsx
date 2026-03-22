@@ -6,7 +6,7 @@ import { PropertyCard } from '@/components/PropertyCard'
 import { properties as staticProperties } from '@/data/properties'
 import { pattayaZones, getZoneLabel } from '@/config/zones'
 import { LatestListings } from '@/components/LatestListings'
-import { getPropertiesFromDb } from '@/lib/property-db'
+import { getFeaturedPropertiesFromDb, getLatestPropertiesFromDb } from '@/lib/property-db'
 import { getT } from '@/messages'
 import { isValidLocale, type Locale } from '@/config/i18n'
 import { redirect } from 'next/navigation'
@@ -47,9 +47,12 @@ export default async function HomePage({ params }: Props) {
   const { locale } = await params
   if (!isValidLocale(locale)) redirect('/th')
   const t = getT(locale as Locale)
-  const dbList = await getPropertiesFromDb(true, locale as Locale)
-  const serverList = dbList.length > 0 ? dbList : staticProperties
-  const featured = serverList.filter((p) => p.isFeatured).slice(0, 6)
+  const [featuredDb, latestDb] = await Promise.all([
+    getFeaturedPropertiesFromDb(6, locale as Locale),
+    getLatestPropertiesFromDb(6, locale as Locale),
+  ])
+  const featured = featuredDb.length > 0 ? featuredDb : staticProperties.filter((p) => p.isFeatured).slice(0, 6)
+  const latestList = latestDb.length > 0 ? latestDb : [...staticProperties].sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1)).slice(0, 6)
   const base = `/${locale}`
 
   return (
@@ -164,7 +167,7 @@ export default async function HomePage({ params }: Props) {
             {t('home.viewAll')} →
           </Link>
         </div>
-        <LatestListings serverList={serverList} locale={locale} />
+        <LatestListings serverList={latestList} locale={locale} />
       </section>
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

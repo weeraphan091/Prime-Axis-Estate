@@ -17,6 +17,9 @@ const LocaleContext = createContext<LocaleContextType | null>(null)
 
 const DEFAULT_RATES: ExchangeRates = { USD: 1 / 36, CNY: 1 / 5, RUB: 1 / 0.35 }
 
+const RATES_STORAGE_KEY = 'peh_exchange_rates_v1'
+const RATES_TTL_MS = 86_400_000 // 24 ชม.
+
 export function LocaleProvider({
   locale,
   children,
@@ -27,10 +30,29 @@ export function LocaleProvider({
   const [rates, setRates] = useState<ExchangeRates | null>(null)
 
   useEffect(() => {
+    try {
+      const raw = typeof window !== 'undefined' ? localStorage.getItem(RATES_STORAGE_KEY) : null
+      if (raw) {
+        const parsed = JSON.parse(raw) as { t?: number; rates?: ExchangeRates }
+        if (parsed?.rates && typeof parsed.t === 'number' && Date.now() - parsed.t < RATES_TTL_MS) {
+          setRates(parsed.rates)
+          return
+        }
+      }
+    } catch {
+      // ignore
+    }
     fetch('/api/exchange-rates')
-      .then((r) => r.ok ? r.json() : null)
+      .then((r) => (r.ok ? r.json() : null))
       .then((data: { rates?: ExchangeRates } | null) => {
-        if (data?.rates) setRates(data.rates)
+        if (data?.rates) {
+          setRates(data.rates)
+          try {
+            localStorage.setItem(RATES_STORAGE_KEY, JSON.stringify({ t: Date.now(), rates: data.rates }))
+          } catch {
+            // ignore
+          }
+        }
       })
       .catch(() => {})
   }, [])

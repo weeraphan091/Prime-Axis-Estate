@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { cookies } from 'next/headers'
 import { DM_Sans, DM_Serif_Display } from 'next/font/google'
 import './globals.css'
 import { FavoritesProvider } from '@/context/FavoritesContext'
@@ -8,8 +7,8 @@ import { AuthProvider } from '@/context/AuthContext'
 import { JsonLdOrganization } from '@/components/JsonLdOrganization'
 import { NavigationProgress } from '@/components/NavigationProgress'
 import { GoogleAnalytics } from '@/components/GoogleAnalytics'
+import { HtmlLangSync } from '@/components/HtmlLangSync'
 import { getSiteUrl, SITE_NAME, DEFAULT_DESCRIPTION } from '@/config/site'
-import { isValidLocale } from '@/config/i18n'
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
@@ -76,18 +75,13 @@ export const metadata: Metadata = {
   },
 }
 
-const localeToLang: Record<string, string> = { th: 'th', en: 'en', zh: 'zh-Hans', ru: 'ru' }
-
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const cookieStore = await cookies()
-  const localeCookie = cookieStore.get('NEXT_LOCALE')?.value
-  const lang = localeCookie && isValidLocale(localeCookie) ? localeToLang[localeCookie] : 'th'
   return (
-    <html lang={lang} className={`${dmSans.variable} ${dmSerif.variable}`} suppressHydrationWarning>
+    <html lang="th" className={`${dmSans.variable} ${dmSerif.variable}`} suppressHydrationWarning>
       <head>
         {process.env.NEXT_PUBLIC_SUPABASE_URL && (
           <>
@@ -97,6 +91,7 @@ export default async function RootLayout({
         )}
       </head>
       <body className="min-h-screen flex flex-col antialiased">
+        <HtmlLangSync />
         <GoogleAnalytics />
         <JsonLdOrganization />
         <AuthProvider>

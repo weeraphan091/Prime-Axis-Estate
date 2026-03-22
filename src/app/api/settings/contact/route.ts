@@ -3,8 +3,8 @@ import { prisma } from '@/lib/prisma'
 import { canAccessSettings } from '@/lib/admin-auth'
 import { agentContact } from '@/config/contact'
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+/** GET อ่านข้อมูลติดต่อสาธารณะ — อนุญาต cache ช่วงสั้น */
+export const revalidate = 300
 
 const DEFAULT_ID = 'default'
 

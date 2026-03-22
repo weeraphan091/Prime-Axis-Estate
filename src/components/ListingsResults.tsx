@@ -1,34 +1,16 @@
 'use client'
 
-import { useSearchParams } from 'next/navigation'
 import { PropertyCard } from '@/components/PropertyCard'
 import { useLocaleOptional } from '@/context/LocaleContext'
-import type { ListingType, PropertyType } from '@/types/property'
 import type { Property } from '@/types/property'
 
 type Props = { serverProperties: Property[]; locale?: string }
 
+/** ผลลัพธ์ถูกกรองที่ server แล้ว (ตาม query string) — แสดงเฉพาะรายการที่ส่งมา */
 export function ListingsResults({ serverProperties, locale: localeProp }: Props) {
-  const searchParams = useSearchParams()
   const localeContext = useLocaleOptional()
   const locale = localeProp ?? localeContext?.locale ?? 'th'
-  const t = localeContext?.t ?? ((k: string) => k)
-  const type = (searchParams.get('type') as ListingType) || null
-  const property = (searchParams.get('property') as PropertyType) || null
-  const location = searchParams.get('location')?.toLowerCase() || ''
-  const minPrice = searchParams.get('minPrice') ? Number(searchParams.get('minPrice')) : null
-  const maxPrice = searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : null
-
-  const allProperties = serverProperties
-
-  const filtered = allProperties.filter((p) => {
-    if (type && p.listingType !== type) return false
-    if (property && p.propertyType !== property) return false
-    if (location && !p.location.toLowerCase().includes(location)) return false
-    if (minPrice != null && p.price < minPrice) return false
-    if (maxPrice != null && p.price > maxPrice) return false
-    return true
-  })
+  const filtered = serverProperties
 
   const foundText = locale === 'th' ? `พบ ${filtered.length} รายการ` : locale === 'en' ? `${filtered.length} listing(s) found` : locale === 'zh' ? `找到 ${filtered.length} 条` : `Найдено ${filtered.length}`
   const noResults = locale === 'th' ? 'ไม่พบรายการที่ตรงกับเงื่อนไข' : locale === 'en' ? 'No listings match your criteria' : locale === 'zh' ? '没有符合条件的房源' : 'Нет подходящих объявлений'

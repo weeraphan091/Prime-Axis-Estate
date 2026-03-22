@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { shouldUseNextImage } from '@/lib/remote-image'
 
 const PLACEHOLDER = 'https://placehold.co/800x600/f4f1de/1c1917?text=No+Image'
 
@@ -15,9 +16,8 @@ export function PropertyImageCarousel({ images, title, locale }: { images: strin
   const imgLabel = locale === 'en' ? 'Photo' : locale === 'zh' ? '照片' : locale === 'ru' ? 'Фото' : 'รูป'
   const list = images.length > 0 ? images : [PLACEHOLDER]
   const currentImg = list[currentIndex] || list[0]
-  const isDataUrl = currentImg.startsWith('data:')
-  const isExternalUrl = (currentImg.startsWith('http') && !currentImg.includes('placehold.co')) || imgError
-  const displayImg = (isExternalUrl && imgError) ? PLACEHOLDER : currentImg
+  const useNextMain = shouldUseNextImage(currentImg) && !imgError
+  const displayImg = imgError ? PLACEHOLDER : currentImg
   const hasMultiple = list.length > 1
 
   const goPrev = () => setCurrentIndex((i) => (i === 0 ? list.length - 1 : i - 1))
@@ -26,7 +26,7 @@ export function PropertyImageCarousel({ images, title, locale }: { images: strin
   return (
     <div className="mt-6">
       <div className="relative aspect-video rounded-xl overflow-hidden bg-stone-100">
-        {(isDataUrl || isExternalUrl) ? (
+        {!useNextMain ? (
           <img
             src={displayImg}
             alt={`${title} - ${imgLabel} ${currentIndex + 1}`}
@@ -41,6 +41,7 @@ export function PropertyImageCarousel({ images, title, locale }: { images: strin
             className="object-cover"
             priority={currentIndex === 0}
             sizes="(max-width: 1024px) 100vw, 1024px"
+            onError={() => setImgError(true)}
           />
         )}
         {hasMultiple && (
@@ -68,7 +69,7 @@ export function PropertyImageCarousel({ images, title, locale }: { images: strin
                 i === currentIndex ? 'border-primary-600 ring-2 ring-primary-200' : 'border-stone-200 hover:border-stone-300'
               }`}
             >
-              {(src.startsWith('data:') || (src.startsWith('http') && !src.includes('placehold.co'))) ? (
+              {!shouldUseNextImage(src) ? (
                 <img src={src} alt={`${title} ${imgLabel} ${i + 1}`} className="w-full h-full object-cover" />
               ) : (
                 <Image src={src} alt={`${title} ${imgLabel} ${i + 1}`} width={64} height={64} className="w-full h-full object-cover" />

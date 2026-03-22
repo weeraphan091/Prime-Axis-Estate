@@ -2,11 +2,42 @@ import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import { SearchBar } from '@/components/SearchBar'
 import { ListingsResults } from '@/components/ListingsResults'
-import { getPropertiesFromDb } from '@/lib/property-db'
+import { getPublishedPropertiesForPublicList, type PropertyListFilters } from '@/lib/property-db'
 import { properties as staticProperties } from '@/data/properties'
 import { getSiteUrl } from '@/config/site'
 
 export const revalidate = 60
+
+type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> }
+
+function parseListingFilters(sp: Record<string, string | string[] | undefined>): PropertyListFilters {
+  const g = (k: string) => {
+    const v = sp[k]
+    return Array.isArray(v) ? v[0] : v
+  }
+  const type = g('type')
+  const property = g('property')
+  const location = g('location')
+  const minP = g('minPrice')
+  const maxP = g('maxPrice')
+  const minPrice = minP != null && minP !== '' ? Number(minP) : null
+  const maxPrice = maxP != null && maxP !== '' ? Number(maxP) : null
+  return {
+    listingType: type === 'sale' || type === 'rent' ? type : null,
+    propertyType:
+      property === 'condo' ||
+      property === 'house' ||
+      property === 'villa' ||
+      property === 'apartment' ||
+      property === 'land' ||
+      property === 'commercial'
+        ? property
+        : null,
+    location: location?.trim() || null,
+    minPrice: minPrice != null && Number.isFinite(minPrice) ? minPrice : null,
+    maxPrice: maxPrice != null && Number.isFinite(maxPrice) ? maxPrice : null,
+  }
+}
 
 export const metadata: Metadata = {
   title: 'ค้นหาทรัพย์ ขาย-เช่า คอนโด บ้าน วิลล่า พัทยา',
@@ -20,8 +51,10 @@ export const metadata: Metadata = {
   },
 }
 
-export default async function ListingsPage() {
-  const dbList = await getPropertiesFromDb()
+export default async function ListingsPage({ searchParams }: Props) {
+  const sp = await searchParams
+  const filters = parseListingFilters(sp)
+  const dbList = await getPublishedPropertiesForPublicList(filters, undefined, {})
   const serverProperties = dbList.length > 0 ? dbList : staticProperties
 
   return (

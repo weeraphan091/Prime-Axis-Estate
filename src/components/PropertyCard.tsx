@@ -7,6 +7,7 @@ import { Bed, Bath, Maximize2, BadgeCheck, Heart, GitCompare, ChevronLeft, Chevr
 import { useFavorites } from '@/context/FavoritesContext'
 import { useLocaleOptional } from '@/context/LocaleContext'
 import { FormattedPrice } from '@/components/FormattedPrice'
+import { shouldUseNextImage } from '@/lib/remote-image'
 import type { Property } from '@/types/property'
 
 const TH_MONTHS = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.']
@@ -30,12 +31,9 @@ export function PropertyCard({ property, locale: localeProp }: { property: Prope
   const [slideIndex, setSlideIndex] = useState(0)
   const [imgError, setImgError] = useState(false)
   const currentSrc = images[slideIndex] || images[0] || PLACEHOLDER_IMG
-  // ใช้ <img> สำหรับรูปทรัพย์จากภายนอก (data URL, path ลูก, Supabase, ฯลฯ) ไม่พึ่ง next/image
-  const isExternalOrData =
-    currentSrc.startsWith('data:') ||
-    currentSrc.startsWith('/') ||
-    (currentSrc.startsWith('http') && !currentSrc.includes('placehold.co'))
-  const useImgTag = isExternalOrData || imgError
+  // ใช้ next/image เมื่อโดเมนอยู่ใน remotePatterns (เช่น Supabase, placehold.co)
+  const useNextImg = shouldUseNextImage(currentSrc) && !imgError
+  const useImgTag = !useNextImg || imgError
   const effectiveSrc = useImgTag && imgError ? PLACEHOLDER_IMG : currentSrc
   const fav = isFavorite(property.id)
   const comp = isCompare(property.id)
@@ -89,6 +87,7 @@ export function PropertyCard({ property, locale: localeProp }: { property: Prope
             fill
             className="object-cover group-hover:scale-105 transition duration-300"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            onError={() => setImgError(true)}
           />
         )}
         {hasMultiple && (

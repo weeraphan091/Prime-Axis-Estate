@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next'
 import { getSiteUrl } from '@/config/site'
-import { getPropertiesFromDb } from '@/lib/property-db'
+import { getPublishedPropertyRefsForSitemap } from '@/lib/property-db'
 import { prisma } from '@/lib/prisma'
 import { locales } from '@/config/i18n'
 
@@ -21,9 +21,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  let properties: Awaited<ReturnType<typeof getPropertiesFromDb>> = []
+  let properties: Awaited<ReturnType<typeof getPublishedPropertyRefsForSitemap>> = []
   try {
-    properties = await getPropertiesFromDb(true)
+    properties = await getPublishedPropertyRefsForSitemap()
   } catch { /* */ }
 
   for (const locale of locales) {

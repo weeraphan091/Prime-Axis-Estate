@@ -13,29 +13,46 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
   try {
-    const list = await prisma.lead.findMany({
-      orderBy: { createdAt: 'desc' },
-      include: { agent: { select: { name: true } } },
-    })
+    const BATCH = 500
     const headers = [
       'id', 'propertyId', 'propertyTitle', 'name', 'phone', 'email',
       'interestType', 'contactWhen', 'viewWhen', 'message', 'status', 'agentName', 'createdAt',
     ]
-    const rows = list.map((p) => [
-      p.id,
-      p.propertyId,
-      p.propertyTitle ?? '',
-      p.name,
-      p.phone,
-      p.email,
-      p.interestType ?? '',
-      p.contactWhen ?? '',
-      p.viewWhen ?? '',
-      (p.message ?? '').replace(/\n/g, ' '),
-      p.status,
-      p.agent?.name ?? '',
-      p.createdAt,
-    ].map(String).map(escapeCsv).join(','))
+    const rows: string[] = []
+    let cursor: { id: string } | undefined
+    for (;;) {
+      const batch = await prisma.lead.findMany({
+        take: BATCH,
+        orderBy: { id: 'asc' },
+        ...(cursor ? { skip: 1, cursor } : {}),
+        include: { agent: { select: { name: true } } },
+      })
+      if (batch.length === 0) break
+      for (const p of batch) {
+        rows.push(
+          [
+            p.id,
+            p.propertyId,
+            p.propertyTitle ?? '',
+            p.name,
+            p.phone,
+            p.email,
+            p.interestType ?? '',
+            p.contactWhen ?? '',
+            p.viewWhen ?? '',
+            (p.message ?? '').replace(/\n/g, ' '),
+            p.status,
+            p.agent?.name ?? '',
+            p.createdAt,
+          ]
+            .map(String)
+            .map(escapeCsv)
+            .join(',')
+        )
+      }
+      cursor = { id: batch[batch.length - 1].id }
+      if (batch.length < BATCH) break
+    }
     const csv = [headers.join(','), ...rows].join('\n')
     const bom = '\uFEFF'
     return new NextResponse(bom + csv, {

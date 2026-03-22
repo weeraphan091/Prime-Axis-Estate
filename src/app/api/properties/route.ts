@@ -1,7 +1,19 @@
 import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
-import { prismaToProperty, propertyToPrisma, propertyForPublic, propertyForLocale } from '@/lib/property-db'
+import {
+  prismaToProperty,
+  propertyToPrisma,
+  propertyForPublic,
+  propertyForLocale,
+  getPublishedPropertiesByIds,
+  buildPublishedPropertyWhere,
+  DEFAULT_API_LISTINGS_TAKE,
+  MAX_LISTINGS_TAKE,
+  PROPERTY_PUBLIC_LIST_SELECT,
+  prismaToPropertyFromListRow,
+  type PropertyListFilters,
+} from '@/lib/property-db'
 import { hasAdminSession } from '@/lib/admin-auth'
 import { isValidLocale, type Locale } from '@/config/i18n'
 import { translatePropertyContent, type ContentLang } from '@/lib/translate'
@@ -14,15 +26,60 @@ function toContentLang(v: unknown): ContentLang {
 
 export async function GET(request: Request) {
   try {
-    const list = await prisma.property.findMany({
-      where: { status: 'published' },
-      orderBy: { updatedAt: 'desc' },
-    })
     const url = request.url ? new URL(request.url) : null
     const localeParam = url?.searchParams?.get('locale')
     const locale: Locale | undefined = localeParam && isValidLocale(localeParam) ? localeParam : undefined
-    const properties: Property[] = list.map((p) => {
-      let prop = prismaToProperty(p)
+
+    const idsRaw = url?.searchParams?.get('ids')
+    if (idsRaw?.trim()) {
+      const ids = idsRaw
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .slice(0, 50)
+      const list = await getPublishedPropertiesByIds(ids, locale)
+      const properties: Property[] = list.map((p) => propertyForPublic(p))
+      const res = NextResponse.json(properties)
+      res.headers.set('Cache-Control', 'private, no-store')
+      return res
+    }
+
+    const takeParam = url?.searchParams?.get('limit')
+    const takeParsed = takeParam != null ? Number(takeParam) : DEFAULT_API_LISTINGS_TAKE
+    const take = Math.min(Math.max(Number.isFinite(takeParsed) ? takeParsed : DEFAULT_API_LISTINGS_TAKE, 1), MAX_LISTINGS_TAKE)
+
+    const type = url?.searchParams?.get('type')
+    const property = url?.searchParams?.get('property')
+    const location = url?.searchParams?.get('location')
+    const minP = url?.searchParams?.get('minPrice')
+    const maxP = url?.searchParams?.get('maxPrice')
+    const minPrice = minP != null && minP !== '' ? Number(minP) : null
+    const maxPrice = maxP != null && maxP !== '' ? Number(maxP) : null
+
+    const filters: PropertyListFilters = {
+      listingType: type === 'sale' || type === 'rent' ? type : null,
+      propertyType:
+        property === 'condo' ||
+        property === 'house' ||
+        property === 'villa' ||
+        property === 'apartment' ||
+        property === 'land' ||
+        property === 'commercial'
+          ? property
+          : null,
+      location: location?.trim() || null,
+      minPrice: minPrice != null && Number.isFinite(minPrice) ? minPrice : null,
+      maxPrice: maxPrice != null && Number.isFinite(maxPrice) ? maxPrice : null,
+    }
+
+    const rows = await prisma.property.findMany({
+      where: buildPublishedPropertyWhere(filters),
+      orderBy: { updatedAt: 'desc' },
+      take,
+      select: PROPERTY_PUBLIC_LIST_SELECT,
+    })
+    const properties: Property[] = rows.map((row) => {
+      let prop = prismaToPropertyFromListRow(row)
       if (locale) prop = propertyForLocale(prop, locale)
       return propertyForPublic(prop)
     })

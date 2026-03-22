@@ -17,14 +17,19 @@ export default function ComparePage() {
   const { compareIds, toggleCompare } = useFavorites()
   const [allProperties, setAllProperties] = useState<Property[]>([])
   useEffect(() => {
-    fetch('/api/properties')
-      .then((r) => r.ok ? r.json() : [])
+    if (compareIds.length === 0) {
+      setAllProperties([])
+      return
+    }
+    const q = encodeURIComponent(compareIds.join(','))
+    fetch(`/api/properties?ids=${q}`)
+      .then((r) => (r.ok ? r.json() : []))
       .then((db: Property[]) => {
         const list = Array.isArray(db) ? db : []
-        setAllProperties(list.length > 0 ? list : staticProperties)
+        setAllProperties(list.length > 0 ? list : staticProperties.filter((p) => compareIds.includes(p.id)))
       })
-      .catch(() => setAllProperties(staticProperties))
-  }, [])
+      .catch(() => setAllProperties(staticProperties.filter((p) => compareIds.includes(p.id))))
+  }, [compareIds])
   const list = allProperties.filter((p) => compareIds.includes(p.id))
 
   return (
