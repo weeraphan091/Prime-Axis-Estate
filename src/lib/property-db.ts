@@ -7,7 +7,8 @@ import { translateLocation } from '@/config/zones'
 
 /** จำกัดจำนวนแถวสูงสุดต่อครั้งเพื่อกัน query โหลดทั้งตาราง */
 export const MAX_LISTINGS_TAKE = 2000
-export const DEFAULT_API_LISTINGS_TAKE = 400
+// ค่าเริ่มต้นสำหรับหน้า public list (ลดเพื่อไม่ให้ HTML ใหญ่เกินตอน build/ISR)
+export const DEFAULT_API_LISTINGS_TAKE = 60
 
 type PrismaPropertyRow = PrismaProperty & {
   titleEn?: string | null
