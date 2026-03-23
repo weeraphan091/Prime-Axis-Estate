@@ -6,9 +6,10 @@ import { useRouter, useParams } from 'next/navigation'
 import { FilePlus, CheckCircle, Home, MapPin, ImagePlus, X, BadgePercent, Info } from 'lucide-react'
 import { ChatButtons } from '@/components/ChatButtons'
 import { useAuth } from '@/context/AuthContext'
-import { useLocale } from '@/context/LocaleContext'
+import { LocaleProvider, useLocale } from '@/context/LocaleContext'
 import { propertyTypeLabels } from '@/data/properties'
 import type { ListingType, PropertyType } from '@/types/property'
+import { defaultLocale } from '@/config/i18n'
 
 const LISTING_TYPE_VALUES: ListingType[] = ['sale', 'rent']
 const PROPERTY_TYPE_KEYS = Object.keys(propertyTypeLabels) as PropertyType[]
@@ -25,7 +26,7 @@ function readFileAsDataUrl(file: File): Promise<string> {
   })
 }
 
-export default function ListYourPropertyPage() {
+function ListYourPropertyInner() {
   const router = useRouter()
   const params = useParams()
   const locale = (params as { locale?: string })?.locale
@@ -677,5 +678,13 @@ export default function ListYourPropertyPage() {
         </div>
       </form>
     </div>
+  )
+}
+
+export default function ListYourPropertyPage() {
+  return (
+    <LocaleProvider locale={defaultLocale}>
+      <ListYourPropertyInner />
+    </LocaleProvider>
   )
 }

@@ -8,8 +8,6 @@ import { JsonLdOrganization } from '@/components/JsonLdOrganization'
 import { NavigationProgress } from '@/components/NavigationProgress'
 import { GoogleAnalytics } from '@/components/GoogleAnalytics'
 import { HtmlLangSync } from '@/components/HtmlLangSync'
-import { LocaleProvider } from '@/context/LocaleContext'
-import { defaultLocale } from '@/config/i18n'
 import { getSiteUrl, SITE_NAME, DEFAULT_DESCRIPTION } from '@/config/site'
 
 const dmSans = DM_Sans({
@@ -96,20 +94,14 @@ export default function RootLayout({
         <HtmlLangSync />
         <GoogleAnalytics />
         <JsonLdOrganization />
-        {/*
-          Default locale สำหรับ route ที่ไม่ได้อยู่ใต้ app/[locale] (เช่น /contact, /list-your-property)
-          หน้าใต้ [locale]/layout จะมี LocaleProvider ชั้นใน override ตาม params
-        */}
-        <LocaleProvider locale={defaultLocale}>
-          <AuthProvider>
-            <ContactProvider>
-              <FavoritesProvider>
-                <NavigationProgress />
-                {children}
-              </FavoritesProvider>
-            </ContactProvider>
-          </AuthProvider>
-        </LocaleProvider>
+        <AuthProvider>
+          <ContactProvider>
+            <FavoritesProvider>
+              <NavigationProgress />
+              {children}
+            </FavoritesProvider>
+          </ContactProvider>
+        </AuthProvider>
       </body>
     </html>
   )
