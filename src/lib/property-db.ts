@@ -7,8 +7,8 @@ import { translateLocation } from '@/config/zones'
 
 /** จำกัดจำนวนแถวสูงสุดต่อครั้งเพื่อกัน query โหลดทั้งตาราง */
 export const MAX_LISTINGS_TAKE = 2000
-// ค่าเริ่มต้นสำหรับหน้า public list (ลดเพื่อไม่ให้ HTML ใหญ่เกินตอน build/ISR)
-export const DEFAULT_API_LISTINGS_TAKE = 60
+// ค่าเริ่มต้นสำหรับหน้า public list (ลดเพื่อไม่ให้ ISR fallback หนาเกิน)
+export const DEFAULT_API_LISTINGS_TAKE = 20
 
 type PrismaPropertyRow = PrismaProperty & {
   titleEn?: string | null
@@ -230,9 +230,6 @@ export const PROPERTY_PUBLIC_LIST_SELECT = {
   titleEn: true,
   titleZh: true,
   titleRu: true,
-  descriptionEn: true,
-  descriptionZh: true,
-  descriptionRu: true,
   featuresEn: true,
   featuresZh: true,
   featuresRu: true,
@@ -300,9 +297,10 @@ export async function getPublishedPropertiesForPublicList(
       skip,
       select: PROPERTY_PUBLIC_LIST_SELECT,
     })
-    const mapped = rows.map((r) => prismaToPropertyFromListRow(r))
-    if (locale) return mapped.map((p) => propertyForLocale(p, locale))
-    return mapped
+    let mapped = rows.map((r) => prismaToPropertyFromListRow(r))
+    if (locale) mapped = mapped.map((p) => propertyForLocale(p, locale))
+    // ลิสต์สาธารณะไม่ต้องส่งข้อมูลติดต่อเจ้าของทรัพย์ ลด payload สำหรับ ISR fallback
+    return mapped.map(propertyForPublic)
   } catch {
     return []
   }
@@ -318,8 +316,8 @@ export async function getFeaturedPropertiesFromDb(limit: number, locale?: Locale
       select: PROPERTY_PUBLIC_LIST_SELECT,
     })
     const mapped = rows.map((r) => prismaToPropertyFromListRow(r))
-    if (locale) return mapped.map((p) => propertyForLocale(p, locale))
-    return mapped
+    const localized = locale ? mapped.map((p) => propertyForLocale(p, locale)) : mapped
+    return localized.map(propertyForPublic)
   } catch {
     return []
   }
@@ -335,8 +333,8 @@ export async function getLatestPropertiesFromDb(limit: number, locale?: Locale):
       select: PROPERTY_PUBLIC_LIST_SELECT,
     })
     const mapped = rows.map((r) => prismaToPropertyFromListRow(r))
-    if (locale) return mapped.map((p) => propertyForLocale(p, locale))
-    return mapped
+    const localized = locale ? mapped.map((p) => propertyForLocale(p, locale)) : mapped
+    return localized.map(propertyForPublic)
   } catch {
     return []
   }
@@ -354,6 +352,7 @@ export async function getPublishedPropertiesByIds(ids: string[], locale?: Locale
     })
     let mapped = rows.map((r) => prismaToPropertyFromListRow(r))
     if (locale) mapped = mapped.map((p) => propertyForLocale(p, locale))
+    mapped = mapped.map(propertyForPublic)
     const byId = new Map(mapped.map((p) => [p.id, p]))
     return unique.map((id) => byId.get(id)).filter((p): p is Property => p != null)
   } catch {
