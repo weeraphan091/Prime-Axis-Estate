@@ -205,7 +205,8 @@ export const PROPERTY_PUBLIC_LIST_SELECT = {
   bedrooms: true,
   bathrooms: true,
   images: true,
-  features: true,
+  // PropertyCard ไม่ได้แสดง features/tags ในรายการสาธารณะ
+  // ลด payload ด้วยการไม่ดึง features หลายภาษาและ features หลัก
   contactName: true,
   contactPhone: true,
   contactEmail: true,
@@ -230,9 +231,6 @@ export const PROPERTY_PUBLIC_LIST_SELECT = {
   titleEn: true,
   titleZh: true,
   titleRu: true,
-  featuresEn: true,
-  featuresZh: true,
-  featuresRu: true,
   locationEn: true,
   locationZh: true,
   locationRu: true,
