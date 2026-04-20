@@ -77,6 +77,8 @@ export function PropertyCard({ property, locale: localeProp }: { property: Prope
           <img
             src={effectiveSrc}
             alt={imgAlt}
+            loading="lazy"
+            decoding="async"
             className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-300"
             onError={() => setImgError(true)}
           />
@@ -85,6 +87,7 @@ export function PropertyCard({ property, locale: localeProp }: { property: Prope
             src={effectiveSrc}
             alt={imgAlt}
             fill
+            loading="lazy"
             className="object-cover group-hover:scale-105 transition duration-300"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             onError={() => setImgError(true)}

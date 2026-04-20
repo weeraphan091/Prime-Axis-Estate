@@ -30,6 +30,8 @@ export function PropertyImageCarousel({ images, title, locale }: { images: strin
           <img
             src={displayImg}
             alt={`${title} - ${imgLabel} ${currentIndex + 1}`}
+            loading={currentIndex === 0 ? 'eager' : 'lazy'}
+            decoding="async"
             className="w-full h-full object-cover"
             onError={() => setImgError(true)}
           />
@@ -70,9 +72,9 @@ export function PropertyImageCarousel({ images, title, locale }: { images: strin
               }`}
             >
               {!shouldUseNextImage(src) ? (
-                <img src={src} alt={`${title} ${imgLabel} ${i + 1}`} className="w-full h-full object-cover" />
+                <img src={src} alt={`${title} ${imgLabel} ${i + 1}`} loading="lazy" decoding="async" className="w-full h-full object-cover" />
               ) : (
-                <Image src={src} alt={`${title} ${imgLabel} ${i + 1}`} width={64} height={64} className="w-full h-full object-cover" />
+                <Image src={src} alt={`${title} ${imgLabel} ${i + 1}`} width={64} height={64} loading="lazy" className="w-full h-full object-cover" />
               )}
             </button>
           ))}
