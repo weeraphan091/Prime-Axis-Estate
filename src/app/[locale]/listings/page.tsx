@@ -11,7 +11,7 @@ import { buildAlternates } from '@/lib/seo'
 import { SITE_NAME } from '@/config/site'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 
-export const revalidate = 60
+export const dynamic = 'force-dynamic'
 
 type Props = {
   params: Promise<{ locale: string }>
