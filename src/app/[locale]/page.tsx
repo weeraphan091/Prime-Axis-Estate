@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { Suspense } from 'react'
 import { SearchBar } from '@/components/SearchBar'
 import { PropertyCard } from '@/components/PropertyCard'
-import { properties as staticProperties } from '@/data/properties'
 import { pattayaZones, getZoneLabel } from '@/config/zones'
 import { LatestListings } from '@/components/LatestListings'
 import { getFeaturedPropertiesFromDb, getLatestPropertiesFromDb } from '@/lib/property-db'
@@ -51,8 +50,8 @@ export default async function HomePage({ params }: Props) {
     getFeaturedPropertiesFromDb(6, locale as Locale),
     getLatestPropertiesFromDb(6, locale as Locale),
   ])
-  const featured = featuredDb.length > 0 ? featuredDb : staticProperties.filter((p) => p.isFeatured).slice(0, 6)
-  const latestList = latestDb.length > 0 ? latestDb : [...staticProperties].sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1)).slice(0, 6)
+  const featured = featuredDb
+  const latestList = latestDb
   const base = `/${locale}`
 
   return (

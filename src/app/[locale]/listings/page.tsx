@@ -3,7 +3,6 @@ import { Suspense } from 'react'
 import { SearchBar } from '@/components/SearchBar'
 import { ListingsResults } from '@/components/ListingsResults'
 import { getPublishedPropertiesForPublicList, type PropertyListFilters } from '@/lib/property-db'
-import { properties as staticProperties } from '@/data/properties'
 import { getT } from '@/messages'
 import { isValidLocale, type Locale } from '@/config/i18n'
 import { redirect } from 'next/navigation'
@@ -76,8 +75,7 @@ export default async function ListingsPage({ params, searchParams }: Props) {
   const t = getT(locale as Locale)
   const sp = await searchParams
   const filters = parseListingFilters(sp)
-  const dbList = await getPublishedPropertiesForPublicList(filters, locale as Locale, {})
-  const serverProperties = dbList.length > 0 ? dbList : staticProperties
+  const serverProperties = await getPublishedPropertiesForPublicList(filters, locale as Locale, {})
 
   const homeLabel = locale === 'th' ? 'หน้าแรก' : locale === 'en' ? 'Home' : locale === 'zh' ? '首页' : 'Главная'
   const listLabel = locale === 'th' ? 'ค้นหาทรัพย์' : locale === 'en' ? 'Listings' : locale === 'zh' ? '房源列表' : 'Объекты'
